@@ -1,0 +1,35 @@
+# Dependencies
+node_modules
+
+# Builds
+.next
+dist
+build
+
+# Logs
+logs
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Coverage
+coverage
+
+# Turborepo (future)
+.turbo
