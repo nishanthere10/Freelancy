@@ -1,0 +1,25 @@
+{
+  "name": "@repo/database",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Database schemas, migrations, and types for Freelance OS",
+  "type": "module",
+  "scripts": {
+    "db:push": "drizzle-kit push:pg",
+    "db:generate": "drizzle-kit generate:pg",
+    "db:studio": "drizzle-kit studio"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.30.10"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.20.14",
+    "postgres": "^3.4.4",
+    "@types/node": "^20.10.6",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,13 +1,29 @@
 {
-  "name": "Freelance-OS",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "freelance-os",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An open-source freelance management platform",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "clean": "turbo clean && find . -type d -name node_modules -exec rm -rf {} +"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.30.1"
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.3",
+    "turbo": "^2.3.3"
+  },
+  "packageManager": "pnpm@10.30.1",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": "^10.30.1"
+  }
 }
