@@ -35,8 +35,8 @@ export interface WorkspaceMemberResponse {
 export interface CreateWorkspaceInput {
   name: string;
   slug: string;
-  description?: string;
-  logo?: string;
+  description?: string | null;
+  logo?: string | null;
   ownerId: string;
 }
 
@@ -50,7 +50,7 @@ export interface CreateWorkspaceMemberInput {
   workspaceId: string;
   userId: string;
   role?: WorkspaceRole;
-  invitedBy?: string;
+  invitedBy?: string | null;
 }
 
 export interface UpdateWorkspaceMemberInput {
@@ -71,4 +71,30 @@ export interface WorkspaceMemberQueryFilters {
   userId?: string;
   role?: WorkspaceRole;
   excludeDeleted?: boolean;
+}
+
+/**
+ * Service-layer types
+ * Inputs/outputs of WorkspaceService. Validation boundary owns the actorId:
+ * controller derives it from auth; service input stops at workspace fields.
+ */
+export interface CreateWorkspaceServiceInput {
+  name: string;
+  slug: string;
+  description?: string;
+  logo?: string;
+}
+
+export interface AddMemberServiceInput {
+  userId: string;
+  role?: WorkspaceRole;
+}
+
+/**
+ * Workspace paired with the caller's membership — used for listings for the
+ * future workspace switcher.
+ */
+export interface WorkspaceMembershipView {
+  workspace: Workspace;
+  membership: WorkspaceMember;
 }

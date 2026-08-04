@@ -12,7 +12,7 @@ import {
   type WorkspaceMember,
   type WorkspaceRole,
 } from '@repo/database';
-import { eq, and, isNull, ne } from 'drizzle-orm';
+import { eq, and, isNull, isNotNull } from 'drizzle-orm';
 import type {
   CreateWorkspaceInput,
   UpdateWorkspaceInput,
@@ -178,6 +178,34 @@ export class WorkspaceRepository {
   }
 
   /**
+   * Transfer workspace ownership to another user
+   * Deliberately separate from update(): ownerId is never a freely
+   * editable field, and UpdateWorkspaceInput does not allow it.
+   * @param id - Workspace ID
+   * @param newOwnerId - UUID of the new owner
+   * @param updatedBy - UUID of user performing the transfer
+   * @returns The updated workspace
+   * @throws Error if workspace not found or already deleted
+   */
+  async updateOwner(id: string, newOwnerId: string, updatedBy: string): Promise<Workspace> {
+    const [workspace] = await db
+      .update(workspacesTable)
+      .set({
+        ownerId: newOwnerId,
+        updatedAt: new Date(),
+        updatedBy,
+      })
+      .where(and(eq(workspacesTable.id, id), isNull(workspacesTable.deletedAt)))
+      .returning();
+
+    if (!workspace) {
+      throw new Error(`Workspace with ID ${id} not found or already deleted`);
+    }
+
+    return workspace;
+  }
+
+  /**
    * Soft delete workspace
    * @param id - Workspace ID
    * @param deletedBy - UUID of user deleting the workspace
@@ -215,7 +243,7 @@ export class WorkspaceRepository {
         updatedBy: restoredBy,
         updatedAt: new Date(),
       })
-      .where(and(eq(workspacesTable.id, id), ne(workspacesTable.deletedAt, null)))
+      .where(and(eq(workspacesTable.id, id), isNotNull(workspacesTable.deletedAt)))
       .returning();
 
     if (!workspace) {

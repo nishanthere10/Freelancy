@@ -30,11 +30,6 @@ const client = postgres(connectionString, {
   debug: process.env.DEBUG_DB === 'true',
 });
 
-// Handle connection errors
-client.on('error', (err) => {
-  console.error('Database connection error:', err);
-});
-
 // Create drizzle instance with schema
 export const db = drizzle(client, { schema });
 

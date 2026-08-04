@@ -7,7 +7,8 @@
   "scripts": {
     "db:push": "drizzle-kit push:pg",
     "db:generate": "drizzle-kit generate:pg",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "typecheck": "tsc --noEmit"
   },
   "exports": {
     ".": "./src/index.ts",

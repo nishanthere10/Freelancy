@@ -40,10 +40,10 @@ export const workspacesTable = pgTable(
     updatedBy: uuid('updated_by'),
     deletedAt: timestamp('deleted_at', { withTimezone: true }), // Soft delete
   },
-  (table) => [
-    index('idx_workspace_owner_id').on(table.ownerId),
-    index('idx_workspace_slug').on(table.slug),
-  ]
+  (table) => ({
+    ownerIdx: index('idx_workspace_owner_id').on(table.ownerId),
+    slugIdx: index('idx_workspace_slug').on(table.slug),
+  })
 );
 
 /**
@@ -67,10 +67,10 @@ export const workspaceMembersTable = pgTable(
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
     deletedAt: timestamp('deleted_at', { withTimezone: true }), // Soft delete
   },
-  (table) => [
-    index('idx_workspace_members_workspace_id').on(table.workspaceId),
-    index('idx_workspace_members_user_id').on(table.userId),
-  ]
+  (table) => ({
+    workspaceIdIdx: index('idx_workspace_members_workspace_id').on(table.workspaceId),
+    userIdIdx: index('idx_workspace_members_user_id').on(table.userId),
+  })
 );
 
 // Infer types from schema
