@@ -9,46 +9,49 @@
  * allowing tests to provide fakes without touching persistence.
  */
 
-import type { Workspace, WorkspaceMember, WorkspaceRole } from '@repo/database';
+import type { Workspace, WorkspaceMember, WorkspaceRole } from "@repo/database";
+import { WorkspaceMemberRepository, WorkspaceRepository } from "./repository";
 import {
-  type WorkspaceDomainError,
-  WorkspaceNotFoundError,
   WorkspaceAlreadyExistsError,
   WorkspaceDeletedError,
-  WorkspaceNotDeletedError,
-  WorkspacePermissionDeniedError,
-  WorkspaceOwnershipTransferError,
-  WorkspaceOwnerRequiredError,
+  type WorkspaceDomainError,
+  WorkspaceInternalError,
   WorkspaceMemberNotFoundError,
   WorkspaceMembershipExistsError,
+  WorkspaceNotDeletedError,
+  WorkspaceNotFoundError,
+  WorkspaceOwnerRequiredError,
+  WorkspaceOwnershipTransferError,
+  WorkspacePermissionDeniedError,
   WorkspaceValidationError,
-  WorkspaceInternalError,
   isWorkspaceDomainError,
-} from './workspace.errors';
-import type { IWorkspaceEventEmitter, WorkspaceDomainEvent } from './workspace.events';
+} from "./workspace.errors";
+import type {
+  IWorkspaceEventEmitter,
+  WorkspaceDomainEvent,
+} from "./workspace.events";
 import {
+  NullWorkspaceEventEmitter,
   workspaceCreated,
-  workspaceUpdated,
   workspaceDeleted,
-  workspaceRestored,
-  workspaceOwnershipTransferred,
   workspaceMemberAdded,
   workspaceMemberRemoved,
   workspaceMemberRoleChanged,
-  NullWorkspaceEventEmitter,
-} from './workspace.events';
-import * as policies from './workspace.policies';
+  workspaceOwnershipTransferred,
+  workspaceRestored,
+  workspaceUpdated,
+} from "./workspace.events";
+import * as policies from "./workspace.policies";
 import {
-  WorkspaceRepository,
-  WorkspaceMemberRepository,
-} from './repository';
+  createWorkspaceSchema,
+  updateWorkspaceSchema,
+} from "./workspace.schema";
 import type {
   CreateWorkspaceInput,
-  UpdateWorkspaceInput,
   CreateWorkspaceMemberInput,
+  UpdateWorkspaceInput,
   UpdateWorkspaceMemberInput,
-} from './workspace.types';
-import { createWorkspaceSchema, updateWorkspaceSchema } from './workspace.schema';
+} from "./workspace.types";
 
 /**
  * Result<T>: discriminated union for explicit error handling.
@@ -77,7 +80,7 @@ export class WorkspaceService {
   constructor(
     private workspaceRepo: WorkspaceRepository = new WorkspaceRepository(),
     private memberRepo: WorkspaceMemberRepository = new WorkspaceMemberRepository(),
-    private eventEmitter: IWorkspaceEventEmitter = new NullWorkspaceEventEmitter()
+    private eventEmitter: IWorkspaceEventEmitter = new NullWorkspaceEventEmitter(),
   ) {}
 
   /**
@@ -92,19 +95,26 @@ export class WorkspaceService {
    */
   async createWorkspace(
     input: CreateWorkspaceInput,
-    actorId: string
+    actorId: string,
   ): Promise<Result<Workspace>> {
     // Validate input
     const validation = createWorkspaceSchema.safeParse(input);
     if (!validation.success) {
-      return err(WorkspaceValidationError.fromZodIssues(validation.error.issues));
+      return err(
+        WorkspaceValidationError.fromZodIssues(validation.error.issues),
+      );
     }
 
     // Check policy
     const canCreate = policies.canCreateWorkspace();
     if (!canCreate.allowed) {
       return err(
-        new WorkspacePermissionDeniedError('create_workspace', actorId, 'N/A', canCreate.reason)
+        new WorkspacePermissionDeniedError(
+          "create_workspace",
+          actorId,
+          "N/A",
+          canCreate.reason,
+        ),
       );
     }
 
@@ -122,7 +132,7 @@ export class WorkspaceService {
       await this.memberRepo.create({
         workspaceId: workspace.id,
         userId: actorId,
-        role: 'owner',
+        role: "owner",
         invitedBy: undefined,
       });
 
@@ -135,15 +145,18 @@ export class WorkspaceService {
           slug: workspace.slug,
           description: workspace.description,
           ownerId: actorId,
-        })
+        }),
       );
 
       return ok(workspace);
     } catch (cause) {
-      if (cause instanceof Error && cause.message.includes('slug already exists')) {
+      if (
+        cause instanceof Error &&
+        cause.message.includes("slug already exists")
+      ) {
         return err(new WorkspaceAlreadyExistsError(validation.data.slug));
       }
-      return err(new WorkspaceInternalError('create_workspace', cause));
+      return err(new WorkspaceInternalError("create_workspace", cause));
     }
   }
 
@@ -153,7 +166,10 @@ export class WorkspaceService {
    * Checks: membership (can only read if member)
    * Returns: Workspace if found and accessible
    */
-  async getWorkspace(workspaceId: string, actorId: string): Promise<Result<Workspace>> {
+  async getWorkspace(
+    workspaceId: string,
+    actorId: string,
+  ): Promise<Result<Workspace>> {
     try {
       const workspace = await this.workspaceRepo.getById(workspaceId);
       if (!workspace) {
@@ -161,20 +177,28 @@ export class WorkspaceService {
       }
 
       if (policies.isWorkspaceDeleted(workspace)) {
-        return err(new WorkspaceDeletedError(workspaceId, 'read'));
+        return err(new WorkspaceDeletedError(workspaceId, "read"));
       }
 
-      const membership = await this.memberRepo.getByWorkspaceAndUser(workspaceId, actorId);
+      const membership = await this.memberRepo.getByWorkspaceAndUser(
+        workspaceId,
+        actorId,
+      );
       const canView = policies.canViewWorkspace(membership);
       if (!canView.allowed) {
         return err(
-          new WorkspacePermissionDeniedError('view_workspace', actorId, workspaceId, canView.reason)
+          new WorkspacePermissionDeniedError(
+            "view_workspace",
+            actorId,
+            workspaceId,
+            canView.reason,
+          ),
         );
       }
 
       return ok(workspace);
     } catch (cause) {
-      return err(new WorkspaceInternalError('get_workspace', cause));
+      return err(new WorkspaceInternalError("get_workspace", cause));
     }
   }
 
@@ -183,9 +207,7 @@ export class WorkspaceService {
    *
    * Returns: Array of {workspace, role} tuples where user is a member
    */
-  async listUserWorkspaces(
-    actorId: string
-  ): Promise<
+  async listUserWorkspaces(actorId: string): Promise<
     Result<
       Array<{
         readonly workspace: Workspace;
@@ -198,7 +220,9 @@ export class WorkspaceService {
       const result: Array<{ workspace: Workspace; role: WorkspaceRole }> = [];
 
       for (const membership of memberships) {
-        const workspace = await this.workspaceRepo.getById(membership.workspaceId);
+        const workspace = await this.workspaceRepo.getById(
+          membership.workspaceId,
+        );
         if (workspace && !policies.isWorkspaceDeleted(workspace)) {
           result.push({
             workspace,
@@ -209,7 +233,7 @@ export class WorkspaceService {
 
       return ok(result);
     } catch (cause) {
-      return err(new WorkspaceInternalError('list_user_workspaces', cause));
+      return err(new WorkspaceInternalError("list_user_workspaces", cause));
     }
   }
 
@@ -222,12 +246,14 @@ export class WorkspaceService {
   async updateWorkspace(
     workspaceId: string,
     input: UpdateWorkspaceInput,
-    actorId: string
+    actorId: string,
   ): Promise<Result<Workspace>> {
     // Validate input
     const validation = updateWorkspaceSchema.safeParse(input);
     if (!validation.success) {
-      return err(WorkspaceValidationError.fromZodIssues(validation.error.issues));
+      return err(
+        WorkspaceValidationError.fromZodIssues(validation.error.issues),
+      );
     }
 
     try {
@@ -237,39 +263,48 @@ export class WorkspaceService {
       }
 
       if (policies.isWorkspaceDeleted(workspace)) {
-        return err(new WorkspaceDeletedError(workspaceId, 'update'));
+        return err(new WorkspaceDeletedError(workspaceId, "update"));
       }
 
-      const membership = await this.memberRepo.getByWorkspaceAndUser(workspaceId, actorId);
+      const membership = await this.memberRepo.getByWorkspaceAndUser(
+        workspaceId,
+        actorId,
+      );
       const canUpdate = policies.canUpdateWorkspace(membership);
       if (!canUpdate.allowed) {
         return err(
           new WorkspacePermissionDeniedError(
-            'update_workspace',
+            "update_workspace",
             actorId,
             workspaceId,
-            canUpdate.reason
-          )
+            canUpdate.reason,
+          ),
         );
       }
 
       // Track changed fields for event
-      const changedFields: ('name' | 'description' | 'logo')[] = [];
+      const changedFields: ("name" | "description" | "logo")[] = [];
       const previousValues: Record<string, any> = {};
 
-      if (validation.data.name !== undefined && validation.data.name !== workspace.name) {
-        changedFields.push('name');
+      if (
+        validation.data.name !== undefined &&
+        validation.data.name !== workspace.name
+      ) {
+        changedFields.push("name");
         previousValues.name = workspace.name;
       }
       if (
         validation.data.description !== undefined &&
         validation.data.description !== workspace.description
       ) {
-        changedFields.push('description');
+        changedFields.push("description");
         previousValues.description = workspace.description;
       }
-      if (validation.data.logo !== undefined && validation.data.logo !== workspace.logo) {
-        changedFields.push('logo');
+      if (
+        validation.data.logo !== undefined &&
+        validation.data.logo !== workspace.logo
+      ) {
+        changedFields.push("logo");
         previousValues.logo = workspace.logo;
       }
 
@@ -281,7 +316,7 @@ export class WorkspaceService {
       const updated = await this.workspaceRepo.update(
         workspaceId,
         validation.data,
-        actorId
+        actorId,
       );
 
       this.eventEmitter.emit(
@@ -290,12 +325,12 @@ export class WorkspaceService {
           actorId,
           changedFields: changedFields as any,
           previousValues,
-        })
+        }),
       );
 
       return ok(updated);
     } catch (cause) {
-      return err(new WorkspaceInternalError('update_workspace', cause));
+      return err(new WorkspaceInternalError("update_workspace", cause));
     }
   }
 
@@ -305,7 +340,10 @@ export class WorkspaceService {
    * Checks: actor is owner
    * Returns: Deleted workspace
    */
-  async deleteWorkspace(workspaceId: string, actorId: string): Promise<Result<Workspace>> {
+  async deleteWorkspace(
+    workspaceId: string,
+    actorId: string,
+  ): Promise<Result<Workspace>> {
     try {
       const workspace = await this.workspaceRepo.getById(workspaceId);
       if (!workspace) {
@@ -313,19 +351,22 @@ export class WorkspaceService {
       }
 
       if (policies.isWorkspaceDeleted(workspace)) {
-        return err(new WorkspaceDeletedError(workspaceId, 'delete'));
+        return err(new WorkspaceDeletedError(workspaceId, "delete"));
       }
 
-      const membership = await this.memberRepo.getByWorkspaceAndUser(workspaceId, actorId);
+      const membership = await this.memberRepo.getByWorkspaceAndUser(
+        workspaceId,
+        actorId,
+      );
       const canDelete = policies.canDeleteWorkspace(membership);
       if (!canDelete.allowed) {
         return err(
           new WorkspacePermissionDeniedError(
-            'delete_workspace',
+            "delete_workspace",
             actorId,
             workspaceId,
-            canDelete.reason
-          )
+            canDelete.reason,
+          ),
         );
       }
 
@@ -337,12 +378,12 @@ export class WorkspaceService {
           actorId,
           name: workspace.name,
           slug: workspace.slug,
-        })
+        }),
       );
 
       return ok(deleted);
     } catch (cause) {
-      return err(new WorkspaceInternalError('delete_workspace', cause));
+      return err(new WorkspaceInternalError("delete_workspace", cause));
     }
   }
 
@@ -352,9 +393,14 @@ export class WorkspaceService {
    * Checks: actor is owner (or was before deletion)
    * Returns: Restored workspace
    */
-  async restoreWorkspace(workspaceId: string, actorId: string): Promise<Result<Workspace>> {
+  async restoreWorkspace(
+    workspaceId: string,
+    actorId: string,
+  ): Promise<Result<Workspace>> {
     try {
-      const workspace = await this.workspaceRepo.getById(workspaceId, { includeDeleted: true });
+      const workspace = await this.workspaceRepo.getById(workspaceId, {
+        includeDeleted: true,
+      });
       if (!workspace) {
         return err(new WorkspaceNotFoundError(workspaceId));
       }
@@ -365,18 +411,22 @@ export class WorkspaceService {
 
       // Note: membership may be soft-deleted too. For MVP, allow original owner to restore.
       // Future: require membership to be active or add explicit restore permission.
-      const membership = await this.memberRepo.getByWorkspaceAndUser(workspaceId, actorId, {
-        includeDeleted: true,
-      });
+      const membership = await this.memberRepo.getByWorkspaceAndUser(
+        workspaceId,
+        actorId,
+        {
+          includeDeleted: true,
+        },
+      );
       const canRestore = policies.canRestoreWorkspace(membership);
       if (!canRestore.allowed) {
         return err(
           new WorkspacePermissionDeniedError(
-            'restore_workspace',
+            "restore_workspace",
             actorId,
             workspaceId,
-            canRestore.reason
-          )
+            canRestore.reason,
+          ),
         );
       }
 
@@ -388,12 +438,12 @@ export class WorkspaceService {
           actorId,
           name: workspace.name,
           slug: workspace.slug,
-        })
+        }),
       );
 
       return ok(restored);
     } catch (cause) {
-      return err(new WorkspaceInternalError('restore_workspace', cause));
+      return err(new WorkspaceInternalError("restore_workspace", cause));
     }
   }
 
@@ -409,7 +459,7 @@ export class WorkspaceService {
   async transferOwnership(
     workspaceId: string,
     targetUserId: string,
-    actorId: string
+    actorId: string,
   ): Promise<Result<Workspace>> {
     try {
       const workspace = await this.workspaceRepo.getById(workspaceId);
@@ -418,13 +468,18 @@ export class WorkspaceService {
       }
 
       if (policies.isWorkspaceDeleted(workspace)) {
-        return err(new WorkspaceDeletedError(workspaceId, 'transfer_ownership'));
+        return err(
+          new WorkspaceDeletedError(workspaceId, "transfer_ownership"),
+        );
       }
 
-      const actorMembership = await this.memberRepo.getByWorkspaceAndUser(workspaceId, actorId);
+      const actorMembership = await this.memberRepo.getByWorkspaceAndUser(
+        workspaceId,
+        actorId,
+      );
       const targetMembership = await this.memberRepo.getByWorkspaceAndUser(
         workspaceId,
-        targetUserId
+        targetUserId,
       );
 
       const canTransfer = policies.canTransferOwnership({
@@ -435,14 +490,14 @@ export class WorkspaceService {
       });
       if (!canTransfer.allowed) {
         return err(
-          new WorkspaceOwnershipTransferError(workspaceId, canTransfer.reason)
+          new WorkspaceOwnershipTransferError(workspaceId, canTransfer.reason),
         );
       }
 
       const updated = await this.workspaceRepo.updateOwner(
         workspaceId,
         targetUserId,
-        actorId
+        actorId,
       );
 
       this.eventEmitter.emit(
@@ -451,12 +506,12 @@ export class WorkspaceService {
           actorId,
           previousOwnerId: workspace.ownerId,
           newOwnerId: targetUserId,
-        })
+        }),
       );
 
       return ok(updated);
     } catch (cause) {
-      return err(new WorkspaceInternalError('transfer_ownership', cause));
+      return err(new WorkspaceInternalError("transfer_ownership", cause));
     }
   }
 
@@ -469,8 +524,8 @@ export class WorkspaceService {
   async addMember(
     workspaceId: string,
     userId: string,
-    role: WorkspaceRole = 'viewer',
-    actorId: string
+    role: WorkspaceRole = "viewer",
+    actorId: string,
   ): Promise<Result<WorkspaceMember>> {
     try {
       const workspace = await this.workspaceRepo.getById(workspaceId);
@@ -479,24 +534,30 @@ export class WorkspaceService {
       }
 
       if (policies.isWorkspaceDeleted(workspace)) {
-        return err(new WorkspaceDeletedError(workspaceId, 'add_member'));
+        return err(new WorkspaceDeletedError(workspaceId, "add_member"));
       }
 
-      const membership = await this.memberRepo.getByWorkspaceAndUser(workspaceId, actorId);
+      const membership = await this.memberRepo.getByWorkspaceAndUser(
+        workspaceId,
+        actorId,
+      );
       const canInvite = policies.canInviteMembers(membership);
       if (!canInvite.allowed) {
         return err(
           new WorkspacePermissionDeniedError(
-            'add_member',
+            "add_member",
             actorId,
             workspaceId,
-            canInvite.reason
-          )
+            canInvite.reason,
+          ),
         );
       }
 
       // Check if user is already a member
-      const existing = await this.memberRepo.getByWorkspaceAndUser(workspaceId, userId);
+      const existing = await this.memberRepo.getByWorkspaceAndUser(
+        workspaceId,
+        userId,
+      );
       if (existing) {
         return err(new WorkspaceMembershipExistsError(workspaceId, userId));
       }
@@ -515,15 +576,18 @@ export class WorkspaceService {
           userId,
           role,
           invitedBy: actorId,
-        })
+        }),
       );
 
       return ok(member);
     } catch (cause) {
-      if (cause instanceof Error && cause.message.includes('already a member')) {
+      if (
+        cause instanceof Error &&
+        cause.message.includes("already a member")
+      ) {
         return err(new WorkspaceMembershipExistsError(workspaceId, userId));
       }
-      return err(new WorkspaceInternalError('add_member', cause));
+      return err(new WorkspaceInternalError("add_member", cause));
     }
   }
 
@@ -539,7 +603,7 @@ export class WorkspaceService {
   async removeMember(
     workspaceId: string,
     userId: string,
-    actorId: string
+    actorId: string,
   ): Promise<Result<WorkspaceMember>> {
     try {
       const workspace = await this.workspaceRepo.getById(workspaceId);
@@ -548,15 +612,21 @@ export class WorkspaceService {
       }
 
       if (policies.isWorkspaceDeleted(workspace)) {
-        return err(new WorkspaceDeletedError(workspaceId, 'remove_member'));
+        return err(new WorkspaceDeletedError(workspaceId, "remove_member"));
       }
 
-      const actorMembership = await this.memberRepo.getByWorkspaceAndUser(workspaceId, actorId);
-      const targetMembership = await this.memberRepo.getByWorkspaceAndUser(workspaceId, userId);
+      const actorMembership = await this.memberRepo.getByWorkspaceAndUser(
+        workspaceId,
+        actorId,
+      );
+      const targetMembership = await this.memberRepo.getByWorkspaceAndUser(
+        workspaceId,
+        userId,
+      );
       const activeOwnerCount = (
         await this.memberRepo.list({
           workspaceId,
-          role: 'owner',
+          role: "owner",
           excludeDeleted: true,
         })
       ).length;
@@ -569,11 +639,11 @@ export class WorkspaceService {
       if (!canRemove.allowed) {
         return err(
           new WorkspacePermissionDeniedError(
-            'remove_member',
+            "remove_member",
             actorId,
             workspaceId,
-            canRemove.reason
-          )
+            canRemove.reason,
+          ),
         );
       }
 
@@ -590,12 +660,12 @@ export class WorkspaceService {
           userId,
           role: targetMembership.role,
           selfRemoved: false,
-        })
+        }),
       );
 
       return ok(removed);
     } catch (cause) {
-      return err(new WorkspaceInternalError('remove_member', cause));
+      return err(new WorkspaceInternalError("remove_member", cause));
     }
   }
 
@@ -605,7 +675,10 @@ export class WorkspaceService {
    * Checks: actor is member AND not the last owner
    * Returns: Removed membership record
    */
-  async leaveWorkspace(workspaceId: string, actorId: string): Promise<Result<WorkspaceMember>> {
+  async leaveWorkspace(
+    workspaceId: string,
+    actorId: string,
+  ): Promise<Result<WorkspaceMember>> {
     try {
       const workspace = await this.workspaceRepo.getById(workspaceId);
       if (!workspace) {
@@ -613,14 +686,17 @@ export class WorkspaceService {
       }
 
       if (policies.isWorkspaceDeleted(workspace)) {
-        return err(new WorkspaceDeletedError(workspaceId, 'leave'));
+        return err(new WorkspaceDeletedError(workspaceId, "leave"));
       }
 
-      const actorMembership = await this.memberRepo.getByWorkspaceAndUser(workspaceId, actorId);
+      const actorMembership = await this.memberRepo.getByWorkspaceAndUser(
+        workspaceId,
+        actorId,
+      );
       const activeOwnerCount = (
         await this.memberRepo.list({
           workspaceId,
-          role: 'owner',
+          role: "owner",
           excludeDeleted: true,
         })
       ).length;
@@ -632,11 +708,11 @@ export class WorkspaceService {
       if (!canLeave.allowed) {
         return err(
           new WorkspacePermissionDeniedError(
-            'leave_workspace',
+            "leave_workspace",
             actorId,
             workspaceId,
-            canLeave.reason
-          )
+            canLeave.reason,
+          ),
         );
       }
 
@@ -653,12 +729,12 @@ export class WorkspaceService {
           userId: actorId,
           role: actorMembership.role,
           selfRemoved: true,
-        })
+        }),
       );
 
       return ok(removed);
     } catch (cause) {
-      return err(new WorkspaceInternalError('leave_workspace', cause));
+      return err(new WorkspaceInternalError("leave_workspace", cause));
     }
   }
 
@@ -676,7 +752,7 @@ export class WorkspaceService {
     workspaceId: string,
     userId: string,
     newRole: WorkspaceRole,
-    actorId: string
+    actorId: string,
   ): Promise<Result<WorkspaceMember>> {
     try {
       const workspace = await this.workspaceRepo.getById(workspaceId);
@@ -685,11 +761,19 @@ export class WorkspaceService {
       }
 
       if (policies.isWorkspaceDeleted(workspace)) {
-        return err(new WorkspaceDeletedError(workspaceId, 'change_member_role'));
+        return err(
+          new WorkspaceDeletedError(workspaceId, "change_member_role"),
+        );
       }
 
-      const actorMembership = await this.memberRepo.getByWorkspaceAndUser(workspaceId, actorId);
-      const targetMembership = await this.memberRepo.getByWorkspaceAndUser(workspaceId, userId);
+      const actorMembership = await this.memberRepo.getByWorkspaceAndUser(
+        workspaceId,
+        actorId,
+      );
+      const targetMembership = await this.memberRepo.getByWorkspaceAndUser(
+        workspaceId,
+        userId,
+      );
 
       const canChange = policies.canChangeMemberRole({
         actorMembership,
@@ -699,11 +783,11 @@ export class WorkspaceService {
       if (!canChange.allowed) {
         return err(
           new WorkspacePermissionDeniedError(
-            'change_member_role',
+            "change_member_role",
             actorId,
             workspaceId,
-            canChange.reason
-          )
+            canChange.reason,
+          ),
         );
       }
 
@@ -711,7 +795,9 @@ export class WorkspaceService {
         return err(new WorkspaceMemberNotFoundError(workspaceId, userId));
       }
 
-      const updated = await this.memberRepo.update(targetMembership.id, { role: newRole });
+      const updated = await this.memberRepo.update(targetMembership.id, {
+        role: newRole,
+      });
 
       this.eventEmitter.emit(
         workspaceMemberRoleChanged({
@@ -720,12 +806,12 @@ export class WorkspaceService {
           userId,
           previousRole: targetMembership.role,
           newRole,
-        })
+        }),
       );
 
       return ok(updated);
     } catch (cause) {
-      return err(new WorkspaceInternalError('change_member_role', cause));
+      return err(new WorkspaceInternalError("change_member_role", cause));
     }
   }
 }

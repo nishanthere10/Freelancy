@@ -3,7 +3,7 @@
  * Types inferred from Drizzle schema
  */
 
-import type { Workspace, WorkspaceMember, WorkspaceRole } from '@repo/database';
+import type { Workspace, WorkspaceMember, WorkspaceRole } from "@repo/database";
 
 /**
  * API response types

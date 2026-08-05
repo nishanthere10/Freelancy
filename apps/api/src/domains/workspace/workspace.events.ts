@@ -8,20 +8,20 @@
  * concern (see TODO markers).
  */
 
-import type { WorkspaceRole } from '@repo/database';
+import type { WorkspaceRole } from "@repo/database";
 
 /**
  * Discriminator for all workspace domain events.
  */
 export type WorkspaceEventType =
-  | 'workspace.created'
-  | 'workspace.updated'
-  | 'workspace.deleted'
-  | 'workspace.restored'
-  | 'workspace.ownership_transferred'
-  | 'workspace.member_added'
-  | 'workspace.member_removed'
-  | 'workspace.member_role_changed';
+  | "workspace.created"
+  | "workspace.updated"
+  | "workspace.deleted"
+  | "workspace.restored"
+  | "workspace.ownership_transferred"
+  | "workspace.member_added"
+  | "workspace.member_removed"
+  | "workspace.member_role_changed";
 
 /**
  * Common metadata carried by every domain event.
@@ -45,13 +45,13 @@ export interface WorkspaceCreatedPayload {
 }
 
 export interface WorkspaceCreatedEvent extends WorkspaceDomainEventBase {
-  readonly type: 'workspace.created';
+  readonly type: "workspace.created";
   readonly payload: WorkspaceCreatedPayload;
 }
 
 export interface WorkspaceUpdatedPayload {
   /** Names of fields that actually changed */
-  readonly changedFields: readonly ('name' | 'description' | 'logo')[];
+  readonly changedFields: readonly ("name" | "description" | "logo")[];
   readonly previousValues: {
     readonly name?: string;
     readonly description?: string | null;
@@ -60,7 +60,7 @@ export interface WorkspaceUpdatedPayload {
 }
 
 export interface WorkspaceUpdatedEvent extends WorkspaceDomainEventBase {
-  readonly type: 'workspace.updated';
+  readonly type: "workspace.updated";
   readonly payload: WorkspaceUpdatedPayload;
 }
 
@@ -70,14 +70,14 @@ export interface WorkspaceDeletedPayload {
 }
 
 export interface WorkspaceDeletedEvent extends WorkspaceDomainEventBase {
-  readonly type: 'workspace.deleted';
+  readonly type: "workspace.deleted";
   readonly payload: WorkspaceDeletedPayload;
 }
 
 export type WorkspaceRestoredPayload = WorkspaceDeletedPayload;
 
 export interface WorkspaceRestoredEvent extends WorkspaceDomainEventBase {
-  readonly type: 'workspace.restored';
+  readonly type: "workspace.restored";
   readonly payload: WorkspaceRestoredPayload;
 }
 
@@ -86,8 +86,9 @@ export interface WorkspaceOwnershipTransferredPayload {
   readonly newOwnerId: string;
 }
 
-export interface WorkspaceOwnershipTransferredEvent extends WorkspaceDomainEventBase {
-  readonly type: 'workspace.ownership_transferred';
+export interface WorkspaceOwnershipTransferredEvent
+  extends WorkspaceDomainEventBase {
+  readonly type: "workspace.ownership_transferred";
   readonly payload: WorkspaceOwnershipTransferredPayload;
 }
 
@@ -98,7 +99,7 @@ export interface WorkspaceMemberAddedPayload {
 }
 
 export interface WorkspaceMemberAddedEvent extends WorkspaceDomainEventBase {
-  readonly type: 'workspace.member_added';
+  readonly type: "workspace.member_added";
   readonly payload: WorkspaceMemberAddedPayload;
 }
 
@@ -110,7 +111,7 @@ export interface WorkspaceMemberRemovedPayload {
 }
 
 export interface WorkspaceMemberRemovedEvent extends WorkspaceDomainEventBase {
-  readonly type: 'workspace.member_removed';
+  readonly type: "workspace.member_removed";
   readonly payload: WorkspaceMemberRemovedPayload;
 }
 
@@ -120,8 +121,9 @@ export interface WorkspaceMemberRoleChangedPayload {
   readonly newRole: WorkspaceRole;
 }
 
-export interface WorkspaceMemberRoleChangedEvent extends WorkspaceDomainEventBase {
-  readonly type: 'workspace.member_role_changed';
+export interface WorkspaceMemberRoleChangedEvent
+  extends WorkspaceDomainEventBase {
+  readonly type: "workspace.member_role_changed";
   readonly payload: WorkspaceMemberRoleChangedPayload;
 }
 
@@ -140,8 +142,8 @@ export type WorkspaceDomainEvent =
 
 function baseMetadata(
   workspaceId: string,
-  actorId: string
-): Pick<WorkspaceDomainEventBase, 'workspaceId' | 'actorId' | 'occurredAt'> {
+  actorId: string,
+): Pick<WorkspaceDomainEventBase, "workspaceId" | "actorId" | "occurredAt"> {
   return {
     workspaceId,
     actorId,
@@ -158,7 +160,7 @@ export function workspaceCreated(input: {
   ownerId: string;
 }): WorkspaceCreatedEvent {
   return {
-    type: 'workspace.created',
+    type: "workspace.created",
     ...baseMetadata(input.workspaceId, input.actorId),
     payload: {
       name: input.name,
@@ -172,11 +174,11 @@ export function workspaceCreated(input: {
 export function workspaceUpdated(input: {
   workspaceId: string;
   actorId: string;
-  changedFields: WorkspaceUpdatedPayload['changedFields'];
-  previousValues: WorkspaceUpdatedPayload['previousValues'];
+  changedFields: WorkspaceUpdatedPayload["changedFields"];
+  previousValues: WorkspaceUpdatedPayload["previousValues"];
 }): WorkspaceUpdatedEvent {
   return {
-    type: 'workspace.updated',
+    type: "workspace.updated",
     ...baseMetadata(input.workspaceId, input.actorId),
     payload: {
       changedFields: input.changedFields,
@@ -192,7 +194,7 @@ export function workspaceDeleted(input: {
   slug: string;
 }): WorkspaceDeletedEvent {
   return {
-    type: 'workspace.deleted',
+    type: "workspace.deleted",
     ...baseMetadata(input.workspaceId, input.actorId),
     payload: { name: input.name, slug: input.slug },
   };
@@ -205,7 +207,7 @@ export function workspaceRestored(input: {
   slug: string;
 }): WorkspaceRestoredEvent {
   return {
-    type: 'workspace.restored',
+    type: "workspace.restored",
     ...baseMetadata(input.workspaceId, input.actorId),
     payload: { name: input.name, slug: input.slug },
   };
@@ -218,7 +220,7 @@ export function workspaceOwnershipTransferred(input: {
   newOwnerId: string;
 }): WorkspaceOwnershipTransferredEvent {
   return {
-    type: 'workspace.ownership_transferred',
+    type: "workspace.ownership_transferred",
     ...baseMetadata(input.workspaceId, input.actorId),
     payload: {
       previousOwnerId: input.previousOwnerId,
@@ -235,7 +237,7 @@ export function workspaceMemberAdded(input: {
   invitedBy: string | null;
 }): WorkspaceMemberAddedEvent {
   return {
-    type: 'workspace.member_added',
+    type: "workspace.member_added",
     ...baseMetadata(input.workspaceId, input.actorId),
     payload: {
       userId: input.userId,
@@ -253,7 +255,7 @@ export function workspaceMemberRemoved(input: {
   selfRemoved: boolean;
 }): WorkspaceMemberRemovedEvent {
   return {
-    type: 'workspace.member_removed',
+    type: "workspace.member_removed",
     ...baseMetadata(input.workspaceId, input.actorId),
     payload: {
       userId: input.userId,
@@ -271,7 +273,7 @@ export function workspaceMemberRoleChanged(input: {
   newRole: WorkspaceRole;
 }): WorkspaceMemberRoleChangedEvent {
   return {
-    type: 'workspace.member_role_changed',
+    type: "workspace.member_role_changed",
     ...baseMetadata(input.workspaceId, input.actorId),
     payload: {
       userId: input.userId,

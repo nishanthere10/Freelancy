@@ -4,23 +4,23 @@
  * Handles all database queries using Drizzle ORM
  */
 
-import { db } from '@/db/client';
+import { db } from "@/db/client";
 import {
-  workspacesTable,
-  workspaceMembersTable,
   type Workspace,
   type WorkspaceMember,
   type WorkspaceRole,
-} from '@repo/database';
-import { eq, and, isNull, isNotNull } from 'drizzle-orm';
+  workspaceMembersTable,
+  workspacesTable,
+} from "@repo/database";
+import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import type {
   CreateWorkspaceInput,
-  UpdateWorkspaceInput,
   CreateWorkspaceMemberInput,
+  UpdateWorkspaceInput,
   UpdateWorkspaceMemberInput,
-  WorkspaceQueryFilters,
   WorkspaceMemberQueryFilters,
-} from './workspace.types';
+  WorkspaceQueryFilters,
+} from "./workspace.types";
 
 /**
  * Workspace Repository
@@ -36,13 +36,13 @@ export class WorkspaceRepository {
   async create(data: CreateWorkspaceInput): Promise<Workspace> {
     // Validate required fields before database operation
     if (!data.name || data.name.trim().length === 0) {
-      throw new Error('Workspace name cannot be empty');
+      throw new Error("Workspace name cannot be empty");
     }
     if (!data.slug || data.slug.trim().length === 0) {
-      throw new Error('Workspace slug cannot be empty');
+      throw new Error("Workspace slug cannot be empty");
     }
     if (!data.ownerId) {
-      throw new Error('Owner ID is required');
+      throw new Error("Owner ID is required");
     }
 
     try {
@@ -60,14 +60,17 @@ export class WorkspaceRepository {
         .returning();
 
       if (!workspace) {
-        throw new Error('Failed to create workspace');
+        throw new Error("Failed to create workspace");
       }
 
       return workspace;
     } catch (error: any) {
       // Handle unique constraint violation
-      if (error.code === '23505' && error.constraint === 'workspaces_slug_key') {
-        throw new Error('A workspace with this slug already exists');
+      if (
+        error.code === "23505" &&
+        error.constraint === "workspaces_slug_key"
+      ) {
+        throw new Error("A workspace with this slug already exists");
       }
       throw error;
     }
@@ -79,7 +82,10 @@ export class WorkspaceRepository {
    * @param options - Query options
    * @returns The workspace or null if not found
    */
-  async getById(id: string, options?: { includeDeleted?: boolean }): Promise<Workspace | null> {
+  async getById(
+    id: string,
+    options?: { includeDeleted?: boolean },
+  ): Promise<Workspace | null> {
     const conditions = [eq(workspacesTable.id, id)];
 
     if (!options?.includeDeleted) {
@@ -100,7 +106,10 @@ export class WorkspaceRepository {
    * @param options - Query options
    * @returns The workspace or null if not found
    */
-  async getBySlug(slug: string, options?: { includeDeleted?: boolean }): Promise<Workspace | null> {
+  async getBySlug(
+    slug: string,
+    options?: { includeDeleted?: boolean },
+  ): Promise<Workspace | null> {
     const conditions = [eq(workspacesTable.slug, slug)];
 
     if (!options?.includeDeleted) {
@@ -146,7 +155,11 @@ export class WorkspaceRepository {
    * @returns The updated workspace
    * @throws Error if workspace not found or already deleted
    */
-  async update(id: string, data: UpdateWorkspaceInput, updatedBy: string): Promise<Workspace> {
+  async update(
+    id: string,
+    data: UpdateWorkspaceInput,
+    updatedBy: string,
+  ): Promise<Workspace> {
     // Build update object only with provided fields to avoid setting undefined
     const updateData: Partial<typeof workspacesTable.$inferInsert> = {
       updatedAt: new Date(),
@@ -187,7 +200,11 @@ export class WorkspaceRepository {
    * @returns The updated workspace
    * @throws Error if workspace not found or already deleted
    */
-  async updateOwner(id: string, newOwnerId: string, updatedBy: string): Promise<Workspace> {
+  async updateOwner(
+    id: string,
+    newOwnerId: string,
+    updatedBy: string,
+  ): Promise<Workspace> {
     const [workspace] = await db
       .update(workspacesTable)
       .set({
@@ -243,7 +260,9 @@ export class WorkspaceRepository {
         updatedBy: restoredBy,
         updatedAt: new Date(),
       })
-      .where(and(eq(workspacesTable.id, id), isNotNull(workspacesTable.deletedAt)))
+      .where(
+        and(eq(workspacesTable.id, id), isNotNull(workspacesTable.deletedAt)),
+      )
       .returning();
 
     if (!workspace) {
@@ -283,10 +302,10 @@ export class WorkspaceMemberRepository {
   async create(data: CreateWorkspaceMemberInput): Promise<WorkspaceMember> {
     // Validate required fields
     if (!data.workspaceId) {
-      throw new Error('Workspace ID is required');
+      throw new Error("Workspace ID is required");
     }
     if (!data.userId) {
-      throw new Error('User ID is required');
+      throw new Error("User ID is required");
     }
 
     try {
@@ -295,24 +314,27 @@ export class WorkspaceMemberRepository {
         .values({
           workspaceId: data.workspaceId,
           userId: data.userId,
-          role: data.role || 'viewer',
+          role: data.role || "viewer",
           invitedBy: data.invitedBy || null,
         })
         .returning();
 
       if (!member) {
-        throw new Error('Failed to create workspace member');
+        throw new Error("Failed to create workspace member");
       }
 
       return member;
     } catch (error: any) {
       // Handle unique constraint violation (duplicate membership)
-      if (error.code === '23505' && error.constraint === 'workspace_members_unique') {
-        throw new Error('User is already a member of this workspace');
+      if (
+        error.code === "23505" &&
+        error.constraint === "workspace_members_unique"
+      ) {
+        throw new Error("User is already a member of this workspace");
       }
       // Handle foreign key violation
-      if (error.code === '23503') {
-        throw new Error('Workspace or user does not exist');
+      if (error.code === "23503") {
+        throw new Error("Workspace or user does not exist");
       }
       throw error;
     }
@@ -324,7 +346,10 @@ export class WorkspaceMemberRepository {
    * @param options - Query options
    * @returns The member or null if not found
    */
-  async getById(id: string, options?: { includeDeleted?: boolean }): Promise<WorkspaceMember | null> {
+  async getById(
+    id: string,
+    options?: { includeDeleted?: boolean },
+  ): Promise<WorkspaceMember | null> {
     const conditions = [eq(workspaceMembersTable.id, id)];
 
     if (!options?.includeDeleted) {
@@ -349,7 +374,7 @@ export class WorkspaceMemberRepository {
   async getByWorkspaceAndUser(
     workspaceId: string,
     userId: string,
-    options?: { includeDeleted?: boolean }
+    options?: { includeDeleted?: boolean },
   ): Promise<WorkspaceMember | null> {
     const conditions = [
       eq(workspaceMembersTable.workspaceId, workspaceId),
@@ -373,11 +398,15 @@ export class WorkspaceMemberRepository {
    * @param filters - Query filters
    * @returns Array of members
    */
-  async list(filters?: WorkspaceMemberQueryFilters): Promise<WorkspaceMember[]> {
+  async list(
+    filters?: WorkspaceMemberQueryFilters,
+  ): Promise<WorkspaceMember[]> {
     const conditions = [];
 
     if (filters?.workspaceId) {
-      conditions.push(eq(workspaceMembersTable.workspaceId, filters.workspaceId));
+      conditions.push(
+        eq(workspaceMembersTable.workspaceId, filters.workspaceId),
+      );
     }
 
     if (filters?.userId) {
@@ -424,13 +453,21 @@ export class WorkspaceMemberRepository {
    * @returns The updated member
    * @throws Error if member not found or already deleted
    */
-  async update(id: string, data: UpdateWorkspaceMemberInput): Promise<WorkspaceMember> {
+  async update(
+    id: string,
+    data: UpdateWorkspaceMemberInput,
+  ): Promise<WorkspaceMember> {
     // Only update role if explicitly provided
     if (data.role === undefined) {
       const [member] = await db
         .select()
         .from(workspaceMembersTable)
-        .where(and(eq(workspaceMembersTable.id, id), isNull(workspaceMembersTable.deletedAt)));
+        .where(
+          and(
+            eq(workspaceMembersTable.id, id),
+            isNull(workspaceMembersTable.deletedAt),
+          ),
+        );
 
       if (!member) {
         throw new Error(`Member with ID ${id} not found or already deleted`);
@@ -445,7 +482,12 @@ export class WorkspaceMemberRepository {
         role: data.role,
         updatedAt: new Date(),
       })
-      .where(and(eq(workspaceMembersTable.id, id), isNull(workspaceMembersTable.deletedAt)))
+      .where(
+        and(
+          eq(workspaceMembersTable.id, id),
+          isNull(workspaceMembersTable.deletedAt),
+        ),
+      )
       .returning();
 
     if (!member) {
@@ -468,7 +510,12 @@ export class WorkspaceMemberRepository {
         leftAt: new Date(),
         updatedAt: new Date(),
       })
-      .where(and(eq(workspaceMembersTable.id, id), isNull(workspaceMembersTable.deletedAt)))
+      .where(
+        and(
+          eq(workspaceMembersTable.id, id),
+          isNull(workspaceMembersTable.deletedAt),
+        ),
+      )
       .returning();
 
     if (!member) {
@@ -492,8 +539,8 @@ export class WorkspaceMemberRepository {
         and(
           eq(workspaceMembersTable.workspaceId, workspaceId),
           eq(workspaceMembersTable.userId, userId),
-          isNull(workspaceMembersTable.deletedAt)
-        )
+          isNull(workspaceMembersTable.deletedAt),
+        ),
       )
       .limit(1);
 
@@ -506,7 +553,10 @@ export class WorkspaceMemberRepository {
    * @param userId - User ID
    * @returns The user's role or null if not a member
    */
-  async getUserRole(workspaceId: string, userId: string): Promise<WorkspaceRole | null> {
+  async getUserRole(
+    workspaceId: string,
+    userId: string,
+  ): Promise<WorkspaceRole | null> {
     const [member] = await db
       .select({ role: workspaceMembersTable.role })
       .from(workspaceMembersTable)
@@ -514,8 +564,8 @@ export class WorkspaceMemberRepository {
         and(
           eq(workspaceMembersTable.workspaceId, workspaceId),
           eq(workspaceMembersTable.userId, userId),
-          isNull(workspaceMembersTable.deletedAt)
-        )
+          isNull(workspaceMembersTable.deletedAt),
+        ),
       );
 
     return member?.role || null;
@@ -534,8 +584,8 @@ export class WorkspaceMemberRepository {
       .where(
         and(
           eq(workspaceMembersTable.workspaceId, workspaceId),
-          isNull(workspaceMembersTable.deletedAt)
-        )
+          isNull(workspaceMembersTable.deletedAt),
+        ),
       );
 
     return result.length;

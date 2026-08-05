@@ -3,9 +3,9 @@
  * Main entry point for the backend server
  */
 
-import express from 'express';
+import express, { type Application } from 'express';
 
-const app = express();
+const app: Application = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware

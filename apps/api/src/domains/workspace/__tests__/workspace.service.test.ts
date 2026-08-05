@@ -5,16 +5,19 @@
  * and verifies domain logic (policies, events, state transitions).
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { Workspace, WorkspaceMember, WorkspaceRole } from '@repo/database';
-import { WorkspaceService, type Result } from '../workspace.service';
-import type { IWorkspaceEventEmitter, WorkspaceDomainEvent } from '../workspace.events';
+import type { Workspace, WorkspaceMember, WorkspaceRole } from "@repo/database";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { WorkspaceRepository } from "../repository";
+import type { WorkspaceMemberRepository } from "../repository";
+import type {
+  IWorkspaceEventEmitter,
+  WorkspaceDomainEvent,
+} from "../workspace.events";
+import { type Result, WorkspaceService } from "../workspace.service";
 import type {
   CreateWorkspaceInput,
   UpdateWorkspaceInput,
-} from '../workspace.types';
-import type { WorkspaceRepository } from '../repository';
-import type { WorkspaceMemberRepository } from '../repository';
+} from "../workspace.types";
 
 /**
  * Fake workspace repository for testing.
@@ -44,14 +47,20 @@ class FakeWorkspaceRepository implements WorkspaceRepository {
     return workspace;
   }
 
-  async getById(id: string, options?: { includeDeleted?: boolean }): Promise<Workspace | null> {
+  async getById(
+    id: string,
+    options?: { includeDeleted?: boolean },
+  ): Promise<Workspace | null> {
     const ws = this.workspaces.get(id);
     if (!ws) return null;
     if (!options?.includeDeleted && ws.deletedAt) return null;
     return ws;
   }
 
-  async getBySlug(slug: string, options?: { includeDeleted?: boolean }): Promise<Workspace | null> {
+  async getBySlug(
+    slug: string,
+    options?: { includeDeleted?: boolean },
+  ): Promise<Workspace | null> {
     for (const ws of this.workspaces.values()) {
       if (ws.slug === slug) {
         if (!options?.includeDeleted && ws.deletedAt) return null;
@@ -68,7 +77,7 @@ class FakeWorkspaceRepository implements WorkspaceRepository {
   async update(
     id: string,
     data: UpdateWorkspaceInput,
-    updatedBy: string
+    updatedBy: string,
   ): Promise<Workspace> {
     const ws = this.workspaces.get(id);
     if (!ws || ws.deletedAt) {
@@ -84,7 +93,11 @@ class FakeWorkspaceRepository implements WorkspaceRepository {
     return updated;
   }
 
-  async updateOwner(id: string, newOwnerId: string, updatedBy: string): Promise<Workspace> {
+  async updateOwner(
+    id: string,
+    newOwnerId: string,
+    updatedBy: string,
+  ): Promise<Workspace> {
     const ws = this.workspaces.get(id);
     if (!ws || ws.deletedAt) {
       throw new Error(`Workspace ${id} not found or deleted`);
@@ -149,7 +162,7 @@ class FakeMemberRepository implements WorkspaceMemberRepository {
       id,
       workspaceId: data.workspaceId,
       userId: data.userId,
-      role: data.role || 'viewer',
+      role: data.role || "viewer",
       joinedAt: now,
       invitedBy: data.invitedBy || null,
       leftAt: null,
@@ -160,7 +173,10 @@ class FakeMemberRepository implements WorkspaceMemberRepository {
     return member;
   }
 
-  async getById(id: string, options?: { includeDeleted?: boolean }): Promise<WorkspaceMember | null> {
+  async getById(
+    id: string,
+    options?: { includeDeleted?: boolean },
+  ): Promise<WorkspaceMember | null> {
     const mem = this.members.get(id);
     if (!mem) return null;
     if (!options?.includeDeleted && mem.deletedAt) return null;
@@ -170,7 +186,7 @@ class FakeMemberRepository implements WorkspaceMemberRepository {
   async getByWorkspaceAndUser(
     workspaceId: string,
     userId: string,
-    options?: { includeDeleted?: boolean }
+    options?: { includeDeleted?: boolean },
   ): Promise<WorkspaceMember | null> {
     for (const mem of this.members.values()) {
       if (mem.workspaceId === workspaceId && mem.userId === userId) {
@@ -182,14 +198,14 @@ class FakeMemberRepository implements WorkspaceMemberRepository {
   }
 
   async list(filters?: any): Promise<WorkspaceMember[]> {
-    return Array.from(this.members.values())
-      .filter((mem) => {
-        if (filters?.workspaceId && mem.workspaceId !== filters.workspaceId) return false;
-        if (filters?.userId && mem.userId !== filters.userId) return false;
-        if (filters?.role && mem.role !== filters.role) return false;
-        if (filters?.excludeDeleted !== false && mem.deletedAt) return false;
-        return true;
-      });
+    return Array.from(this.members.values()).filter((mem) => {
+      if (filters?.workspaceId && mem.workspaceId !== filters.workspaceId)
+        return false;
+      if (filters?.userId && mem.userId !== filters.userId) return false;
+      if (filters?.role && mem.role !== filters.role) return false;
+      if (filters?.excludeDeleted !== false && mem.deletedAt) return false;
+      return true;
+    });
   }
 
   async listByUser(userId: string): Promise<WorkspaceMember[]> {
@@ -234,7 +250,10 @@ class FakeMemberRepository implements WorkspaceMemberRepository {
     return !!mem;
   }
 
-  async getUserRole(workspaceId: string, userId: string): Promise<WorkspaceRole | null> {
+  async getUserRole(
+    workspaceId: string,
+    userId: string,
+  ): Promise<WorkspaceRole | null> {
     const mem = await this.getByWorkspaceAndUser(workspaceId, userId);
     return mem?.role || null;
   }
@@ -256,16 +275,16 @@ class TestEventEmitter implements IWorkspaceEventEmitter {
   }
 }
 
-describe('WorkspaceService', () => {
+describe("WorkspaceService", () => {
   let workspaceRepo: FakeWorkspaceRepository;
   let memberRepo: FakeMemberRepository;
   let eventEmitter: TestEventEmitter;
   let service: WorkspaceService;
 
   // Test UUIDs
-  const user1Id = '550e8400-e29b-41d4-a716-446655440001';
-  const user2Id = '550e8400-e29b-41d4-a716-446655440002';
-  const user99Id = '550e8400-e29b-41d4-a716-446655440099';
+  const user1Id = "550e8400-e29b-41d4-a716-446655440001";
+  const user2Id = "550e8400-e29b-41d4-a716-446655440002";
+  const user99Id = "550e8400-e29b-41d4-a716-446655440099";
 
   beforeEach(() => {
     workspaceRepo = new FakeWorkspaceRepository();
@@ -274,475 +293,521 @@ describe('WorkspaceService', () => {
     service = new WorkspaceService(workspaceRepo, memberRepo, eventEmitter);
   });
 
-  describe('createWorkspace', () => {
-    it('should create workspace and add creator as owner', async () => {
-      const userId = '550e8400-e29b-41d4-a716-446655440001';
+  describe("createWorkspace", () => {
+    it("should create workspace and add creator as owner", async () => {
+      const userId = "550e8400-e29b-41d4-a716-446655440001";
       const result = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
-          description: 'A test workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
+          description: "A test workspace",
           logo: null,
           ownerId: userId,
         },
-        userId
+        userId,
       );
 
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.name).toBe('Test Workspace');
+        expect(result.data.name).toBe("Test Workspace");
         expect(result.data.ownerId).toBe(userId);
       }
 
       // Verify creator is owner member
-      const membership = await memberRepo.getByWorkspaceAndUser('ws-1', userId);
-      expect(membership?.role).toBe('owner');
+      const membership = await memberRepo.getByWorkspaceAndUser("ws-1", userId);
+      expect(membership?.role).toBe("owner");
 
       // Verify event emitted
       expect(eventEmitter.events).toHaveLength(1);
-      expect(eventEmitter.events[0].type).toBe('workspace.created');
+      expect(eventEmitter.events[0].type).toBe("workspace.created");
     });
 
-    it('should reject invalid input', async () => {
+    it("should reject invalid input", async () => {
       const result = await service.createWorkspace(
         {
-          name: '',
-          slug: 'test',
+          name: "",
+          slug: "test",
           description: null,
           logo: null,
           ownerId: user1Id,
         },
-        user1Id
+        user1Id,
       );
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.code).toBe('WORKSPACE_VALIDATION_FAILED');
+        expect(result.error.code).toBe("WORKSPACE_VALIDATION_FAILED");
       }
     });
   });
 
-  describe('getWorkspace', () => {
-    it('should return workspace if user is member', async () => {
+  describe("getWorkspace", () => {
+    it("should return workspace if user is member", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
-      const result = await service.getWorkspace(workspaceId, 'user-1');
+      const result = await service.getWorkspace(workspaceId, user1Id);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.name).toBe('Test Workspace');
+        expect(result.data.name).toBe("Test Workspace");
       }
     });
 
-    it('should deny access if user is not a member', async () => {
+    it("should deny access if user is not a member", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
-      const result = await service.getWorkspace(workspaceId, 'user-2');
+      const result = await service.getWorkspace(workspaceId, user2Id);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.code).toBe('WORKSPACE_PERMISSION_DENIED');
+        expect(result.error.code).toBe("WORKSPACE_PERMISSION_DENIED");
       }
     });
   });
 
-  describe('updateWorkspace', () => {
-    it('should update workspace if actor is editor or owner', async () => {
+  describe("updateWorkspace", () => {
+    it("should update workspace if actor is editor or owner", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
-          description: 'Old description',
+          name: "Test Workspace",
+          slug: "test-workspace",
+          description: "Old description",
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
       const result = await service.updateWorkspace(
         workspaceId,
-        { description: 'New description' },
-        'user-1'
+        { description: "New description" },
+        user1Id,
       );
 
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.description).toBe('New description');
+        expect(result.data.description).toBe("New description");
       }
 
       // Verify event
-      expect(eventEmitter.events.some((e) => e.type === 'workspace.updated')).toBe(true);
+      expect(
+        eventEmitter.events.some((e) => e.type === "workspace.updated"),
+      ).toBe(true);
     });
 
-    it('should deny update if actor is viewer', async () => {
+    it("should deny update if actor is viewer", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
       // Add user-2 as viewer
       await memberRepo.create({
         workspaceId,
-        userId: 'user-2',
-        role: 'viewer',
+        userId: user2Id,
+        role: "viewer",
       });
 
       const result = await service.updateWorkspace(
         workspaceId,
-        { name: 'New Name' },
-        'user-2'
+        { name: "New Name" },
+        user2Id,
       );
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.code).toBe('WORKSPACE_PERMISSION_DENIED');
+        expect(result.error.code).toBe("WORKSPACE_PERMISSION_DENIED");
       }
     });
   });
 
-  describe('deleteWorkspace', () => {
-    it('should soft delete if actor is owner', async () => {
+  describe("deleteWorkspace", () => {
+    it("should soft delete if actor is owner", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
-      const result = await service.deleteWorkspace(workspaceId, 'user-1');
+      const result = await service.deleteWorkspace(workspaceId, user1Id);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.deletedAt).not.toBeNull();
       }
 
       // Verify event
-      expect(eventEmitter.events.some((e) => e.type === 'workspace.deleted')).toBe(true);
+      expect(
+        eventEmitter.events.some((e) => e.type === "workspace.deleted"),
+      ).toBe(true);
     });
 
-    it('should deny delete if actor is not owner', async () => {
+    it("should deny delete if actor is not owner", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
       await memberRepo.create({
         workspaceId,
-        userId: 'user-2',
-        role: 'editor',
+        userId: user2Id,
+        role: "editor",
       });
 
-      const result = await service.deleteWorkspace(workspaceId, 'user-2');
+      const result = await service.deleteWorkspace(workspaceId, user2Id);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.code).toBe('WORKSPACE_PERMISSION_DENIED');
+        expect(result.error.code).toBe("WORKSPACE_PERMISSION_DENIED");
       }
     });
   });
 
-  describe('transferOwnership', () => {
-    it('should transfer ownership to a member', async () => {
+  describe("transferOwnership", () => {
+    it("should transfer ownership to a member", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
       // Add user-2 as member
       await memberRepo.create({
         workspaceId,
-        userId: 'user-2',
-        role: 'editor',
+        userId: user2Id,
+        role: "editor",
       });
 
-      const result = await service.transferOwnership(workspaceId, 'user-2', 'user-1');
+      const result = await service.transferOwnership(
+        workspaceId,
+        user2Id,
+        user1Id,
+      );
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.ownerId).toBe('user-2');
+        expect(result.data.ownerId).toBe(user2Id);
       }
 
       // Verify event
-      expect(eventEmitter.events.some((e) => e.type === 'workspace.ownership_transferred')).toBe(
-        true
-      );
+      expect(
+        eventEmitter.events.some(
+          (e) => e.type === "workspace.ownership_transferred",
+        ),
+      ).toBe(true);
     });
 
-    it('should deny transfer to non-member', async () => {
+    it("should deny transfer to non-member", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
-      const result = await service.transferOwnership(workspaceId, 'user-99', 'user-1');
+      const result = await service.transferOwnership(
+        workspaceId,
+        user99Id,
+        user1Id,
+      );
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.code).toBe('WORKSPACE_OWNERSHIP_TRANSFER_FAILED');
+        expect(result.error.code).toBe("WORKSPACE_OWNERSHIP_TRANSFER_FAILED");
       }
     });
   });
 
-  describe('addMember', () => {
-    it('should add member if actor is owner', async () => {
+  describe("addMember", () => {
+    it("should add member if actor is owner", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
-      const result = await service.addMember(workspaceId, 'user-2', 'editor', 'user-1');
+      const result = await service.addMember(
+        workspaceId,
+        user2Id,
+        "editor",
+        user1Id,
+      );
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.role).toBe('editor');
+        expect(result.data.role).toBe("editor");
       }
 
       // Verify event
-      expect(eventEmitter.events.some((e) => e.type === 'workspace.member_added')).toBe(true);
+      expect(
+        eventEmitter.events.some((e) => e.type === "workspace.member_added"),
+      ).toBe(true);
     });
 
-    it('should deny add if user already member', async () => {
+    it("should deny add if user already member", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
-      const result1 = await service.addMember(workspaceId, 'user-2', 'editor', 'user-1');
+      const result1 = await service.addMember(
+        workspaceId,
+        user2Id,
+        "editor",
+        user1Id,
+      );
       expect(result1.success).toBe(true);
 
-      const result2 = await service.addMember(workspaceId, 'user-2', 'viewer', 'user-1');
+      const result2 = await service.addMember(
+        workspaceId,
+        user2Id,
+        "viewer",
+        user1Id,
+      );
       expect(result2.success).toBe(false);
       if (!result2.success) {
-        expect(result2.error.code).toBe('WORKSPACE_MEMBERSHIP_EXISTS');
+        expect(result2.error.code).toBe("WORKSPACE_MEMBERSHIP_EXISTS");
       }
     });
   });
 
-  describe('leaveWorkspace', () => {
-    it('should allow non-owner to leave', async () => {
+  describe("leaveWorkspace", () => {
+    it("should allow non-owner to leave", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
       await memberRepo.create({
         workspaceId,
-        userId: 'user-2',
-        role: 'editor',
+        userId: user2Id,
+        role: "editor",
       });
 
-      const result = await service.leaveWorkspace(workspaceId, 'user-2');
+      const result = await service.leaveWorkspace(workspaceId, user2Id);
       expect(result.success).toBe(true);
 
       // Verify event
-      expect(eventEmitter.events.some((e) => e.type === 'workspace.member_removed')).toBe(true);
+      expect(
+        eventEmitter.events.some((e) => e.type === "workspace.member_removed"),
+      ).toBe(true);
     });
 
-    it('should deny last owner to leave', async () => {
+    it("should deny last owner to leave", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
-      const result = await service.leaveWorkspace(workspaceId, 'user-1');
+      const result = await service.leaveWorkspace(workspaceId, user1Id);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.code).toBe('WORKSPACE_PERMISSION_DENIED');
+        expect(result.error.code).toBe("WORKSPACE_PERMISSION_DENIED");
       }
     });
   });
 
-  describe('changeMemberRole', () => {
-    it('should change role if actor is owner', async () => {
+  describe("changeMemberRole", () => {
+    it("should change role if actor is owner", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
       await memberRepo.create({
         workspaceId,
-        userId: 'user-2',
-        role: 'viewer',
+        userId: user2Id,
+        role: "viewer",
       });
 
-      const result = await service.changeMemberRole(workspaceId, 'user-2', 'editor', 'user-1');
+      const result = await service.changeMemberRole(
+        workspaceId,
+        user2Id,
+        "editor",
+        user1Id,
+      );
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.role).toBe('editor');
+        expect(result.data.role).toBe("editor");
       }
 
       // Verify event
-      expect(eventEmitter.events.some((e) => e.type === 'workspace.member_role_changed')).toBe(
-        true
-      );
+      expect(
+        eventEmitter.events.some(
+          (e) => e.type === "workspace.member_role_changed",
+        ),
+      ).toBe(true);
     });
 
-    it('should deny owner changing own role', async () => {
+    it("should deny owner changing own role", async () => {
       const created = await service.createWorkspace(
         {
-          name: 'Test Workspace',
-          slug: 'test-workspace',
+          name: "Test Workspace",
+          slug: "test-workspace",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
-      if (!created.success) throw new Error('Create failed');
+      if (!created.success) throw new Error("Create failed");
       const workspaceId = created.data.id;
 
-      const result = await service.changeMemberRole(workspaceId, 'user-1', 'viewer', 'user-1');
+      const result = await service.changeMemberRole(
+        workspaceId,
+        user1Id,
+        "viewer",
+        user1Id,
+      );
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.code).toBe('WORKSPACE_PERMISSION_DENIED');
+        expect(result.error.code).toBe("WORKSPACE_PERMISSION_DENIED");
       }
     });
   });
 
-  describe('listUserWorkspaces', () => {
-    it('should return all workspaces user is member of', async () => {
+  describe("listUserWorkspaces", () => {
+    it("should return all workspaces user is member of", async () => {
       // Create 2 workspaces
       const created1 = await service.createWorkspace(
         {
-          name: 'Workspace 1',
-          slug: 'ws-1',
+          name: "Workspace 1",
+          slug: "ws-1",
           description: null,
           logo: null,
-          ownerId: 'user-1',
+          ownerId: user1Id,
         },
-        'user-1'
+        user1Id,
       );
 
       const created2 = await service.createWorkspace(
         {
-          name: 'Workspace 2',
-          slug: 'ws-2',
+          name: "Workspace 2",
+          slug: "ws-2",
           description: null,
           logo: null,
-          ownerId: 'user-2',
+          ownerId: user2Id,
         },
-        'user-2'
+        user2Id,
       );
 
-      if (!created1.success || !created2.success) throw new Error('Create failed');
+      if (!created1.success || !created2.success)
+        throw new Error("Create failed");
 
       // Add user-1 to second workspace
       await memberRepo.create({
         workspaceId: created2.data.id,
-        userId: 'user-1',
-        role: 'editor',
+        userId: user1Id,
+        role: "editor",
       });
 
-      const result = await service.listUserWorkspaces('user-1');
+      const result = await service.listUserWorkspaces(user1Id);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data).toHaveLength(2);

@@ -12,7 +12,7 @@
  *   viewer — read-only
  */
 
-import type { Workspace, WorkspaceMember, WorkspaceRole } from '@repo/database';
+import type { Workspace, WorkspaceMember, WorkspaceRole } from "@repo/database";
 
 /**
  * Explicit policy decision. Denials always carry a machine-stable `code`
@@ -49,9 +49,14 @@ export function canCreateWorkspace(): PolicyResult {
 /**
  * Only members may read a workspace. MVP: every role may read.
  */
-export function canViewWorkspace(membership: WorkspaceMember | null): PolicyResult {
+export function canViewWorkspace(
+  membership: WorkspaceMember | null,
+): PolicyResult {
   if (!membership) {
-    return deny('WORKSPACE_NOT_A_MEMBER', 'actor is not a member of the workspace');
+    return deny(
+      "WORKSPACE_NOT_A_MEMBER",
+      "actor is not a member of the workspace",
+    );
   }
   return POLICY_ALLOW;
 }
@@ -59,12 +64,20 @@ export function canViewWorkspace(membership: WorkspaceMember | null): PolicyResu
 /**
  * Owners and editors may update workspace profile fields.
  */
-export function canUpdateWorkspace(membership: WorkspaceMember | null): PolicyResult {
+export function canUpdateWorkspace(
+  membership: WorkspaceMember | null,
+): PolicyResult {
   if (!membership) {
-    return deny('WORKSPACE_NOT_A_MEMBER', 'actor is not a member of the workspace');
+    return deny(
+      "WORKSPACE_NOT_A_MEMBER",
+      "actor is not a member of the workspace",
+    );
   }
-  if (!hasAtLeastRole(membership.role, 'editor')) {
-    return deny('WORKSPACE_INSUFFICIENT_ROLE', `role '${membership.role}' cannot update workspace`);
+  if (!hasAtLeastRole(membership.role, "editor")) {
+    return deny(
+      "WORKSPACE_INSUFFICIENT_ROLE",
+      `role '${membership.role}' cannot update workspace`,
+    );
   }
   return POLICY_ALLOW;
 }
@@ -72,14 +85,19 @@ export function canUpdateWorkspace(membership: WorkspaceMember | null): PolicyRe
 /**
  * Only the owner may delete a workspace.
  */
-export function canDeleteWorkspace(membership: WorkspaceMember | null): PolicyResult {
+export function canDeleteWorkspace(
+  membership: WorkspaceMember | null,
+): PolicyResult {
   if (!membership) {
-    return deny('WORKSPACE_NOT_A_MEMBER', 'actor is not a member of the workspace');
-  }
-  if (membership.role !== 'owner') {
     return deny(
-      'WORKSPACE_INSUFFICIENT_ROLE',
-      `role '${membership.role}' cannot delete workspace; 'owner' required`
+      "WORKSPACE_NOT_A_MEMBER",
+      "actor is not a member of the workspace",
+    );
+  }
+  if (membership.role !== "owner") {
+    return deny(
+      "WORKSPACE_INSUFFICIENT_ROLE",
+      `role '${membership.role}' cannot delete workspace; 'owner' required`,
     );
   }
   return POLICY_ALLOW;
@@ -89,7 +107,7 @@ export function canDeleteWorkspace(membership: WorkspaceMember | null): PolicyRe
  * Only the owner may restore a soft-deleted workspace.
  */
 export function canRestoreWorkspace(
-  membership: WorkspaceMember | null
+  membership: WorkspaceMember | null,
 ): PolicyResult {
   return canDeleteWorkspace(membership);
 }
@@ -105,19 +123,22 @@ export function canTransferOwnership(input: {
   targetUserId: string;
   actorId: string;
 }): PolicyResult {
-  if (!input.actorMembership || input.actorMembership.role !== 'owner') {
+  if (!input.actorMembership || input.actorMembership.role !== "owner") {
     return deny(
-      'WORKSPACE_INSUFFICIENT_ROLE',
-      'only the current owner can transfer ownership'
+      "WORKSPACE_INSUFFICIENT_ROLE",
+      "only the current owner can transfer ownership",
     );
   }
   if (input.actorId === input.targetUserId) {
-    return deny('WORKSPACE_TRANSFER_TO_SELF', 'ownership cannot be transferred to the actor');
+    return deny(
+      "WORKSPACE_TRANSFER_TO_SELF",
+      "ownership cannot be transferred to the actor",
+    );
   }
   if (!input.targetMembership) {
     return deny(
-      'WORKSPACE_TARGET_NOT_MEMBER',
-      'new owner must be an active member of the workspace'
+      "WORKSPACE_TARGET_NOT_MEMBER",
+      "new owner must be an active member of the workspace",
     );
   }
   return POLICY_ALLOW;
@@ -126,14 +147,19 @@ export function canTransferOwnership(input: {
 /**
  * Only the owner may invite members.
  */
-export function canInviteMembers(membership: WorkspaceMember | null): PolicyResult {
+export function canInviteMembers(
+  membership: WorkspaceMember | null,
+): PolicyResult {
   if (!membership) {
-    return deny('WORKSPACE_NOT_A_MEMBER', 'actor is not a member of the workspace');
-  }
-  if (membership.role !== 'owner') {
     return deny(
-      'WORKSPACE_INSUFFICIENT_ROLE',
-      `role '${membership.role}' cannot invite members; 'owner' required`
+      "WORKSPACE_NOT_A_MEMBER",
+      "actor is not a member of the workspace",
+    );
+  }
+  if (membership.role !== "owner") {
+    return deny(
+      "WORKSPACE_INSUFFICIENT_ROLE",
+      `role '${membership.role}' cannot invite members; 'owner' required`,
     );
   }
   return POLICY_ALLOW;
@@ -149,27 +175,33 @@ export function canRemoveMember(input: {
   activeOwnerCount: number;
 }): PolicyResult {
   if (!input.actorMembership) {
-    return deny('WORKSPACE_NOT_A_MEMBER', 'actor is not a member of the workspace');
-  }
-  if (input.actorMembership.role !== 'owner') {
     return deny(
-      'WORKSPACE_INSUFFICIENT_ROLE',
-      `role '${input.actorMembership.role}' cannot remove members; 'owner' required`
+      "WORKSPACE_NOT_A_MEMBER",
+      "actor is not a member of the workspace",
+    );
+  }
+  if (input.actorMembership.role !== "owner") {
+    return deny(
+      "WORKSPACE_INSUFFICIENT_ROLE",
+      `role '${input.actorMembership.role}' cannot remove members; 'owner' required`,
     );
   }
   if (!input.targetMembership) {
-    return deny('WORKSPACE_TARGET_NOT_MEMBER', 'target is not an active member of the workspace');
+    return deny(
+      "WORKSPACE_TARGET_NOT_MEMBER",
+      "target is not an active member of the workspace",
+    );
   }
   if (input.actorMembership.userId === input.targetMembership.userId) {
     return deny(
-      'WORKSPACE_SELF_REMOVE_INVALID',
-      'use the leave operation to remove yourself from a workspace'
+      "WORKSPACE_SELF_REMOVE_INVALID",
+      "use the leave operation to remove yourself from a workspace",
     );
   }
-  if (input.targetMembership.role === 'owner' && input.activeOwnerCount <= 1) {
+  if (input.targetMembership.role === "owner" && input.activeOwnerCount <= 1) {
     return deny(
-      'WORKSPACE_OWNER_REQUIRED',
-      'cannot remove the last owner; transfer ownership first'
+      "WORKSPACE_OWNER_REQUIRED",
+      "cannot remove the last owner; transfer ownership first",
     );
   }
   return POLICY_ALLOW;
@@ -183,12 +215,15 @@ export function canLeaveWorkspace(input: {
   activeOwnerCount: number;
 }): PolicyResult {
   if (!input.actorMembership) {
-    return deny('WORKSPACE_NOT_A_MEMBER', 'actor is not a member of the workspace');
-  }
-  if (input.actorMembership.role === 'owner' && input.activeOwnerCount <= 1) {
     return deny(
-      'WORKSPACE_OWNER_REQUIRED',
-      'the last owner cannot leave; transfer ownership or delete the workspace first'
+      "WORKSPACE_NOT_A_MEMBER",
+      "actor is not a member of the workspace",
+    );
+  }
+  if (input.actorMembership.role === "owner" && input.activeOwnerCount <= 1) {
+    return deny(
+      "WORKSPACE_OWNER_REQUIRED",
+      "the last owner cannot leave; transfer ownership or delete the workspace first",
     );
   }
   return POLICY_ALLOW;
@@ -203,25 +238,31 @@ export function canChangeMemberRole(input: {
   newRole: WorkspaceRole;
 }): PolicyResult {
   if (!input.actorMembership) {
-    return deny('WORKSPACE_NOT_A_MEMBER', 'actor is not a member of the workspace');
-  }
-  if (input.actorMembership.role !== 'owner') {
     return deny(
-      'WORKSPACE_INSUFFICIENT_ROLE',
-      `role '${input.actorMembership.role}' cannot change member roles; 'owner' required`
+      "WORKSPACE_NOT_A_MEMBER",
+      "actor is not a member of the workspace",
+    );
+  }
+  if (input.actorMembership.role !== "owner") {
+    return deny(
+      "WORKSPACE_INSUFFICIENT_ROLE",
+      `role '${input.actorMembership.role}' cannot change member roles; 'owner' required`,
     );
   }
   if (!input.targetMembership) {
-    return deny('WORKSPACE_TARGET_NOT_MEMBER', 'target is not an active member of the workspace');
+    return deny(
+      "WORKSPACE_TARGET_NOT_MEMBER",
+      "target is not an active member of the workspace",
+    );
   }
   if (input.actorMembership.userId === input.targetMembership.userId) {
     return deny(
-      'WORKSPACE_SELF_ROLE_CHANGE',
-      'owners cannot change their own role; use transfer ownership instead'
+      "WORKSPACE_SELF_ROLE_CHANGE",
+      "owners cannot change their own role; use transfer ownership instead",
     );
   }
   if (input.targetMembership.role === input.newRole) {
-    return deny('WORKSPACE_ROLE_UNCHANGED', 'target already holds that role');
+    return deny("WORKSPACE_ROLE_UNCHANGED", "target already holds that role");
   }
   return POLICY_ALLOW;
 }
