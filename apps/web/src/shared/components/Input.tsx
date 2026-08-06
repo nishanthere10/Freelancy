@@ -1,7 +1,7 @@
-import { forwardRef, type InputHTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, type InputHTMLAttributes } from 'react';
 import { cn } from '@shared/utils/cn';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
@@ -11,22 +11,25 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <input
         ref={ref}
         className={cn(
-          'rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-50',
-          error && 'border-red-500 focus:ring-red-100',
+          'flex h-11 w-full rounded-[var(--radius-md)] border border-[var(--color-hairline-strong)]',
+          'bg-[var(--color-canvas)] px-4 py-2 text-sm text-[var(--color-ink)]',
+          'placeholder:text-[var(--color-steel)]',
+          'transition-colors duration-150',
+          'focus:outline-none focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[var(--color-brand-blue)]/20',
+          'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--color-surface)]',
+          error && 'border-[var(--color-error-border)] focus:border-[var(--color-error-border)] focus:ring-[var(--color-error)]/20',
           className
         )}
         {...props}
       />
     );
 
-    if (!error) {
-      return input;
-    }
+    if (!error) return input;
 
     return (
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5 w-full">
         {input}
-        <span className="text-xs text-red-600">{error}</span>
+        <span className="text-xs text-[var(--color-error)]">{error}</span>
       </div>
     );
   }

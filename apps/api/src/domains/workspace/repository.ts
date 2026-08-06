@@ -4,7 +4,7 @@
  * Handles all database queries using Drizzle ORM
  */
 
-import { db } from "@/db/client";
+import { db } from "../../db/client";
 import {
   type Workspace,
   type WorkspaceMember,

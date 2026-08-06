@@ -19,7 +19,7 @@ if (!connectionString) {
 // Create postgres connection with security and performance settings
 const client = postgres(connectionString, {
   // SSL is required for production databases
-  ssl: process.env.NODE_ENV === 'production' ? 'require' : false,
+  ssl: 'require',
   // Connection timeout: 30 seconds
   connect_timeout: 30,
   // Idle connection timeout: 60 seconds

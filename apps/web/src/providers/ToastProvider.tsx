@@ -9,7 +9,17 @@ export function ToastProvider() {
       richColors
       closeButton
       expand
-      theme="system"
+      theme="light"
+      toastOptions={{
+        style: {
+          fontFamily: 'var(--font-family-sans)',
+          border: '1px solid var(--color-hairline)',
+          borderRadius: 'var(--radius-xl)',
+          background: 'var(--color-canvas)',
+          color: 'var(--color-ink)',
+          boxShadow: 'var(--shadow-modal)',
+        },
+      }}
     />
   );
 }

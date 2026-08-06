@@ -3,7 +3,7 @@
  * Thin layer: receives request → calls service → maps response
  */
 
-import { createError, createSuccess } from "@/utils/response";
+import { createError, createSuccess } from "../../utils/response";
 import type { NextFunction, Request, Response } from "express";
 import { WorkspaceMemberRepository } from "./repository";
 import { WorkspaceRepository } from "./repository";

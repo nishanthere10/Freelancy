@@ -11,7 +11,7 @@ import { ApiError, type ApiResponse } from './types';
  * Base URL from environment or default
  */
 const baseURL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api/v1';
 
 /**
  * Create and configure axios instance

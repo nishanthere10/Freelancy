@@ -1,27 +1,88 @@
 @import "tailwindcss";
 @import "../src/styles/tokens.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* ─── Tailwind v4 theme extension ─────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Colors */
+  --color-canvas: var(--color-canvas);
+  --color-surface: var(--color-surface);
+  --color-surface-soft: var(--color-surface-soft);
+  --color-surface-yellow: var(--color-surface-yellow);
+  --color-surface-pricing-featured: var(--color-surface-pricing-featured);
+  --color-primary: var(--color-primary);
+  --color-footer-bg: var(--color-footer-bg);
+
+  --color-brand-yellow: var(--color-brand-yellow);
+  --color-brand-yellow-deep: var(--color-brand-yellow-deep);
+  --color-yellow-light: var(--color-yellow-light);
+  --color-yellow-dark: var(--color-yellow-dark);
+  --color-brand-blue: var(--color-brand-blue);
+  --color-blue-pressed: var(--color-blue-pressed);
+  --color-brand-coral: var(--color-brand-coral);
+  --color-coral-light: var(--color-coral-light);
+  --color-coral-dark: var(--color-coral-dark);
+  --color-brand-rose: var(--color-brand-rose);
+  --color-rose-light: var(--color-rose-light);
+  --color-brand-teal: var(--color-brand-teal);
+  --color-teal-light: var(--color-teal-light);
+  --color-moss-dark: var(--color-moss-dark);
+  --color-brand-pink: var(--color-brand-pink);
+  --color-brand-orange-light: var(--color-brand-orange-light);
+  --color-success-accent: var(--color-success-accent);
+  --color-error: var(--color-error);
+  --color-error-bg: var(--color-error-bg);
+  --color-error-border: var(--color-error-border);
+
+  --color-hairline: var(--color-hairline);
+  --color-hairline-soft: var(--color-hairline-soft);
+  --color-hairline-strong: var(--color-hairline-strong);
+
+  --color-ink-deep: var(--color-ink-deep);
+  --color-ink: var(--color-ink);
+  --color-charcoal: var(--color-charcoal);
+  --color-slate-text: var(--color-slate-text);
+  --color-steel: var(--color-steel);
+  --color-stone: var(--color-stone);
+  --color-muted-text: var(--color-muted-text);
+  --color-on-dark: var(--color-on-dark);
+  --color-on-primary: var(--color-on-primary);
+  --color-on-dark-muted: var(--color-on-dark-muted);
+
+  /* Radii */
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-xxl: var(--radius-xxl);
+  --radius-xxxl: var(--radius-xxxl);
+  --radius-feature: var(--radius-feature);
+
+  /* Shadows */
+  --shadow-subtle: var(--shadow-subtle);
+  --shadow-card: var(--shadow-card);
+  --shadow-mockup: var(--shadow-mockup);
+  --shadow-modal: var(--shadow-modal);
+
+  /* Font */
+  --font-sans: var(--font-family-sans);
+  --font-mono: var(--font-family-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Base styles ─────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+}
+
+html {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-family-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

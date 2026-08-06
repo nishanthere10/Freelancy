@@ -47,7 +47,6 @@ export const createWorkspaceSchema = z.object({
     .nullable()
     .optional()
     .transform((val) => val || undefined), // Convert empty string/null to undefined
-  ownerId: z.string().uuid("Owner ID must be a valid UUID"),
 });
 
 export type CreateWorkspaceSchema = z.infer<typeof createWorkspaceSchema>;

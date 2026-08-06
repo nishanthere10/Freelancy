@@ -1,152 +1,95 @@
 /**
  * Design Tokens
- * Centralized spacing, colors, typography, and other design constants
+ * Miro-inspired design language — stark white canvas, canary yellow accent,
+ * pill-shaped CTAs, pastel feature cards, and tight heading typography.
  */
 
 @layer base {
   :root {
-    /* Spacing */
-    --space-0: 0;
-    --space-1: 0.25rem;
-    --space-2: 0.5rem;
-    --space-3: 0.75rem;
-    --space-4: 1rem;
-    --space-6: 1.5rem;
-    --space-8: 2rem;
-    --space-10: 2.5rem;
-    --space-12: 3rem;
-    --space-16: 4rem;
-    --space-20: 5rem;
-    --space-24: 6rem;
+    /* Spacing (Base unit: 4px) */
+    --space-xxs: 0.25rem;      /* 4px  */
+    --space-xs: 0.5rem;        /* 8px  */
+    --space-sm: 0.75rem;       /* 12px */
+    --space-md: 1rem;          /* 16px */
+    --space-lg: 1.25rem;       /* 20px */
+    --space-xl: 1.5rem;        /* 24px */
+    --space-xxl: 2rem;         /* 32px */
+    --space-xxxl: 2.5rem;      /* 40px */
+    --space-section-sm: 3rem;  /* 48px */
+    --space-section: 4rem;     /* 64px */
+    --space-section-lg: 6rem;  /* 96px */
+    --space-hero: 7.5rem;      /* 120px */
 
     /* Radius */
-    --radius-sm: 0.375rem;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.75rem;
-    --radius-xl: 1rem;
-    --radius-2xl: 1.5rem;
+    --radius-xs: 0.25rem;      /* 4px  */
+    --radius-sm: 0.375rem;     /* 6px  */
+    --radius-md: 0.5rem;       /* 8px  */
+    --radius-lg: 0.75rem;      /* 12px */
+    --radius-xl: 1rem;         /* 16px */
+    --radius-xxl: 1.25rem;     /* 20px */
+    --radius-xxxl: 1.75rem;    /* 28px */
+    --radius-feature: 2rem;    /* 32px */
     --radius-full: 9999px;
 
-    /* Container */
-    --container-sm: 640px;
-    --container-md: 768px;
-    --container-lg: 1024px;
-    --container-xl: 1280px;
-    --container-2xl: 1536px;
+    /* Brand & Accent */
+    --color-brand-yellow: #FFD02F;
+    --color-brand-yellow-deep: #E6B800;
+    --color-yellow-light: #FFFBE6;
+    --color-yellow-dark: #4D3D00;
+    --color-brand-blue: #4262FF;
+    --color-blue-pressed: #2D41B2;
+    --color-brand-coral: #FF6B6B;
+    --color-coral-light: #FFEAEA;
+    --color-coral-dark: #800000;
+    --color-brand-rose: #FFAABF;
+    --color-rose-light: #FFE6EC;
+    --color-brand-teal: #00B8A9;
+    --color-teal-light: #E6F8F6;
+    --color-moss-dark: #004D40;
+    --color-brand-pink: #FFB3C6;
+    --color-brand-orange-light: #FFD8B3;
 
-    /* Breakpoints */
-    --bp-sm: 640px;
-    --bp-md: 768px;
-    --bp-lg: 1024px;
-    --bp-xl: 1280px;
-    --bp-2xl: 1536px;
+    /* Surface */
+    --color-canvas: #FFFFFF;
+    --color-surface: #F5F5F5;
+    --color-surface-soft: #FAFAFA;
+    --color-surface-yellow: #FFFBE6;
+    --color-surface-pricing-featured: #F3E8FF;
+    --color-primary: #050038;
+    --color-footer-bg: #050038;
 
-    /* Colors */
-    --color-white: #ffffff;
-    --color-black: #000000;
-    --color-gray-50: #f9fafb;
-    --color-gray-100: #f3f4f6;
-    --color-gray-200: #e5e7eb;
-    --color-gray-300: #d1d5db;
-    --color-gray-400: #9ca3af;
-    --color-gray-500: #6b7280;
-    --color-gray-600: #4b5563;
-    --color-gray-700: #374151;
-    --color-gray-800: #1f2937;
-    --color-gray-900: #111827;
+    /* Lines */
+    --color-hairline: #E5E7EB;
+    --color-hairline-soft: #F3F4F6;
+    --color-hairline-strong: #D1D5DB;
 
-    --color-blue-50: #eff6ff;
-    --color-blue-100: #dbeafe;
-    --color-blue-500: #3b82f6;
-    --color-blue-600: #2563eb;
-    --color-blue-700: #1d4ed8;
+    /* Text */
+    --color-ink-deep: #111827;
+    --color-ink: #050038;
+    --color-charcoal: #374151;
+    --color-slate-text: #6B7280;
+    --color-steel: #9CA3AF;
+    --color-stone: #D1D5DB;
+    --color-muted-text: #E5E7EB;
+    --color-on-dark: #FFFFFF;
+    --color-on-primary: #FFFFFF;
+    --color-on-dark-muted: rgba(255, 255, 255, 0.7);
 
-    --color-red-50: #fef2f2;
-    --color-red-100: #fee2e2;
-    --color-red-500: #ef4444;
-    --color-red-600: #dc2626;
-    --color-red-700: #b91c1c;
-
-    --color-green-50: #f0fdf4;
-    --color-green-100: #dcfce7;
-    --color-green-500: #22c55e;
-    --color-green-600: #16a34a;
-    --color-green-700: #15803d;
-
-    --color-yellow-50: #fefce8;
-    --color-yellow-100: #fef08a;
-    --color-yellow-500: #eab308;
-    --color-yellow-600: #ca8a04;
-    --color-yellow-700: #a16207;
+    /* Semantic */
+    --color-success-accent: #10B981;
+    --color-error-bg: #FEE2E2;
+    --color-error: #EF4444;
+    --color-error-border: #DC2626;
 
     /* Typography */
-    --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-      'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-    --font-family-mono: Menlo, Monaco, Consolas, 'Liberation Mono',
-      'Courier New', monospace;
+    --font-family-sans: "Roobert PRO", "Noto Sans", -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-family-mono: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-    --font-size-xs: 0.75rem;
-    --font-size-sm: 0.875rem;
-    --font-size-base: 1rem;
-    --font-size-lg: 1.125rem;
-    --font-size-xl: 1.25rem;
-    --font-size-2xl: 1.5rem;
-    --font-size-3xl: 1.875rem;
-    --font-size-4xl: 2.25rem;
-
-    --font-weight-normal: 400;
-    --font-weight-medium: 500;
-    --font-weight-semibold: 600;
-    --font-weight-bold: 700;
-
-    --line-height-tight: 1.25;
-    --line-height-snug: 1.375;
-    --line-height-normal: 1.5;
-    --line-height-relaxed: 1.625;
-    --line-height-loose: 2;
-
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-
-    /* Durations */
-    --duration-fast: 150ms;
-    --duration-normal: 300ms;
-    --duration-slow: 500ms;
-
-    /* Z-index */
-    --z-hide: -1;
-    --z-auto: auto;
-    --z-base: 0;
-    --z-dropdown: 1000;
-    --z-sticky: 1100;
-    --z-fixed: 1200;
-    --z-modal-backdrop: 1300;
-    --z-modal: 1400;
-    --z-popover: 1500;
-    --z-tooltip: 1600;
+    /* Shadows (Miro elevation scale — predominantly flat) */
+    --shadow-subtle: 0px 1px 2px 0px rgba(5, 0, 56, 0.04);
+    --shadow-card: 0px 4px 12px 0px rgba(5, 0, 56, 0.06);
+    --shadow-mockup: 0px 12px 32px -4px rgba(5, 0, 56, 0.08);
+    --shadow-modal: 0px 16px 48px -8px rgba(5, 0, 56, 0.12);
   }
 }
-
-/**
- * Dark mode tokens (optional)
- * Uncomment and customize for dark theme support
- */
-/*
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-gray-50: #0f172a;
-    --color-gray-100: #1e293b;
-    --color-gray-200: #334155;
-    --color-gray-300: #475569;
-    --color-gray-400: #64748b;
-    --color-gray-500: #94a3b8;
-    --color-gray-600: #cbd5e1;
-    --color-gray-700: #e2e8f0;
-    --color-gray-800: #f1f5f9;
-    --color-gray-900: #f8fafc;
-  }
-}
-*/
