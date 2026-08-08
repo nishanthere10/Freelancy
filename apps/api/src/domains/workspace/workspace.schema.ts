@@ -32,7 +32,7 @@ export const createWorkspaceSchema = z.object({
     .min(1, "Workspace name is required")
     .max(255, "Workspace name must not exceed 255 characters"),
   slug: slugSchema,
-  // ownerId is NOT in the request body — it comes from the authenticated user (actorId)
+  ownerId: z.string().uuid("Owner ID must be a valid UUID").optional(),
   description: z
     .string()
     .trim()
