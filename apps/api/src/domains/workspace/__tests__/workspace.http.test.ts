@@ -3,7 +3,12 @@
  * Tests complete request → response lifecycle
  */
 
-import express, { type Application } from "express";
+import express, {
+  type Application,
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
 import { beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
 import workspaceRoutes from "../workspace.routes";
@@ -17,21 +22,28 @@ describe("Workspace HTTP Layer", () => {
     app.use(express.json());
 
     // Mock auth middleware for testing
-    app.use((req: any, res, next) => {
-      req.user = { id: "00000000-0000-0000-0000-000000000001" };
+    interface AuthRequest extends Request {
+      user?: { id: string };
+    }
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      (req as AuthRequest).user = {
+        id: "00000000-0000-0000-0000-000000000001",
+      };
       next();
     });
 
     app.use("/api/v1/workspaces", workspaceRoutes);
 
     // Error middleware
-    app.use((error: any, req: any, res: any, next: any) => {
-      res.status(500).json({
-        success: false,
-        error: "INTERNAL_ERROR",
-        message: error.message,
-      });
-    });
+    app.use(
+      (error: unknown, req: Request, res: Response, next: NextFunction) => {
+        res.status(500).json({
+          success: false,
+          error: "INTERNAL_ERROR",
+          message: error instanceof Error ? error.message : "An error occurred",
+        });
+      },
+    );
   });
 
   describe("POST /api/v1/workspaces", () => {
@@ -234,7 +246,7 @@ describe("Workspace HTTP Layer", () => {
 
       const result = createWorkspaceSchema.safeParse(payload);
       expect(result.success).toBe(true);
-      expect((result.data as any).name).toBe("Test Workspace");
+      expect((result.data as { name: string }).name).toBe("Test Workspace");
     });
 
     it("trims whitespace from slug", async () => {
@@ -246,7 +258,7 @@ describe("Workspace HTTP Layer", () => {
 
       const result = createWorkspaceSchema.safeParse(payload);
       expect(result.success).toBe(true);
-      expect((result.data as any).slug).toBe("test-workspace");
+      expect((result.data as { slug: string }).slug).toBe("test-workspace");
     });
   });
 
@@ -260,7 +272,7 @@ describe("Workspace HTTP Layer", () => {
 
       const result = createWorkspaceSchema.safeParse(payload);
       expect(result.success).toBe(true);
-      expect((result.data as any).slug).toBe("test-workspace");
+      expect((result.data as { slug: string }).slug).toBe("test-workspace");
     });
   });
 

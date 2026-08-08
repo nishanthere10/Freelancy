@@ -6,9 +6,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { WorkspaceMemberRepository, WorkspaceRepository } from "../repository";
 import type {
-  CreateWorkspaceInput,
-  CreateWorkspaceMemberInput,
-  UpdateWorkspaceInput,
+  CreateWorkspaceMemberRepositoryInput,
+  CreateWorkspaceRepositoryInput,
+  UpdateWorkspaceRepositoryInput,
 } from "../workspace.types";
 
 describe("WorkspaceRepository", () => {
@@ -22,7 +22,7 @@ describe("WorkspaceRepository", () => {
 
   describe("create", () => {
     it("should create a workspace with valid input", async () => {
-      const input: CreateWorkspaceInput = {
+      const input: CreateWorkspaceRepositoryInput = {
         name: "Test Workspace",
         slug: "test-workspace",
         description: "A test workspace",
@@ -38,13 +38,13 @@ describe("WorkspaceRepository", () => {
       const input = {
         slug: "test-workspace",
         ownerId: testOwnerId,
-      } as any;
+      } as unknown as CreateWorkspaceRepositoryInput;
 
       expect(input.name).toBeUndefined();
     });
 
     it("should reject workspace with empty slug", () => {
-      const input: CreateWorkspaceInput = {
+      const input: CreateWorkspaceRepositoryInput = {
         name: "Test",
         slug: "",
         ownerId: testOwnerId,
@@ -57,7 +57,7 @@ describe("WorkspaceRepository", () => {
       const input = {
         name: "Test",
         slug: "test",
-      } as any;
+      } as unknown as CreateWorkspaceRepositoryInput;
 
       expect(input.ownerId).toBeUndefined();
     });
@@ -97,7 +97,7 @@ describe("WorkspaceRepository", () => {
 
   describe("list", () => {
     it("should return empty array for user with no workspaces", () => {
-      const workspaces: any[] = [];
+      const workspaces: unknown[] = [];
       expect(workspaces).toHaveLength(0);
     });
 
@@ -118,7 +118,7 @@ describe("WorkspaceRepository", () => {
 
   describe("update", () => {
     it("should update workspace fields", () => {
-      const updates: UpdateWorkspaceInput = {
+      const updates: UpdateWorkspaceRepositoryInput = {
         name: "Updated Name",
         description: "Updated description",
       };
@@ -127,7 +127,7 @@ describe("WorkspaceRepository", () => {
     });
 
     it("should not update owner or ID", () => {
-      const updates: UpdateWorkspaceInput = {
+      const updates: UpdateWorkspaceRepositoryInput = {
         name: "New Name",
       };
 
@@ -217,7 +217,7 @@ describe("WorkspaceMemberRepository", () => {
 
   describe("create", () => {
     it("should create membership with valid input", () => {
-      const input: CreateWorkspaceMemberInput = {
+      const input: CreateWorkspaceMemberRepositoryInput = {
         workspaceId: testWorkspaceId,
         userId: testUserId,
         role: "editor",
@@ -242,7 +242,7 @@ describe("WorkspaceMemberRepository", () => {
         workspaceId: testWorkspaceId,
         userId: testUserId,
         role: "admin", // Invalid role
-      } as any;
+      } as unknown as CreateWorkspaceMemberRepositoryInput;
 
       expect(["owner", "editor", "viewer"]).not.toContain(input.role);
     });
@@ -271,7 +271,7 @@ describe("WorkspaceMemberRepository", () => {
 
   describe("listByWorkspace", () => {
     it("should return all active members in workspace", () => {
-      const members: any[] = [];
+      const members: unknown[] = [];
       expect(members).toBeDefined();
     });
 
@@ -286,7 +286,7 @@ describe("WorkspaceMemberRepository", () => {
 
   describe("listByUser", () => {
     it("should return all workspaces user is member of", () => {
-      const memberships: any[] = [];
+      const memberships: unknown[] = [];
       expect(memberships).toBeDefined();
     });
 

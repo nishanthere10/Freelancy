@@ -4,7 +4,7 @@
 
 import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
-import { ApiError, type NormalizedError } from './types';
+import { ApiError } from './types';
 
 /**
  * Request interceptor
@@ -20,9 +20,6 @@ export function setupRequestInterceptor(
     // if (token) {
     //   config.headers.Authorization = `Bearer ${token}`;
     // }
-
-    // Set common headers
-    config.headers['Content-Type'] = 'application/json';
 
     return config;
   });
@@ -48,10 +45,10 @@ export function setupResponseInterceptor(
 /**
  * Normalize axios error to standardized format
  */
-export function normalizeError(error: AxiosError): ApiError {
+function normalizeError(error: AxiosError): ApiError {
   // API error response
   if (error.response?.status && error.response.data) {
-    const data = error.response.data as any;
+    const data = error.response.data as { error?: string; message?: string; details?: Record<string, unknown> };
     return new ApiError(
       data.error || 'UNKNOWN_ERROR',
       data.message || 'An error occurred',

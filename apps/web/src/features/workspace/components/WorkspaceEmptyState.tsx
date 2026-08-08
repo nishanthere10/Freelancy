@@ -6,7 +6,7 @@
  */
 
 import { Button } from '@shared/components';
-import { Briefcase, Plus } from 'lucide-react';
+import { Briefcase, Plus } from '@phosphor-icons/react';
 
 interface WorkspaceEmptyStateProps {
   onCreateClick: () => void;

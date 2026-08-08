@@ -16,9 +16,9 @@ export interface FormFieldProps<T extends FieldValues>
   required?: boolean;
 }
 
-export const FormField = forwardRef<HTMLInputElement, FormFieldProps<any>>(
+export const FormField = forwardRef<HTMLInputElement, FormFieldProps<FieldValues>>(
   ({ name, label, placeholder, type = 'text', required = false, disabled = false, ...props }, ref) => {
-    const { control, formState } = useFormContext<any>();
+    const { control, formState } = useFormContext<FieldValues>();
     const fieldError = formState.errors[name];
     const errorMessage = fieldError?.message as string | undefined;
 

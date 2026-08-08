@@ -1,9 +1,1 @@
-export { CreateWorkspaceDialog } from './CreateWorkspaceDialog';
-export { CreateWorkspaceForm } from './CreateWorkspaceForm';
-export { WorkspaceCard } from './WorkspaceCard';
-export { WorkspaceEmptyState } from './WorkspaceEmptyState';
-export { WorkspaceGrid } from './WorkspaceGrid';
-export { WorkspaceHeader } from './WorkspaceHeader';
 export { WorkspacePage } from './WorkspacePage';
-export { WorkspaceToolbar } from './WorkspaceToolbar';
-export { EditWorkspaceDialog } from './EditWorkspaceDialog';

@@ -18,6 +18,7 @@
     "drizzle-orm": "^0.30.10"
   },
   "devDependencies": {
+    "@repo/tsconfig": "workspace:*",
     "drizzle-kit": "^0.20.14",
     "postgres": "^3.4.4",
     "@types/node": "^20.10.6",

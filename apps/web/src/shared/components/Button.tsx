@@ -1,7 +1,7 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react';
 import { cn } from '@shared/utils/cn';
 
-export type ButtonVariant =
+type ButtonVariant =
   | 'primary'
   | 'yellow'
   | 'blue'
@@ -11,7 +11,7 @@ export type ButtonVariant =
   | 'on-dark'
   | 'icon';
 
-export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
+type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;

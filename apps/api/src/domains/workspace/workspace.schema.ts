@@ -11,7 +11,6 @@ import { z } from "zod";
  */
 const slugSchema = z
   .string()
-  .toLowerCase()
   .trim()
   .regex(
     /^[a-z0-9-]+$/,
@@ -33,6 +32,7 @@ export const createWorkspaceSchema = z.object({
     .min(1, "Workspace name is required")
     .max(255, "Workspace name must not exceed 255 characters"),
   slug: slugSchema,
+  // ownerId is NOT in the request body — it comes from the authenticated user (actorId)
   description: z
     .string()
     .trim()
@@ -49,7 +49,7 @@ export const createWorkspaceSchema = z.object({
     .transform((val) => val || undefined), // Convert empty string/null to undefined
 });
 
-export type CreateWorkspaceSchema = z.infer<typeof createWorkspaceSchema>;
+export type CreateWorkspaceRequest = z.infer<typeof createWorkspaceSchema>;
 
 /**
  * Update workspace schema
@@ -79,19 +79,19 @@ export const updateWorkspaceSchema = z
   })
   .strict(); // Reject unknown fields
 
-export type UpdateWorkspaceSchema = z.infer<typeof updateWorkspaceSchema>;
+export type UpdateWorkspaceRequest = z.infer<typeof updateWorkspaceSchema>;
 
 /**
  * Workspace member role enum
  */
-export const workspaceRoleSchema = z.enum(["owner", "editor", "viewer"]);
+const workspaceRoleSchema = z.enum(["owner", "editor", "viewer"]);
 
-export type WorkspaceRoleSchema = z.infer<typeof workspaceRoleSchema>;
+type WorkspaceRoleSchema = z.infer<typeof workspaceRoleSchema>;
 
 /**
  * Create workspace member schema
  */
-export const createWorkspaceMemberSchema = z
+const createWorkspaceMemberSchema = z
   .object({
     workspaceId: z.string().uuid("Workspace ID must be a valid UUID"),
     userId: z.string().uuid("User ID must be a valid UUID"),
@@ -100,34 +100,34 @@ export const createWorkspaceMemberSchema = z
   })
   .strict(); // Reject unknown fields
 
-export type CreateWorkspaceMemberSchema = z.infer<
+type CreateWorkspaceMemberRequest = z.infer<
   typeof createWorkspaceMemberSchema
 >;
 
 /**
  * Update workspace member schema
  */
-export const updateWorkspaceMemberSchema = z
+const updateWorkspaceMemberSchema = z
   .object({
     role: workspaceRoleSchema.optional(),
   })
   .strict(); // Reject unknown fields
 
-export type UpdateWorkspaceMemberSchema = z.infer<
+type UpdateWorkspaceMemberRequest = z.infer<
   typeof updateWorkspaceMemberSchema
 >;
 
 /**
  * Query parameter schemas
  */
-export const workspaceQuerySchema = z
+const workspaceQuerySchema = z
   .object({
     ownerId: z.string().uuid().optional(),
     excludeDeleted: z.boolean().default(true),
   })
   .strict();
 
-export const workspaceMemberQuerySchema = z
+const workspaceMemberQuerySchema = z
   .object({
     workspaceId: z.string().uuid().optional(),
     userId: z.string().uuid().optional(),

@@ -31,22 +31,20 @@ describe('Button', () => {
   it('applies variant styles', () => {
     const { rerender } = render(<Button variant="primary">Primary</Button>);
     let button = screen.getByRole('button');
-    expect(button.className).toContain('bg-blue-600');
+    expect(button.className).toContain('bg-[var(--color-primary)]');
 
-    rerender(<Button variant="danger">Danger</Button>);
+    rerender(<Button variant="yellow">Yellow</Button>);
     button = screen.getByRole('button');
-    expect(button.className).toContain('bg-red-600');
+    expect(button.className).toContain('bg-[var(--color-brand-yellow)]');
   });
 
   it('applies size styles', () => {
     const { rerender } = render(<Button size="sm">Small</Button>);
     let button = screen.getByRole('button');
-    expect(button.className).toContain('px-3');
-    expect(button.className).toContain('py-1.5');
+    expect(button.className).toContain('px-4');
 
     rerender(<Button size="lg">Large</Button>);
     button = screen.getByRole('button');
-    expect(button.className).toContain('px-6');
-    expect(button.className).toContain('py-3');
+    expect(button.className).toContain('px-8');
   });
 });

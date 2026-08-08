@@ -27,14 +27,6 @@ export function mapWorkspaceToResponse(
   };
 }
 
-/**
- * Map multiple workspaces to HTTP responses
- */
-export function mapWorkspacesToResponse(
-  workspaces: Workspace[],
-): WorkspaceResponse[] {
-  return workspaces.map(mapWorkspaceToResponse);
-}
 
 /**
  * Map workspace memberships (workspace + role) to responses
@@ -45,28 +37,3 @@ export function mapMembershipsToResponse(
   return memberships.map(({ workspace }) => mapWorkspaceToResponse(workspace));
 }
 
-/**
- * Map workspace member entity to HTTP response
- */
-export function mapMemberToResponse(
-  member: WorkspaceMember,
-): WorkspaceMemberResponse {
-  return {
-    id: member.id,
-    workspaceId: member.workspaceId,
-    userId: member.userId,
-    role: member.role,
-    joinedAt: member.joinedAt,
-    invitedBy: member.invitedBy,
-    leftAt: member.leftAt,
-  };
-}
-
-/**
- * Map multiple members to HTTP responses
- */
-export function mapMembersToResponse(
-  members: WorkspaceMember[],
-): WorkspaceMemberResponse[] {
-  return members.map(mapMemberToResponse);
-}

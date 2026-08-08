@@ -4,7 +4,6 @@
  * Handles all database queries using Drizzle ORM
  */
 
-import { db } from "../../db/client";
 import {
   type Workspace,
   type WorkspaceMember,
@@ -13,11 +12,12 @@ import {
   workspacesTable,
 } from "@repo/database";
 import { and, eq, isNotNull, isNull } from "drizzle-orm";
+import { db } from "../../db/client";
 import type {
-  CreateWorkspaceInput,
-  CreateWorkspaceMemberInput,
-  UpdateWorkspaceInput,
-  UpdateWorkspaceMemberInput,
+  CreateWorkspaceMemberRepositoryInput,
+  CreateWorkspaceRepositoryInput,
+  UpdateWorkspaceMemberRepositoryInput,
+  UpdateWorkspaceRepositoryInput,
   WorkspaceMemberQueryFilters,
   WorkspaceQueryFilters,
 } from "./workspace.types";
@@ -33,7 +33,7 @@ export class WorkspaceRepository {
    * @returns The created workspace
    * @throws Error if workspace with slug already exists or database error occurs
    */
-  async create(data: CreateWorkspaceInput): Promise<Workspace> {
+  async create(data: CreateWorkspaceRepositoryInput): Promise<Workspace> {
     // Validate required fields before database operation
     if (!data.name || data.name.trim().length === 0) {
       throw new Error("Workspace name cannot be empty");
@@ -64,11 +64,12 @@ export class WorkspaceRepository {
       }
 
       return workspace;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const pgError = error as { code?: string; constraint?: string };
       // Handle unique constraint violation
       if (
-        error.code === "23505" &&
-        error.constraint === "workspaces_slug_key"
+        pgError.code === "23505" &&
+        pgError.constraint === "workspaces_slug_key"
       ) {
         throw new Error("A workspace with this slug already exists");
       }
@@ -157,7 +158,7 @@ export class WorkspaceRepository {
    */
   async update(
     id: string,
-    data: UpdateWorkspaceInput,
+    data: UpdateWorkspaceRepositoryInput,
     updatedBy: string,
   ): Promise<Workspace> {
     // Build update object only with provided fields to avoid setting undefined
@@ -299,7 +300,9 @@ export class WorkspaceMemberRepository {
    * @returns The created membership record
    * @throws Error if invalid input or duplicate membership
    */
-  async create(data: CreateWorkspaceMemberInput): Promise<WorkspaceMember> {
+  async create(
+    data: CreateWorkspaceMemberRepositoryInput,
+  ): Promise<WorkspaceMember> {
     // Validate required fields
     if (!data.workspaceId) {
       throw new Error("Workspace ID is required");
@@ -324,16 +327,17 @@ export class WorkspaceMemberRepository {
       }
 
       return member;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const pgError = error as { code?: string; constraint?: string };
       // Handle unique constraint violation (duplicate membership)
       if (
-        error.code === "23505" &&
-        error.constraint === "workspace_members_unique"
+        pgError.code === "23505" &&
+        pgError.constraint === "workspace_members_unique"
       ) {
         throw new Error("User is already a member of this workspace");
       }
       // Handle foreign key violation
-      if (error.code === "23503") {
+      if (pgError.code === "23503") {
         throw new Error("Workspace or user does not exist");
       }
       throw error;
@@ -455,7 +459,7 @@ export class WorkspaceMemberRepository {
    */
   async update(
     id: string,
-    data: UpdateWorkspaceMemberInput,
+    data: UpdateWorkspaceMemberRepositoryInput,
   ): Promise<WorkspaceMember> {
     // Only update role if explicitly provided
     if (data.role === undefined) {

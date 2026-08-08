@@ -2,12 +2,12 @@
  * API response types
  */
 
-export interface SuccessResponse<T> {
+interface SuccessResponse<T> {
   success: true;
   data: T;
 }
 
-export interface ErrorResponse {
+interface ErrorResponse {
   success: false;
   error: string;
   message: string;
@@ -34,7 +34,7 @@ export class ApiError extends Error {
 /**
  * Normalized API error
  */
-export interface NormalizedError {
+interface NormalizedError {
   code: string;
   message: string;
   details?: Record<string, unknown>;

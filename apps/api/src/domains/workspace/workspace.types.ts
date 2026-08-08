@@ -30,9 +30,43 @@ export interface WorkspaceMemberResponse {
 }
 
 /**
- * Input types for creating/updating workspaces
+ * Service-layer types
+ * Inputs/outputs of WorkspaceService.
+ * Service input stops at business fields, owner/actor IDs are passed explicitly as arguments.
  */
-export interface CreateWorkspaceInput {
+export interface CreateWorkspaceServiceInput {
+  name: string;
+  slug: string;
+  description?: string;
+  logo?: string;
+}
+
+export interface UpdateWorkspaceServiceInput {
+  name?: string;
+  description?: string;
+  logo?: string;
+}
+
+interface CreateWorkspaceMemberServiceInput {
+  workspaceId: string;
+  userId: string;
+  role?: WorkspaceRole;
+}
+
+interface UpdateWorkspaceMemberServiceInput {
+  role?: WorkspaceRole;
+}
+
+interface AddMemberServiceInput {
+  userId: string;
+  role?: WorkspaceRole;
+}
+
+/**
+ * Repository input types
+ * Persistence-ready data structures.
+ */
+export interface CreateWorkspaceRepositoryInput {
   name: string;
   slug: string;
   description?: string | null;
@@ -40,20 +74,20 @@ export interface CreateWorkspaceInput {
   ownerId: string;
 }
 
-export interface UpdateWorkspaceInput {
+export interface UpdateWorkspaceRepositoryInput {
   name?: string;
   description?: string;
   logo?: string;
 }
 
-export interface CreateWorkspaceMemberInput {
+export interface CreateWorkspaceMemberRepositoryInput {
   workspaceId: string;
   userId: string;
   role?: WorkspaceRole;
   invitedBy?: string | null;
 }
 
-export interface UpdateWorkspaceMemberInput {
+export interface UpdateWorkspaceMemberRepositoryInput {
   role?: WorkspaceRole;
 }
 
@@ -74,27 +108,10 @@ export interface WorkspaceMemberQueryFilters {
 }
 
 /**
- * Service-layer types
- * Inputs/outputs of WorkspaceService. Validation boundary owns the actorId:
- * controller derives it from auth; service input stops at workspace fields.
- */
-export interface CreateWorkspaceServiceInput {
-  name: string;
-  slug: string;
-  description?: string;
-  logo?: string;
-}
-
-export interface AddMemberServiceInput {
-  userId: string;
-  role?: WorkspaceRole;
-}
-
-/**
  * Workspace paired with the caller's membership — used for listings for the
  * future workspace switcher.
  */
-export interface WorkspaceMembershipView {
+interface WorkspaceMembershipView {
   workspace: Workspace;
   membership: WorkspaceMember;
 }

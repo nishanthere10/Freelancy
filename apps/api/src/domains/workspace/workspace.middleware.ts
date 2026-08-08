@@ -66,28 +66,3 @@ export function validateParams(schema: ZodSchema) {
   };
 }
 
-/**
- * Validates request query against Zod schema
- */
-export function validateQuery(schema: ZodSchema) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = schema.safeParse(req.query);
-
-      if (!result.success) {
-        const details = result.error.flatten().fieldErrors;
-        return res
-          .status(400)
-          .json(
-            createError("VALIDATION_ERROR", "Query validation failed", details),
-          );
-      }
-
-      // Cast validated data to query (safe after Zod validation)
-      Object.assign(req.query, result.data);
-      next();
-    } catch (error) {
-      next(error);
-    }
-  };
-}

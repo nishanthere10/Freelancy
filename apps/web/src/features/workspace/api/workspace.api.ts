@@ -47,6 +47,6 @@ export async function deleteWorkspace(id: string): Promise<WorkspaceResponse> {
 /**
  * Restore workspace (from soft delete)
  */
-export async function restoreWorkspace(id: string): Promise<WorkspaceResponse> {
+async function restoreWorkspace(id: string): Promise<WorkspaceResponse> {
   return apiPost<WorkspaceResponse>(`/workspaces/${id}/restore`, {});
 }

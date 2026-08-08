@@ -3,8 +3,8 @@
  * Thin layer: receives request → calls service → maps response
  */
 
-import { createError, createSuccess } from "../../utils/response";
 import type { NextFunction, Request, Response } from "express";
+import { createError, createSuccess } from "../../utils/response";
 import { WorkspaceMemberRepository } from "./repository";
 import { WorkspaceRepository } from "./repository";
 import { NullWorkspaceEventEmitter } from "./workspace.events";
@@ -12,10 +12,14 @@ import {
   mapMembershipsToResponse,
   mapWorkspaceToResponse,
 } from "./workspace.mapper";
+import type {
+  CreateWorkspaceRequest,
+  UpdateWorkspaceRequest,
+} from "./workspace.schema";
 import { WorkspaceService } from "./workspace.service";
 import type {
-  CreateWorkspaceInput,
-  UpdateWorkspaceInput,
+  CreateWorkspaceServiceInput,
+  UpdateWorkspaceServiceInput,
 } from "./workspace.types";
 
 interface AuthRequest extends Request {
@@ -105,14 +109,20 @@ export async function createWorkspace(
   next: NextFunction,
 ) {
   try {
-    const data = req.body as CreateWorkspaceInput;
+    const requestBody = req.body as CreateWorkspaceRequest;
     const userId = getUserId(req);
     if (!userId) {
       return res
         .status(401)
         .json(createError("UNAUTHORIZED", "Authentication required"));
     }
-    const result = await workspaceService.createWorkspace(data, userId);
+    const serviceInput: CreateWorkspaceServiceInput = {
+      name: requestBody.name,
+      slug: requestBody.slug,
+      description: requestBody.description,
+      logo: requestBody.logo,
+    };
+    const result = await workspaceService.createWorkspace(serviceInput, userId);
     if (!result.success) {
       if (result.error.code === "VALIDATION_ERROR") {
         return res
@@ -142,14 +152,23 @@ export async function updateWorkspace(
 ) {
   try {
     const { id } = req.params as { id: string };
-    const data = req.body as UpdateWorkspaceInput;
+    const requestBody = req.body as UpdateWorkspaceRequest;
     const userId = getUserId(req);
     if (!userId) {
       return res
         .status(401)
         .json(createError("UNAUTHORIZED", "Authentication required"));
     }
-    const result = await workspaceService.updateWorkspace(id, data, userId);
+    const serviceInput: UpdateWorkspaceServiceInput = {
+      name: requestBody.name,
+      description: requestBody.description,
+      logo: requestBody.logo,
+    };
+    const result = await workspaceService.updateWorkspace(
+      id,
+      serviceInput,
+      userId,
+    );
     if (!result.success) {
       if (result.error.code === "WORKSPACE_NOT_FOUND") {
         return res
@@ -162,9 +181,7 @@ export async function updateWorkspace(
           .json(createError("FORBIDDEN", result.error.message));
       }
       if (result.error.code === "WORKSPACE_DELETED") {
-        return res
-          .status(410)
-          .json(createError("GONE", result.error.message));
+        return res.status(410).json(createError("GONE", result.error.message));
       }
       if (result.error.code === "VALIDATION_ERROR") {
         return res
@@ -208,9 +225,7 @@ export async function deleteWorkspace(
           .json(createError("FORBIDDEN", result.error.message));
       }
       if (result.error.code === "WORKSPACE_DELETED") {
-        return res
-          .status(410)
-          .json(createError("GONE", result.error.message));
+        return res.status(410).json(createError("GONE", result.error.message));
       }
       return res
         .status(500)

@@ -18,13 +18,13 @@ export interface ErrorResponse {
   success: false;
   error: string;
   message: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 /**
  * Paginated response
  */
-export interface PaginatedResponse<T> {
+interface PaginatedResponse<T> {
   success: true;
   data: T[];
   pagination: {
@@ -50,7 +50,11 @@ export function createSuccess<T>(data: T): SuccessResponse<T> {
 /**
  * Create an error response
  */
-export function createError(error: string, message: string, details?: Record<string, any>): ErrorResponse {
+export function createError(
+  error: string,
+  message: string,
+  details?: Record<string, unknown>,
+): ErrorResponse {
   return {
     success: false,
     error,
@@ -62,11 +66,11 @@ export function createError(error: string, message: string, details?: Record<str
 /**
  * Create a paginated response
  */
-export function createPaginated<T>(
+function createPaginated<T>(
   data: T[],
   total: number,
   page: number,
-  pageSize: number
+  pageSize: number,
 ): PaginatedResponse<T> {
   const pages = Math.ceil(total / pageSize);
 

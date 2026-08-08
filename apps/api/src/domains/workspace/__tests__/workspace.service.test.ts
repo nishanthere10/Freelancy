@@ -15,8 +15,13 @@ import type {
 } from "../workspace.events";
 import { type Result, WorkspaceService } from "../workspace.service";
 import type {
-  CreateWorkspaceInput,
-  UpdateWorkspaceInput,
+  CreateWorkspaceMemberRepositoryInput,
+  CreateWorkspaceRepositoryInput,
+  CreateWorkspaceServiceInput,
+  UpdateWorkspaceMemberRepositoryInput,
+  UpdateWorkspaceRepositoryInput,
+  UpdateWorkspaceServiceInput,
+  WorkspaceMemberQueryFilters,
 } from "../workspace.types";
 
 /**
@@ -27,8 +32,8 @@ class FakeWorkspaceRepository implements WorkspaceRepository {
   private workspaces: Map<string, Workspace> = new Map();
   private nextId = 1;
 
-  async create(data: CreateWorkspaceInput): Promise<Workspace> {
-    const id = `ws-${this.nextId++}`;
+  async create(data: CreateWorkspaceRepositoryInput): Promise<Workspace> {
+    const id = `00000000-0000-0000-0000-${String(this.nextId++).padStart(12, "0")}`;
     const now = new Date();
     const workspace: Workspace = {
       id,
@@ -76,7 +81,7 @@ class FakeWorkspaceRepository implements WorkspaceRepository {
 
   async update(
     id: string,
-    data: UpdateWorkspaceInput,
+    data: UpdateWorkspaceRepositoryInput,
     updatedBy: string,
   ): Promise<Workspace> {
     const ws = this.workspaces.get(id);
@@ -155,8 +160,10 @@ class FakeMemberRepository implements WorkspaceMemberRepository {
   private members: Map<string, WorkspaceMember> = new Map();
   private nextId = 1;
 
-  async create(data: any): Promise<WorkspaceMember> {
-    const id = `mem-${this.nextId++}`;
+  async create(
+    data: CreateWorkspaceMemberRepositoryInput,
+  ): Promise<WorkspaceMember> {
+    const id = `11111111-0000-0000-0000-${String(this.nextId++).padStart(12, "0")}`;
     const now = new Date();
     const member: WorkspaceMember = {
       id,
@@ -197,7 +204,9 @@ class FakeMemberRepository implements WorkspaceMemberRepository {
     return null;
   }
 
-  async list(filters?: any): Promise<WorkspaceMember[]> {
+  async list(
+    filters?: WorkspaceMemberQueryFilters,
+  ): Promise<WorkspaceMember[]> {
     return Array.from(this.members.values()).filter((mem) => {
       if (filters?.workspaceId && mem.workspaceId !== filters.workspaceId)
         return false;
@@ -216,7 +225,10 @@ class FakeMemberRepository implements WorkspaceMemberRepository {
     return this.list({ workspaceId, excludeDeleted: true });
   }
 
-  async update(id: string, data: any): Promise<WorkspaceMember> {
+  async update(
+    id: string,
+    data: UpdateWorkspaceMemberRepositoryInput,
+  ): Promise<WorkspaceMember> {
     const mem = this.members.get(id);
     if (!mem || mem.deletedAt) {
       throw new Error(`Member ${id} not found or deleted`);
@@ -303,10 +315,13 @@ describe("WorkspaceService", () => {
           description: "A test workspace",
           logo: null,
           ownerId: userId,
-        },
+        } as any,
         userId,
       );
 
+      if (!result.success) {
+        console.error("VALIDATION ERROR:", JSON.stringify(result.error, null, 2));
+      }
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.name).toBe("Test Workspace");
@@ -314,7 +329,7 @@ describe("WorkspaceService", () => {
       }
 
       // Verify creator is owner member
-      const membership = await memberRepo.getByWorkspaceAndUser("ws-1", userId);
+      const membership = await memberRepo.getByWorkspaceAndUser(result.data.id, userId);
       expect(membership?.role).toBe("owner");
 
       // Verify event emitted
@@ -330,7 +345,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -350,7 +365,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -372,7 +387,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -396,7 +411,7 @@ describe("WorkspaceService", () => {
           description: "Old description",
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -428,7 +443,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -464,7 +479,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -491,7 +506,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -521,7 +536,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -561,7 +576,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -589,7 +604,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -599,8 +614,8 @@ describe("WorkspaceService", () => {
       const result = await service.addMember(
         workspaceId,
         user2Id,
-        "editor",
         user1Id,
+        "editor",
       );
       expect(result.success).toBe(true);
       if (result.success) {
@@ -621,7 +636,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -631,16 +646,16 @@ describe("WorkspaceService", () => {
       const result1 = await service.addMember(
         workspaceId,
         user2Id,
-        "editor",
         user1Id,
+        "editor",
       );
       expect(result1.success).toBe(true);
 
       const result2 = await service.addMember(
         workspaceId,
         user2Id,
-        "viewer",
         user1Id,
+        "viewer",
       );
       expect(result2.success).toBe(false);
       if (!result2.success) {
@@ -658,7 +673,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -688,7 +703,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -712,7 +727,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -752,7 +767,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -782,7 +797,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user1Id,
-        },
+        } as any,
         user1Id,
       );
 
@@ -793,7 +808,7 @@ describe("WorkspaceService", () => {
           description: null,
           logo: null,
           ownerId: user2Id,
-        },
+        } as any,
         user2Id,
       );
 

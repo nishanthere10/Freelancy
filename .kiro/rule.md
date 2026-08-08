@@ -7,7 +7,7 @@
 ## Reading Order (Mandatory)
 
 All AI agents must read these files in this exact order:
-0. .agents\skills\caveman\SKILL.md
+0. .agents\skillpnpm installs\caveman\SKILL.md
 1. **01-project-context.md** - Vision, mission, product philosophy, market opportunity
 2. **02-product-context.md** - Product features, roadmap, user personas, differentiators
 3. **03-engineering-context.md** - Technical architecture, tech stack, database design

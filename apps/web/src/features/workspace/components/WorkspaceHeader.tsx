@@ -6,7 +6,7 @@
  */
 
 import { Button } from '@shared/components';
-import { Plus } from 'lucide-react';
+import { Plus } from '@phosphor-icons/react';
 
 interface WorkspaceHeaderProps {
   onCreateClick: () => void;

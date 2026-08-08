@@ -6,7 +6,7 @@
  */
 
 import { Card } from '@shared/components';
-import { Calendar, Copy, Edit2, Trash2, UserPlus } from 'lucide-react';
+import { Calendar, Copy, PencilSimple, Trash, UserPlus } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import type { WorkspaceResponse } from '../api';
 import { useDeleteWorkspace } from '../hooks';
@@ -76,14 +76,14 @@ export function WorkspaceCard({ workspace, onEdit }: WorkspaceCardProps) {
           className="p-1.5 rounded-[var(--radius-sm)] bg-[var(--color-canvas)] text-[var(--color-steel)] hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-soft)] shadow-sm border border-[var(--color-hairline-soft)] transition-colors"
           title="Edit Workspace"
         >
-          <Edit2 size={14} />
+          <PencilSimple size={14} />
         </button>
         <button
           onClick={handleDelete}
           className="p-1.5 rounded-[var(--radius-sm)] bg-[var(--color-canvas)] text-[var(--color-steel)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] shadow-sm border border-[var(--color-hairline-soft)] transition-colors"
           title="Delete Workspace"
         >
-          <Trash2 size={14} />
+          <Trash size={14} />
         </button>
       </div>
 

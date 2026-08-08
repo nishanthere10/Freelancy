@@ -5,7 +5,7 @@ import { useUpdateWorkspace } from '../hooks';
 import type { WorkspaceResponse } from '../api';
 import { createWorkspaceSchema, type CreateWorkspaceFormData } from '../schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { CircleNotch } from '@phosphor-icons/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 
@@ -38,7 +38,7 @@ export function EditWorkspaceDialog({ workspace, open, onOpenChange }: EditWorks
   const handleSubmit = async (data: CreateWorkspaceFormData) => {
     if (!workspace) return;
     try {
-      const { slug, ...updatePayload } = data;
+      const updatePayload = { name: data.name, description: data.description };
       await mutateAsync({ id: workspace.id, data: updatePayload });
       onOpenChange(false);
     } catch {
@@ -102,7 +102,7 @@ export function EditWorkspaceDialog({ workspace, open, onOpenChange }: EditWorks
               Cancel
             </Button>
             <Button type="submit" variant="primary" size="md" disabled={isPending || form.formState.isSubmitting} className="flex items-center gap-2">
-              {isPending && <Loader2 size={15} className="animate-spin" />}
+              {isPending && <CircleNotch size={15} className="animate-spin" />}
               {isPending ? 'Saving…' : 'Save Changes'}
             </Button>
           </div>

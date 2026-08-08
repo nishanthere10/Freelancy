@@ -13,7 +13,7 @@ import type { WorkspaceRole } from "@repo/database";
 /**
  * Discriminator for all workspace domain events.
  */
-export type WorkspaceEventType =
+type WorkspaceEventType =
   | "workspace.created"
   | "workspace.updated"
   | "workspace.deleted"
@@ -26,7 +26,7 @@ export type WorkspaceEventType =
 /**
  * Common metadata carried by every domain event.
  */
-export interface WorkspaceDomainEventBase {
+interface WorkspaceDomainEventBase {
   /** Event discriminator */
   readonly type: WorkspaceEventType;
   /** Workspace the event pertains to */
@@ -37,7 +37,7 @@ export interface WorkspaceDomainEventBase {
   readonly occurredAt: string;
 }
 
-export interface WorkspaceCreatedPayload {
+interface WorkspaceCreatedPayload {
   readonly name: string;
   readonly slug: string;
   readonly description: string | null;
@@ -64,7 +64,7 @@ export interface WorkspaceUpdatedEvent extends WorkspaceDomainEventBase {
   readonly payload: WorkspaceUpdatedPayload;
 }
 
-export interface WorkspaceDeletedPayload {
+interface WorkspaceDeletedPayload {
   readonly name: string;
   readonly slug: string;
 }
@@ -74,14 +74,14 @@ export interface WorkspaceDeletedEvent extends WorkspaceDomainEventBase {
   readonly payload: WorkspaceDeletedPayload;
 }
 
-export type WorkspaceRestoredPayload = WorkspaceDeletedPayload;
+type WorkspaceRestoredPayload = WorkspaceDeletedPayload;
 
 export interface WorkspaceRestoredEvent extends WorkspaceDomainEventBase {
   readonly type: "workspace.restored";
   readonly payload: WorkspaceRestoredPayload;
 }
 
-export interface WorkspaceOwnershipTransferredPayload {
+interface WorkspaceOwnershipTransferredPayload {
   readonly previousOwnerId: string;
   readonly newOwnerId: string;
 }
@@ -92,7 +92,7 @@ export interface WorkspaceOwnershipTransferredEvent
   readonly payload: WorkspaceOwnershipTransferredPayload;
 }
 
-export interface WorkspaceMemberAddedPayload {
+interface WorkspaceMemberAddedPayload {
   readonly userId: string;
   readonly role: WorkspaceRole;
   readonly invitedBy: string | null;
@@ -103,7 +103,7 @@ export interface WorkspaceMemberAddedEvent extends WorkspaceDomainEventBase {
   readonly payload: WorkspaceMemberAddedPayload;
 }
 
-export interface WorkspaceMemberRemovedPayload {
+interface WorkspaceMemberRemovedPayload {
   readonly userId: string;
   readonly role: WorkspaceRole;
   /** True when the user removed themselves (leave) */
@@ -115,7 +115,7 @@ export interface WorkspaceMemberRemovedEvent extends WorkspaceDomainEventBase {
   readonly payload: WorkspaceMemberRemovedPayload;
 }
 
-export interface WorkspaceMemberRoleChangedPayload {
+interface WorkspaceMemberRoleChangedPayload {
   readonly userId: string;
   readonly previousRole: WorkspaceRole;
   readonly newRole: WorkspaceRole;

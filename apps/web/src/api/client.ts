@@ -3,7 +3,7 @@
  * Centralized axios instance with interceptors
  */
 
-import axios from 'axios';
+import axios, { type AxiosRequestConfig } from 'axios';
 import { setupRequestInterceptor, setupResponseInterceptor } from './interceptors';
 import { ApiError, type ApiResponse } from './types';
 
@@ -19,9 +19,6 @@ const baseURL =
 const client = axios.create({
   baseURL,
   timeout: 30000, // 30 seconds
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 // Setup interceptors
@@ -31,7 +28,7 @@ setupResponseInterceptor(client);
 /**
  * Typed GET request
  */
-export async function apiGet<T>(url: string, config?: any): Promise<T> {
+export async function apiGet<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
   const response = await client.get<ApiResponse<T>>(url, config);
   if (!response.data.success) {
     throw new ApiError(
@@ -46,7 +43,7 @@ export async function apiGet<T>(url: string, config?: any): Promise<T> {
 /**
  * Typed POST request
  */
-export async function apiPost<T>(url: string, data?: any, config?: any): Promise<T> {
+export async function apiPost<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
   const response = await client.post<ApiResponse<T>>(url, data, config);
   if (!response.data.success) {
     throw new ApiError(
@@ -61,7 +58,7 @@ export async function apiPost<T>(url: string, data?: any, config?: any): Promise
 /**
  * Typed PATCH request
  */
-export async function apiPatch<T>(url: string, data?: any, config?: any): Promise<T> {
+export async function apiPatch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
   const response = await client.patch<ApiResponse<T>>(url, data, config);
   if (!response.data.success) {
     throw new ApiError(
@@ -76,7 +73,7 @@ export async function apiPatch<T>(url: string, data?: any, config?: any): Promis
 /**
  * Typed DELETE request
  */
-export async function apiDelete<T>(url: string, config?: any): Promise<T> {
+export async function apiDelete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
   const response = await client.delete<ApiResponse<T>>(url, config);
   if (!response.data.success) {
     throw new ApiError(
@@ -88,4 +85,3 @@ export async function apiDelete<T>(url: string, config?: any): Promise<T> {
   return response.data.data;
 }
 
-export default client;

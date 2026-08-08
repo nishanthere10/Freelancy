@@ -8,7 +8,7 @@
 
 import { Button, FormField } from '@shared/components';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { CircleNotch } from '@phosphor-icons/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { createWorkspaceSchema, type CreateWorkspaceFormData } from '../schemas';
 
@@ -110,7 +110,7 @@ export function CreateWorkspaceForm({
             disabled={isLoading || formState.isSubmitting}
             className="flex items-center gap-2"
           >
-            {isLoading && <Loader2 size={15} className="animate-spin" />}
+            {isLoading && <CircleNotch size={15} className="animate-spin" />}
             {isLoading ? 'Creating…' : 'Create Workspace'}
           </Button>
         </div>

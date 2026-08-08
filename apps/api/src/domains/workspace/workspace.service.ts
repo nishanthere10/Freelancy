@@ -47,10 +47,11 @@ import {
   updateWorkspaceSchema,
 } from "./workspace.schema";
 import type {
-  CreateWorkspaceInput,
-  CreateWorkspaceMemberInput,
-  UpdateWorkspaceInput,
-  UpdateWorkspaceMemberInput,
+  CreateWorkspaceMemberRepositoryInput,
+  CreateWorkspaceRepositoryInput,
+  CreateWorkspaceServiceInput,
+  UpdateWorkspaceRepositoryInput,
+  UpdateWorkspaceServiceInput,
 } from "./workspace.types";
 
 /**
@@ -94,7 +95,7 @@ export class WorkspaceService {
    * 5. Emit workspace.created event
    */
   async createWorkspace(
-    input: CreateWorkspaceInput,
+    input: CreateWorkspaceServiceInput,
     actorId: string,
   ): Promise<Result<Workspace>> {
     // Validate input
@@ -119,22 +120,25 @@ export class WorkspaceService {
     }
 
     try {
-      // Create workspace
-      const workspace = await this.workspaceRepo.create({
+      const repoInput: CreateWorkspaceRepositoryInput = {
         name: validation.data.name,
         slug: validation.data.slug,
         description: validation.data.description ?? null,
         logo: validation.data.logo ?? null,
         ownerId: actorId,
-      });
+      };
+
+      // Create workspace
+      const workspace = await this.workspaceRepo.create(repoInput);
 
       // Add creator as owner member
-      await this.memberRepo.create({
+      const memberInput: CreateWorkspaceMemberRepositoryInput = {
         workspaceId: workspace.id,
         userId: actorId,
         role: "owner",
-        invitedBy: undefined,
-      });
+        invitedBy: null,
+      };
+      await this.memberRepo.create(memberInput);
 
       // Emit event
       this.eventEmitter.emit(
@@ -245,7 +249,7 @@ export class WorkspaceService {
    */
   async updateWorkspace(
     workspaceId: string,
-    input: UpdateWorkspaceInput,
+    input: UpdateWorkspaceServiceInput,
     actorId: string,
   ): Promise<Result<Workspace>> {
     // Validate input
@@ -284,7 +288,7 @@ export class WorkspaceService {
 
       // Track changed fields for event
       const changedFields: ("name" | "description" | "logo")[] = [];
-      const previousValues: Record<string, any> = {};
+      const previousValues: Record<string, unknown> = {};
 
       if (
         validation.data.name !== undefined &&
@@ -313,9 +317,15 @@ export class WorkspaceService {
         return ok(workspace);
       }
 
+      const repoInput: UpdateWorkspaceRepositoryInput = {
+        name: validation.data.name,
+        description: validation.data.description,
+        logo: validation.data.logo,
+      };
+
       const updated = await this.workspaceRepo.update(
         workspaceId,
-        validation.data,
+        repoInput,
         actorId,
       );
 
@@ -323,7 +333,7 @@ export class WorkspaceService {
         workspaceUpdated({
           workspaceId,
           actorId,
-          changedFields: changedFields as any,
+          changedFields,
           previousValues,
         }),
       );
@@ -524,8 +534,8 @@ export class WorkspaceService {
   async addMember(
     workspaceId: string,
     userId: string,
-    role: WorkspaceRole = "viewer",
     actorId: string,
+    role: WorkspaceRole = "viewer",
   ): Promise<Result<WorkspaceMember>> {
     try {
       const workspace = await this.workspaceRepo.getById(workspaceId);
@@ -562,12 +572,14 @@ export class WorkspaceService {
         return err(new WorkspaceMembershipExistsError(workspaceId, userId));
       }
 
-      const member = await this.memberRepo.create({
+      const memberInput: CreateWorkspaceMemberRepositoryInput = {
         workspaceId,
         userId,
         role,
         invitedBy: actorId,
-      });
+      };
+
+      const member = await this.memberRepo.create(memberInput);
 
       this.eventEmitter.emit(
         workspaceMemberAdded({
