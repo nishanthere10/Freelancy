@@ -12,7 +12,9 @@ import express, {
   type NextFunction,
 } from "express";
 import clientRoutes from "./domains/client/client.routes";
+import projectRoutes from "./domains/project/project.routes";
 import workspaceRoutes from "./domains/workspace/workspace.routes";
+
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
@@ -49,6 +51,8 @@ app.use("/api/v1", (req: Request, res: Response, next: NextFunction) => {
 
 app.use("/api/v1/workspaces", workspaceRoutes);
 app.use("/api/v1/workspaces/:workspaceId/clients", clientRoutes);
+app.use("/api/v1/workspaces/:workspaceId/projects", projectRoutes);
+
 
 // Error handling middleware
 app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {

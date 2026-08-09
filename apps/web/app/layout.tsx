@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { AppProviders } from '@providers/AppProviders';
+import { Navbar } from '@shared/components';
 import { Agentation } from 'agentation';
 import './globals.css';
 
@@ -15,8 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
-      <body className="min-h-full antialiased" suppressHydrationWarning>
-        <AppProviders>{children}</AppProviders>
+      <body className="min-h-full antialiased bg-gray-50 flex flex-col" suppressHydrationWarning>
+        <AppProviders>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+        </AppProviders>
         {process.env.NODE_ENV === 'development' && <Agentation />}
       </body>
     </html>

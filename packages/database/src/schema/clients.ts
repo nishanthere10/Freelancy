@@ -50,6 +50,7 @@ export const clientsTable = pgTable(
   (table) => ({
     workspaceIdx: index('idx_clients_workspace_id').on(table.workspaceId),
     emailIdx: index('idx_clients_email').on(table.email),
+    workspaceIdIdUnique: uniqueIndex('idx_clients_workspace_id_id').on(table.workspaceId, table.id),
     workspaceEmailUnique: uniqueIndex('idx_clients_workspace_email')
       .on(table.workspaceId, table.email)
       .where(isNull(table.deletedAt)),

@@ -1,9 +1,13 @@
+'use client';
+
+import { use } from 'react';
 import { ClientPage } from '@features/client';
 
-export default function WorkspaceClientsRoute({
-  params,
-}: {
-  params: { workspaceId: string };
-}) {
-  return <ClientPage workspaceId={params.workspaceId} />;
+interface WorkspaceClientsRouteProps {
+  params: Promise<{ workspaceId: string }> | { workspaceId: string };
+}
+
+export default function WorkspaceClientsRoute({ params }: WorkspaceClientsRouteProps) {
+  const resolvedParams = 'then' in params ? use(params) : params;
+  return <ClientPage workspaceId={resolvedParams.workspaceId} />;
 }

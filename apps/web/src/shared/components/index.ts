@@ -4,3 +4,5 @@ export { Dialog } from './Dialog';
 export { FormField } from './FormField';
 export { Input } from './Input';
 export { Skeleton } from './Skeleton';
+export { Navbar } from './Navbar';
+
