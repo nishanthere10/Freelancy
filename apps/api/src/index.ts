@@ -15,6 +15,10 @@ import clientRoutes from "./domains/client/client.routes";
 import invoiceRoutes from "./domains/invoice/invoice.routes";
 import projectRoutes from "./domains/project/project.routes";
 import workspaceRoutes from "./domains/workspace/workspace.routes";
+import {
+  clerkAuth,
+  userResolverMiddleware,
+} from "./middleware/auth.middleware";
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
@@ -38,16 +42,8 @@ app.get("/", (req, res) => {
   res.json({ message: "Freelance OS API v1" });
 });
 
-// API Routes
-// Mock auth middleware (MVP only - replace with real auth later)
-interface AuthRequest extends Request {
-  user?: { id: string };
-}
-
-app.use("/api/v1", (req: Request, res: Response, next: NextFunction) => {
-  (req as AuthRequest).user = { id: "550e8400-e29b-41d4-a716-446655440000" }; // Proper UUID format
-  next();
-});
+// API Routes with authentication & user resolution
+app.use("/api/v1", clerkAuth, userResolverMiddleware);
 
 app.use("/api/v1/workspaces", workspaceRoutes);
 app.use("/api/v1/workspaces/:workspaceId/clients", clientRoutes);
@@ -68,19 +64,46 @@ app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-import { workspaceMembersTable, workspacesTable } from "@repo/database";
+import {
+  usersTable,
+  workspaceMembersTable,
+  workspacesTable,
+} from "@repo/database";
 import { and, eq } from "drizzle-orm";
 // Auto-seed default workspace for mock dev user
 import { db } from "./db/client";
 
 async function ensureDefaultWorkspace() {
-  // Skip auto-seeding in production environment
-  if (process.env.NODE_ENV === "production") {
+  // Only auto-seed mock workspace if explicitly enabled for local unit tests
+  if (
+    process.env.NODE_ENV === "production" ||
+    process.env.ENABLE_MOCK_AUTH !== "true"
+  ) {
     return;
   }
 
+
   const mockId = "550e8400-e29b-41d4-a716-446655440000";
   try {
+    const [existingUser] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, mockId));
+
+    if (!existingUser) {
+      await db
+        .insert(usersTable)
+        .values({
+          id: mockId,
+          clerkId: `mock_clerk_${mockId}`,
+          email: "dev@freelance-os.local",
+          firstName: "Development",
+          lastName: "User",
+          status: "active",
+        })
+        .onConflictDoNothing();
+    }
+
     const [existingWs] = await db
       .select()
       .from(workspacesTable)

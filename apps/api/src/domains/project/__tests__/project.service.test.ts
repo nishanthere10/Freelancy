@@ -113,7 +113,7 @@ class FakeProjectRepository implements Partial<ProjectRepository> {
         const term = filters.search.toLowerCase();
         const matches =
           p.name.toLowerCase().includes(term) ||
-          (p.description && p.description.toLowerCase().includes(term));
+          p.description?.toLowerCase().includes(term);
         if (!matches) return false;
       }
       return true;

@@ -103,7 +103,7 @@ class FakeClientRepository implements Partial<ClientRepository> {
         const matches =
           c.name.toLowerCase().includes(term) ||
           c.email.toLowerCase().includes(term) ||
-          (c.companyName && c.companyName.toLowerCase().includes(term));
+          c.companyName?.toLowerCase().includes(term);
         if (!matches) return false;
       }
       return true;

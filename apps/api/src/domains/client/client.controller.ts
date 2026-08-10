@@ -63,7 +63,11 @@ export async function createClient(
           .status(403)
           .json(createError("FORBIDDEN", result.error.message));
       }
-      console.error("[createClient] Unhandled service error:", result.error.code, result.error.message);
+      console.error(
+        "[createClient] Unhandled service error:",
+        result.error.code,
+        result.error.message,
+      );
       return res
         .status(500)
         .json(createError(result.error.code, result.error.message));

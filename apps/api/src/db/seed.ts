@@ -1,4 +1,4 @@
-import { workspacesTable, workspaceMembersTable } from "@repo/database";
+import { workspaceMembersTable, workspacesTable } from "@repo/database";
 import { and, eq } from "drizzle-orm";
 import { db } from "./client";
 

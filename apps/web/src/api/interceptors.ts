@@ -14,16 +14,32 @@ import { ApiError } from './types';
 export function setupRequestInterceptor(
   instance: ReturnType<typeof axios.create>
 ) {
-  instance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    // TODO: Add auth token from storage when auth is implemented
-    // const token = getAuthToken();
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+  instance.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
+    if (typeof window !== 'undefined') {
+      const clerkObj = (
+        window as unknown as {
+          Clerk?: {
+            session?: { getToken: () => Promise<string | null> };
+          };
+        }
+      ).Clerk;
+
+      if (clerkObj?.session) {
+        try {
+          const token = await clerkObj.session.getToken();
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        } catch (err) {
+          console.warn('Failed to retrieve Clerk token:', err);
+        }
+      }
+    }
 
     return config;
   });
 }
+
 
 /**
  * Response interceptor
@@ -36,11 +52,21 @@ export function setupResponseInterceptor(
   instance.interceptors.response.use(
     (response: AxiosResponse) => response,
     (error: AxiosError) => {
+      if (
+        typeof window !== 'undefined' &&
+        error.response?.status === 401 &&
+        !window.location.pathname.startsWith('/sign-in') &&
+        !window.location.pathname.startsWith('/sign-up')
+      ) {
+        window.location.href = '/sign-in';
+      }
+
       const normalizedError = normalizeError(error);
       return Promise.reject(normalizedError);
     }
   );
 }
+
 
 /**
  * Normalize axios error to standardized format
@@ -48,14 +74,34 @@ export function setupResponseInterceptor(
 function normalizeError(error: AxiosError): ApiError {
   // API error response
   if (error.response?.status && error.response.data) {
-    const data = error.response.data as { error?: string; message?: string; details?: Record<string, unknown> };
+    const data = error.response.data as {
+      error?: string | { code?: string; message?: string };
+      message?: string;
+      details?: Record<string, unknown>;
+    };
+
+    let errorCode = 'UNKNOWN_ERROR';
+    let errorMessage = 'An error occurred';
+
+    if (typeof data.error === 'string') {
+      errorCode = data.error;
+    } else if (data.error && typeof data.error === 'object' && data.error.code) {
+      errorCode = data.error.code;
+      errorMessage = data.error.message || errorMessage;
+    }
+
+    if (data.message) {
+      errorMessage = data.message;
+    }
+
     return new ApiError(
-      data.error || 'UNKNOWN_ERROR',
-      data.message || 'An error occurred',
+      errorCode,
+      errorMessage,
       data.details,
       error.response.status
     );
   }
+
 
   // Network error
   if (error.message === 'Network Error') {

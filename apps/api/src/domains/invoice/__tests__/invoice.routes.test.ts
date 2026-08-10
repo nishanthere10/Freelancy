@@ -64,7 +64,12 @@ describe("Invoice HTTP Layer & Controller", () => {
 
   describe("Controller Error Handler HTTP Mapping", () => {
     function createMockResponse() {
-      const res: { statusCode?: number; body?: unknown; status?: (code: number) => unknown; json?: (body: unknown) => unknown } = {};
+      const res: {
+        statusCode?: number;
+        body?: unknown;
+        status?: (code: number) => unknown;
+        json?: (body: unknown) => unknown;
+      } = {};
       res.status = (code: number) => {
         res.statusCode = code;
         return res;

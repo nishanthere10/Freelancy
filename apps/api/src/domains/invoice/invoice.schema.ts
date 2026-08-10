@@ -6,7 +6,7 @@ export const invoiceItemSchema = z.object({
     .union([z.number(), z.string()])
     .transform((val) => String(val))
     .refine(
-      (val) => !isNaN(Number(val)) && Number(val) > 0,
+      (val) => !Number.isNaN(Number(val)) && Number(val) > 0,
       "Quantity must be greater than 0",
     )
     .optional()
@@ -15,7 +15,7 @@ export const invoiceItemSchema = z.object({
     .union([z.number(), z.string()])
     .transform((val) => String(val))
     .refine(
-      (val) => !isNaN(Number(val)) && Number(val) >= 0,
+      (val) => !Number.isNaN(Number(val)) && Number(val) >= 0,
       "Unit price must be non-negative",
     )
     .optional()
@@ -37,7 +37,8 @@ export const createInvoiceSchema = z.object({
     .union([z.number(), z.string()])
     .transform((val) => String(val))
     .refine(
-      (val) => !isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100,
+      (val) =>
+        !Number.isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100,
       "Discount rate must be between 0 and 100",
     )
     .optional()
@@ -46,7 +47,8 @@ export const createInvoiceSchema = z.object({
     .union([z.number(), z.string()])
     .transform((val) => String(val))
     .refine(
-      (val) => !isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100,
+      (val) =>
+        !Number.isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100,
       "Tax rate must be between 0 and 100",
     )
     .optional()
@@ -70,7 +72,7 @@ export const recordPaymentSchema = z.object({
     .union([z.number(), z.string()])
     .transform((val) => String(val))
     .refine(
-      (val) => !isNaN(Number(val)) && Number(val) > 0,
+      (val) => !Number.isNaN(Number(val)) && Number(val) > 0,
       "Amount paid must be greater than 0",
     ),
   paymentMethod: z.string().optional().nullable(),

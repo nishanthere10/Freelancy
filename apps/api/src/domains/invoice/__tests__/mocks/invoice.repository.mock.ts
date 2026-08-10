@@ -26,7 +26,8 @@ export class FakeInvoiceRepository implements Partial<InvoiceRepository> {
   async create(data: CreateInvoiceRepositoryInput): Promise<InvoiceWithItems> {
     if (!data.workspaceId) throw new Error("Workspace ID is required");
     if (!data.clientId) throw new Error("Client ID is required");
-    if (!data.items || data.items.length === 0) throw new Error("At least one line item is required");
+    if (!data.items || data.items.length === 0)
+      throw new Error("At least one line item is required");
 
     const id = `inv-0000-0000-0000-${String(this.nextId++).padStart(12, "0")}`;
     const now = new Date();
@@ -81,7 +82,9 @@ export class FakeInvoiceRepository implements Partial<InvoiceRepository> {
       ...invoice,
       items: lineItems,
       clientName: this.clientNames.get(data.clientId) || null,
-      projectName: data.projectId ? (this.projectNames.get(data.projectId) || null) : null,
+      projectName: data.projectId
+        ? this.projectNames.get(data.projectId) || null
+        : null,
     };
   }
 
@@ -99,13 +102,21 @@ export class FakeInvoiceRepository implements Partial<InvoiceRepository> {
       ...inv,
       items: lineItems,
       clientName: this.clientNames.get(inv.clientId) || null,
-      projectName: inv.projectId ? (this.projectNames.get(inv.projectId) || null) : null,
+      projectName: inv.projectId
+        ? this.projectNames.get(inv.projectId) || null
+        : null,
     };
   }
 
-  async getByNumber(invoiceNumber: string, workspaceId: string): Promise<InvoiceWithItems | null> {
+  async getByNumber(
+    invoiceNumber: string,
+    workspaceId: string,
+  ): Promise<InvoiceWithItems | null> {
     const inv = Array.from(this.invoices.values()).find(
-      (i) => i.workspaceId === workspaceId && i.invoiceNumber === invoiceNumber && !i.deletedAt,
+      (i) =>
+        i.workspaceId === workspaceId &&
+        i.invoiceNumber === invoiceNumber &&
+        !i.deletedAt,
     );
     if (!inv) return null;
     return this.getById(inv.id, workspaceId);
@@ -117,13 +128,25 @@ export class FakeInvoiceRepository implements Partial<InvoiceRepository> {
       if (filters.excludeDeleted !== false && i.deletedAt) return false;
       if (filters.clientId && i.clientId !== filters.clientId) return false;
       if (filters.projectId && i.projectId !== filters.projectId) return false;
-      if (filters.status && filters.status !== "all" && i.status !== filters.status) return false;
+      if (
+        filters.status &&
+        filters.status !== "all" &&
+        i.status !== filters.status
+      )
+        return false;
       if (filters.search) {
         const term = filters.search.toLowerCase();
-        const clientName = (this.clientNames.get(i.clientId) || "").toLowerCase();
+        const clientName = (
+          this.clientNames.get(i.clientId) || ""
+        ).toLowerCase();
         const num = (i.invoiceNumber || "").toLowerCase();
         const notes = (i.notes || "").toLowerCase();
-        if (!clientName.includes(term) && !num.includes(term) && !notes.includes(term)) return false;
+        if (
+          !clientName.includes(term) &&
+          !num.includes(term) &&
+          !notes.includes(term)
+        )
+          return false;
       }
       return true;
     });
@@ -136,16 +159,25 @@ export class FakeInvoiceRepository implements Partial<InvoiceRepository> {
     return result;
   }
 
-  async update(id: string, workspaceId: string, data: UpdateInvoiceRepositoryInput): Promise<InvoiceWithItems> {
+  async update(
+    id: string,
+    workspaceId: string,
+    data: UpdateInvoiceRepositoryInput,
+  ): Promise<InvoiceWithItems> {
     const existing = await this.getById(id, workspaceId);
     if (!existing) throw new Error(`Invoice with ID ${id} not found`);
-    if (existing.status !== "draft") throw new Error(`Cannot edit invoice ${id} because it is in '${existing.status}' status and is locked`);
+    if (existing.status !== "draft")
+      throw new Error(
+        `Cannot edit invoice ${id} because it is in '${existing.status}' status and is locked`,
+      );
 
     const updated: Invoice = {
       ...existing,
       clientId: data.clientId || existing.clientId,
-      projectId: data.projectId !== undefined ? data.projectId : existing.projectId,
-      issueDate: data.issueDate !== undefined ? data.issueDate : existing.issueDate,
+      projectId:
+        data.projectId !== undefined ? data.projectId : existing.projectId,
+      issueDate:
+        data.issueDate !== undefined ? data.issueDate : existing.issueDate,
       dueDate: data.dueDate !== undefined ? data.dueDate : existing.dueDate,
       subtotal: data.subtotal || existing.subtotal,
       discountRate: data.discountRate || existing.discountRate,
@@ -182,14 +214,24 @@ export class FakeInvoiceRepository implements Partial<InvoiceRepository> {
       ...updated,
       items: lineItems,
       clientName: this.clientNames.get(updated.clientId) || null,
-      projectName: updated.projectId ? (this.projectNames.get(updated.projectId) || null) : null,
+      projectName: updated.projectId
+        ? this.projectNames.get(updated.projectId) || null
+        : null,
     };
   }
 
-  async softDelete(id: string, workspaceId: string, deletedBy: string): Promise<Invoice> {
+  async softDelete(
+    id: string,
+    workspaceId: string,
+    deletedBy: string,
+  ): Promise<Invoice> {
     const existing = await this.getById(id, workspaceId);
-    if (!existing) throw new Error(`Invoice with ID ${id} not found or already deleted`);
-    if (existing.status !== "draft") throw new Error(`Cannot delete invoice ${id} because it is in '${existing.status}' status. Only draft invoices can be deleted`);
+    if (!existing)
+      throw new Error(`Invoice with ID ${id} not found or already deleted`);
+    if (existing.status !== "draft")
+      throw new Error(
+        `Cannot delete invoice ${id} because it is in '${existing.status}' status. Only draft invoices can be deleted`,
+      );
 
     const updated: Invoice = {
       ...existing,
@@ -211,11 +253,20 @@ export class FakeInvoiceRepository implements Partial<InvoiceRepository> {
   async issueInvoice(
     id: string,
     workspaceId: string,
-    data: { invoiceNumber: string; sequenceNumber: number; issueDate?: string; dueDate?: string; updatedBy: string },
+    data: {
+      invoiceNumber: string;
+      sequenceNumber: number;
+      issueDate?: string;
+      dueDate?: string;
+      updatedBy: string;
+    },
   ): Promise<InvoiceWithItems> {
     const existing = await this.getById(id, workspaceId);
     if (!existing) throw new Error(`Invoice with ID ${id} not found`);
-    if (existing.status !== "draft") throw new Error(`Cannot send invoice ${id} because it is already in '${existing.status}' status`);
+    if (existing.status !== "draft")
+      throw new Error(
+        `Cannot send invoice ${id} because it is already in '${existing.status}' status`,
+      );
 
     const updated: Invoice = {
       ...existing,
@@ -234,11 +285,21 @@ export class FakeInvoiceRepository implements Partial<InvoiceRepository> {
   async recordPayment(
     id: string,
     workspaceId: string,
-    data: { amountPaid: string; amountDue: string; paymentMethod?: string; paymentReference?: string; paidAt?: Date; updatedBy: string },
+    data: {
+      amountPaid: string;
+      amountDue: string;
+      paymentMethod?: string;
+      paymentReference?: string;
+      paidAt?: Date;
+      updatedBy: string;
+    },
   ): Promise<InvoiceWithItems> {
     const existing = await this.getById(id, workspaceId);
     if (!existing) throw new Error(`Invoice with ID ${id} not found`);
-    if (existing.status !== "sent" && existing.status !== "overdue") throw new Error(`Cannot record payment on invoice ${id} because it is in '${existing.status}' status`);
+    if (existing.status !== "sent" && existing.status !== "overdue")
+      throw new Error(
+        `Cannot record payment on invoice ${id} because it is in '${existing.status}' status`,
+      );
 
     const isFullyPaid = Number(data.amountDue) <= 0;
     const updated: Invoice = {
@@ -247,7 +308,7 @@ export class FakeInvoiceRepository implements Partial<InvoiceRepository> {
       amountDue: data.amountDue,
       paymentMethod: data.paymentMethod || existing.paymentMethod,
       paymentReference: data.paymentReference || existing.paymentReference,
-      paidAt: isFullyPaid ? (data.paidAt || new Date()) : existing.paidAt,
+      paidAt: isFullyPaid ? data.paidAt || new Date() : existing.paidAt,
       status: isFullyPaid ? "paid" : existing.status,
       updatedBy: data.updatedBy,
       updatedAt: new Date(),
@@ -256,10 +317,15 @@ export class FakeInvoiceRepository implements Partial<InvoiceRepository> {
     return { ...updated, items: existing.items };
   }
 
-  async cancelInvoice(id: string, workspaceId: string, cancelledBy: string): Promise<InvoiceWithItems> {
+  async cancelInvoice(
+    id: string,
+    workspaceId: string,
+    cancelledBy: string,
+  ): Promise<InvoiceWithItems> {
     const existing = await this.getById(id, workspaceId);
     if (!existing) throw new Error(`Invoice with ID ${id} not found`);
-    if (existing.status === "cancelled") throw new Error(`Invoice ${id} is already cancelled`);
+    if (existing.status === "cancelled")
+      throw new Error(`Invoice ${id} is already cancelled`);
 
     const updated: Invoice = {
       ...existing,

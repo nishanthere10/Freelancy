@@ -25,7 +25,13 @@ describe("FakeInvoiceRepository", () => {
       createdBy: userId,
       updatedBy: userId,
       items: [
-        { description: "Design Sprint", quantity: "1.00", unitPrice: "1000.00", amount: "1000.00", sortOrder: 0 },
+        {
+          description: "Design Sprint",
+          quantity: "1.00",
+          unitPrice: "1000.00",
+          amount: "1000.00",
+          sortOrder: 0,
+        },
       ],
     });
 
@@ -43,7 +49,14 @@ describe("FakeInvoiceRepository", () => {
       totalAmount: "500.00",
       createdBy: userId,
       updatedBy: userId,
-      items: [{ description: "Consulting", quantity: "1.00", unitPrice: "500.00", amount: "500.00" }],
+      items: [
+        {
+          description: "Consulting",
+          quantity: "1.00",
+          unitPrice: "500.00",
+          amount: "500.00",
+        },
+      ],
     });
 
     const seq = await repo.getNextSequenceNumber(workspaceId);
@@ -67,7 +80,14 @@ describe("FakeInvoiceRepository", () => {
       totalAmount: "500.00",
       createdBy: userId,
       updatedBy: userId,
-      items: [{ description: "Consulting", quantity: "1.00", unitPrice: "500.00", amount: "500.00" }],
+      items: [
+        {
+          description: "Consulting",
+          quantity: "1.00",
+          unitPrice: "500.00",
+          amount: "500.00",
+        },
+      ],
     });
 
     await repo.issueInvoice(invoice.id, workspaceId, {
@@ -77,7 +97,10 @@ describe("FakeInvoiceRepository", () => {
     });
 
     await expect(
-      repo.update(invoice.id, workspaceId, { notes: "Updated notes", updatedBy: userId }),
+      repo.update(invoice.id, workspaceId, {
+        notes: "Updated notes",
+        updatedBy: userId,
+      }),
     ).rejects.toThrow("locked");
   });
 
@@ -89,7 +112,14 @@ describe("FakeInvoiceRepository", () => {
       amountDue: "1000.00",
       createdBy: userId,
       updatedBy: userId,
-      items: [{ description: "Work", quantity: "1.00", unitPrice: "1000.00", amount: "1000.00" }],
+      items: [
+        {
+          description: "Work",
+          quantity: "1.00",
+          unitPrice: "1000.00",
+          amount: "1000.00",
+        },
+      ],
     });
 
     await repo.issueInvoice(invoice.id, workspaceId, {
@@ -118,7 +148,14 @@ describe("FakeInvoiceRepository", () => {
       totalAmount: "1000.00",
       createdBy: userId,
       updatedBy: userId,
-      items: [{ description: "Work", quantity: "1.00", unitPrice: "1000.00", amount: "1000.00" }],
+      items: [
+        {
+          description: "Work",
+          quantity: "1.00",
+          unitPrice: "1000.00",
+          amount: "1000.00",
+        },
+      ],
     });
 
     await repo.issueInvoice(invoice.id, workspaceId, {
@@ -127,6 +164,8 @@ describe("FakeInvoiceRepository", () => {
       updatedBy: userId,
     });
 
-    await expect(repo.softDelete(invoice.id, workspaceId, userId)).rejects.toThrow("Only draft invoices can be deleted");
+    await expect(
+      repo.softDelete(invoice.id, workspaceId, userId),
+    ).rejects.toThrow("Only draft invoices can be deleted");
   });
 });

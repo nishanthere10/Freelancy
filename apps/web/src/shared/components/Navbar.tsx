@@ -3,15 +3,13 @@
 import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
 import { SquaresFour, Users, Briefcase, Receipt, Lightning } from '@phosphor-icons/react';
-
-const DEFAULT_WORKSPACE_ID = '550e8400-e29b-41d4-a716-446655440000';
+import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/nextjs';
 
 export function Navbar() {
   const pathname = usePathname();
   const params = useParams();
 
-  const currentWorkspaceId =
-    (params?.workspaceId as string) || DEFAULT_WORKSPACE_ID;
+  const workspaceId = params?.workspaceId as string | undefined;
 
   const navItems = [
     {
@@ -22,23 +20,24 @@ export function Navbar() {
     },
     {
       label: 'Clients',
-      href: `/workspaces/${currentWorkspaceId}/clients`,
+      href: workspaceId ? `/workspaces/${workspaceId}/clients` : '/clients',
       active: pathname?.includes('/clients'),
       icon: Users,
     },
     {
       label: 'Projects',
-      href: `/workspaces/${currentWorkspaceId}/projects`,
+      href: workspaceId ? `/workspaces/${workspaceId}/projects` : '/projects',
       active: pathname?.includes('/projects'),
       icon: Briefcase,
     },
     {
       label: 'Invoices',
-      href: `/workspaces/${currentWorkspaceId}/invoices`,
+      href: workspaceId ? `/workspaces/${workspaceId}/invoices` : '/invoices',
       active: pathname?.includes('/invoices'),
       icon: Receipt,
     },
   ];
+
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-[var(--color-hairline)] shadow-sm">
@@ -53,27 +52,49 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* Navigation Links */}
-        <nav className="flex items-center gap-1 sm:gap-2">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
+        {/* Navigation Links & User Controls */}
+        <div className="flex items-center gap-4">
+          <nav className="flex items-center gap-1 sm:gap-2">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg transition-all ${
+                    item.active
+                      ? 'bg-[var(--color-brand-yellow)] text-black font-semibold shadow-xs'
+                      : 'text-[var(--color-slate-text)] hover:text-black hover:bg-gray-100'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="pl-2 border-l border-gray-200 flex items-center gap-2">
+            <SignedIn>
+              <UserButton afterSignOutUrl="/sign-in" />
+            </SignedIn>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="px-3.5 py-1.5 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition">
+                  Sign In
+                </button>
+              </SignInButton>
               <Link
-                key={item.label}
-                href={item.href}
-                className={`flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg transition-all ${
-                  item.active
-                    ? 'bg-[var(--color-brand-yellow)] text-black font-semibold shadow-xs'
-                    : 'text-[var(--color-slate-text)] hover:text-black hover:bg-gray-100'
-                }`}
+                href="/sign-up"
+                className="px-3.5 py-1.5 text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition shadow-xs"
               >
-                <Icon className="h-4 w-4" />
-                <span>{item.label}</span>
+                Get Started
               </Link>
-            );
-          })}
-        </nav>
+            </SignedOut>
+          </div>
+        </div>
       </div>
     </header>
   );
 }
+

@@ -2,15 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { InvoicePage } from '@features/invoice';
+import { ProjectPage } from '@features/project';
 import { apiGet } from '@api/client';
-
 
 interface Workspace {
   id: string;
 }
 
-export default function InvoicesDefaultRoute() {
+export default function ProjectsDefaultRoute() {
   const router = useRouter();
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,5 +43,5 @@ export default function InvoicesDefaultRoute() {
 
   if (!workspaceId) return null;
 
-  return <InvoicePage workspaceId={workspaceId} />;
+  return <ProjectPage workspaceId={workspaceId} />;
 }
