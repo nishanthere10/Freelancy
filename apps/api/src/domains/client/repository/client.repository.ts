@@ -54,7 +54,14 @@ export class ClientRepository {
         pgError.code === "23505" &&
         pgError.constraint === "idx_clients_workspace_email"
       ) {
-        throw new Error("A client with this email already exists in this workspace");
+        throw new Error(
+          "A client with this email already exists in this workspace",
+        );
+      }
+      if (pgError.code === "23503") {
+        throw new Error(
+          `Workspace with ID '${data.workspaceId}' does not exist in database. Ensure DB schema is pushed ('pnpm --filter @repo/database db:push') and restart API server.`,
+        );
       }
       throw error;
     }
@@ -117,13 +124,14 @@ export class ClientRepository {
 
     if (filters.search && filters.search.trim().length > 0) {
       const term = `%${filters.search.trim()}%`;
-      conditions.push(
-        or(
-          ilike(clientsTable.name, term),
-          ilike(clientsTable.email, term),
-          ilike(clientsTable.companyName, term),
-        )!,
+      const searchCond = or(
+        ilike(clientsTable.name, term),
+        ilike(clientsTable.email, term),
+        ilike(clientsTable.companyName, term),
       );
+      if (searchCond) {
+        conditions.push(searchCond);
+      }
     }
 
     return db
@@ -144,12 +152,15 @@ export class ClientRepository {
     };
 
     if (data.name !== undefined) updateData.name = data.name;
-    if (data.email !== undefined) updateData.email = data.email.toLowerCase().trim();
+    if (data.email !== undefined)
+      updateData.email = data.email.toLowerCase().trim();
     if (data.phone !== undefined) updateData.phone = data.phone;
     if (data.website !== undefined) updateData.website = data.website;
-    if (data.companyName !== undefined) updateData.companyName = data.companyName;
+    if (data.companyName !== undefined)
+      updateData.companyName = data.companyName;
     if (data.gstNumber !== undefined) updateData.gstNumber = data.gstNumber;
-    if (data.contactPerson !== undefined) updateData.contactPerson = data.contactPerson;
+    if (data.contactPerson !== undefined)
+      updateData.contactPerson = data.contactPerson;
     if (data.department !== undefined) updateData.department = data.department;
     if (data.address !== undefined) updateData.address = data.address;
     if (data.city !== undefined) updateData.city = data.city;
@@ -182,13 +193,19 @@ export class ClientRepository {
         pgError.code === "23505" &&
         pgError.constraint === "idx_clients_workspace_email"
       ) {
-        throw new Error("A client with this email already exists in this workspace");
+        throw new Error(
+          "A client with this email already exists in this workspace",
+        );
       }
       throw error;
     }
   }
 
-  async softDelete(id: string, workspaceId: string, deletedBy: string): Promise<Client> {
+  async softDelete(
+    id: string,
+    workspaceId: string,
+    deletedBy: string,
+  ): Promise<Client> {
     const [client] = await db
       .update(clientsTable)
       .set({
@@ -213,7 +230,11 @@ export class ClientRepository {
     return client;
   }
 
-  async restore(id: string, workspaceId: string, restoredBy: string): Promise<Client> {
+  async restore(
+    id: string,
+    workspaceId: string,
+    restoredBy: string,
+  ): Promise<Client> {
     const [client] = await db
       .update(clientsTable)
       .set({

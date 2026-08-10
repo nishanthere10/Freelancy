@@ -11,7 +11,11 @@ export function validateBody(schema: ZodSchema) {
         return res
           .status(400)
           .json(
-            createError("VALIDATION_ERROR", "Request validation failed", details),
+            createError(
+              "VALIDATION_ERROR",
+              "Request validation failed",
+              details,
+            ),
           );
       }
       req.body = result.data;
@@ -31,7 +35,11 @@ export function validateParams(schema: ZodSchema) {
         return res
           .status(400)
           .json(
-            createError("VALIDATION_ERROR", "Parameter validation failed", details),
+            createError(
+              "VALIDATION_ERROR",
+              "Parameter validation failed",
+              details,
+            ),
           );
       }
       Object.assign(req.params, result.data);

@@ -7,13 +7,18 @@ export const projectFormSchema = z
       .trim()
       .min(1, 'Project name is required')
       .max(255, 'Project name must not exceed 255 characters'),
-    clientId: z.string(),
+    clientId: z.string().optional(),
     pricingModel: z.enum(['fixed', 'hourly', 'retainer']),
-    budgetCurrency: z.string(),
-    budgetAmount: z.string(),
-    startDate: z.string(),
-    targetDate: z.string(),
-    description: z.string(),
+    budgetCurrency: z.string().optional(),
+    budgetAmount: z
+      .string()
+      .optional()
+      .refine((val) => !val || (!isNaN(Number(val)) && Number(val) >= 0), {
+        message: 'Budget amount must be a positive number',
+      }),
+    startDate: z.string().optional(),
+    targetDate: z.string().optional(),
+    description: z.string().optional(),
   })
   .refine(
     (data) => {
@@ -29,3 +34,4 @@ export const projectFormSchema = z
   );
 
 export type ProjectFormValues = z.infer<typeof projectFormSchema>;
+

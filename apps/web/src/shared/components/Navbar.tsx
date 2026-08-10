@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
-import { Squares2X2, Users, Briefcase, Lightning } from '@phosphor-icons/react';
+import { SquaresFour, Users, Briefcase, Receipt, Lightning } from '@phosphor-icons/react';
 
 const DEFAULT_WORKSPACE_ID = '550e8400-e29b-41d4-a716-446655440000';
 
@@ -18,7 +18,7 @@ export function Navbar() {
       label: 'Workspaces',
       href: '/workspaces',
       active: pathname === '/workspaces',
-      icon: Squares2X2,
+      icon: SquaresFour,
     },
     {
       label: 'Clients',
@@ -31,6 +31,12 @@ export function Navbar() {
       href: `/workspaces/${currentWorkspaceId}/projects`,
       active: pathname?.includes('/projects'),
       icon: Briefcase,
+    },
+    {
+      label: 'Invoices',
+      href: `/workspaces/${currentWorkspaceId}/invoices`,
+      active: pathname?.includes('/invoices'),
+      icon: Receipt,
     },
   ];
 

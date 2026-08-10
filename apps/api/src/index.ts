@@ -12,9 +12,9 @@ import express, {
   type NextFunction,
 } from "express";
 import clientRoutes from "./domains/client/client.routes";
+import invoiceRoutes from "./domains/invoice/invoice.routes";
 import projectRoutes from "./domains/project/project.routes";
 import workspaceRoutes from "./domains/workspace/workspace.routes";
-
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
@@ -52,7 +52,7 @@ app.use("/api/v1", (req: Request, res: Response, next: NextFunction) => {
 app.use("/api/v1/workspaces", workspaceRoutes);
 app.use("/api/v1/workspaces/:workspaceId/clients", clientRoutes);
 app.use("/api/v1/workspaces/:workspaceId/projects", projectRoutes);
-
+app.use("/api/v1/workspaces/:workspaceId/invoices", invoiceRoutes);
 
 // Error handling middleware
 app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
@@ -68,10 +68,10 @@ app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
+import { workspaceMembersTable, workspacesTable } from "@repo/database";
+import { and, eq } from "drizzle-orm";
 // Auto-seed default workspace for mock dev user
 import { db } from "./db/client";
-import { workspacesTable, workspaceMembersTable } from "@repo/database";
-import { eq, and } from "drizzle-orm";
 
 async function ensureDefaultWorkspace() {
   // Skip auto-seeding in production environment
@@ -81,33 +81,48 @@ async function ensureDefaultWorkspace() {
 
   const mockId = "550e8400-e29b-41d4-a716-446655440000";
   try {
-    const [existingWs] = await db.select().from(workspacesTable).where(eq(workspacesTable.id, mockId));
+    const [existingWs] = await db
+      .select()
+      .from(workspacesTable)
+      .where(eq(workspacesTable.id, mockId));
     if (!existingWs) {
-      await db.insert(workspacesTable).values({
-        id: mockId,
-        name: "Default Workspace",
-        slug: "default-workspace",
-        ownerId: mockId,
-        createdBy: mockId,
-        updatedBy: mockId,
-      }).onConflictDoNothing();
+      await db
+        .insert(workspacesTable)
+        .values({
+          id: mockId,
+          name: "Default Workspace",
+          slug: "default-workspace",
+          ownerId: mockId,
+          createdBy: mockId,
+          updatedBy: mockId,
+        })
+        .onConflictDoNothing();
     }
 
-    const [existingMember] = await db.select().from(workspaceMembersTable).where(
-      and(
-        eq(workspaceMembersTable.workspaceId, mockId),
-        eq(workspaceMembersTable.userId, mockId)
-      )
-    );
+    const [existingMember] = await db
+      .select()
+      .from(workspaceMembersTable)
+      .where(
+        and(
+          eq(workspaceMembersTable.workspaceId, mockId),
+          eq(workspaceMembersTable.userId, mockId),
+        ),
+      );
     if (!existingMember) {
-      await db.insert(workspaceMembersTable).values({
-        workspaceId: mockId,
-        userId: mockId,
-        role: "owner",
-      }).onConflictDoNothing();
+      await db
+        .insert(workspaceMembersTable)
+        .values({
+          workspaceId: mockId,
+          userId: mockId,
+          role: "owner",
+        })
+        .onConflictDoNothing();
     }
   } catch (err) {
-    console.error("Auto-seed default workspace notice:", err instanceof Error ? err.message : err);
+    console.error(
+      "Auto-seed default workspace notice:",
+      err instanceof Error ? err.message : err,
+    );
   }
 }
 

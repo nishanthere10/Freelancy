@@ -3,9 +3,11 @@ import { cn } from '@shared/utils/cn';
 
 type ButtonVariant =
   | 'primary'
+  | 'default'
   | 'yellow'
   | 'blue'
   | 'secondary'
+  | 'outline'
   | 'ghost'
   | 'link'
   | 'on-dark'
@@ -22,11 +24,15 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
     'bg-[var(--color-primary)] text-[var(--color-on-primary)] hover:bg-[var(--color-charcoal)] rounded-[var(--radius-full)]',
+  default:
+    'bg-[var(--color-primary)] text-[var(--color-on-primary)] hover:bg-[var(--color-charcoal)] rounded-[var(--radius-full)]',
   yellow:
     'bg-[var(--color-brand-yellow)] text-[var(--color-primary)] hover:bg-[var(--color-brand-yellow-deep)] rounded-[var(--radius-full)]',
   blue:
     'bg-[var(--color-brand-blue)] text-[var(--color-on-primary)] hover:bg-[var(--color-blue-pressed)] rounded-[var(--radius-full)]',
   secondary:
+    'bg-transparent text-[var(--color-ink)] border border-[var(--color-hairline-strong)] hover:bg-[var(--color-surface-soft)] rounded-[var(--radius-full)]',
+  outline:
     'bg-transparent text-[var(--color-ink)] border border-[var(--color-hairline-strong)] hover:bg-[var(--color-surface-soft)] rounded-[var(--radius-full)]',
   ghost:
     'bg-transparent text-[var(--color-ink)] hover:bg-[var(--color-surface)] rounded-[var(--radius-md)]',

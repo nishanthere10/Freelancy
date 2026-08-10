@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import { createError, createSuccess } from "../../utils/response";
 import { WorkspaceMemberRepository } from "../workspace/repository";
 import { NullClientEventEmitter } from "./client.events";
-import { mapClientsToResponse, mapClientToResponse } from "./client.mapper";
+import { mapClientToResponse, mapClientsToResponse } from "./client.mapper";
 import type { CreateClientRequest, UpdateClientRequest } from "./client.schema";
 import { ClientService } from "./client.service";
 import type {
@@ -63,6 +63,7 @@ export async function createClient(
           .status(403)
           .json(createError("FORBIDDEN", result.error.message));
       }
+      console.error("[createClient] Unhandled service error:", result.error.code, result.error.message);
       return res
         .status(500)
         .json(createError(result.error.code, result.error.message));
@@ -71,6 +72,7 @@ export async function createClient(
     const mapped = mapClientToResponse(result.data);
     return res.status(201).json(createSuccess(mapped));
   } catch (error) {
+    console.error("Error in createClient handler:", error);
     next(error);
   }
 }
@@ -92,11 +94,7 @@ export async function getClient(
         .json(createError("UNAUTHORIZED", "Authentication required"));
     }
 
-    const result = await clientService.getClient(
-      clientId,
-      workspaceId,
-      userId,
-    );
+    const result = await clientService.getClient(clientId, workspaceId, userId);
 
     if (!result.success) {
       if (result.error.code === "CLIENT_NOT_FOUND") {

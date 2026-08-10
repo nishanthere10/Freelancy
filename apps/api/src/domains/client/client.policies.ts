@@ -20,43 +20,74 @@ function hasAtLeastRole(role: WorkspaceRole, required: WorkspaceRole): boolean {
   return ROLE_RANK[role] >= ROLE_RANK[required];
 }
 
-export function canCreateClient(membership: WorkspaceMember | null): PolicyResult {
+export function canCreateClient(
+  membership: WorkspaceMember | null,
+): PolicyResult {
   if (!membership) {
-    return deny("CLIENT_NOT_A_MEMBER", "actor is not a member of the workspace");
+    return deny(
+      "CLIENT_NOT_A_MEMBER",
+      "actor is not a member of the workspace",
+    );
   }
   if (!hasAtLeastRole(membership.role, "editor")) {
-    return deny("CLIENT_INSUFFICIENT_ROLE", `role '${membership.role}' cannot create clients; 'editor' or 'owner' required`);
+    return deny(
+      "CLIENT_INSUFFICIENT_ROLE",
+      `role '${membership.role}' cannot create clients; 'editor' or 'owner' required`,
+    );
   }
   return POLICY_ALLOW;
 }
 
-export function canViewClient(membership: WorkspaceMember | null): PolicyResult {
+export function canViewClient(
+  membership: WorkspaceMember | null,
+): PolicyResult {
   if (!membership) {
-    return deny("CLIENT_NOT_A_MEMBER", "actor is not a member of the workspace");
+    return deny(
+      "CLIENT_NOT_A_MEMBER",
+      "actor is not a member of the workspace",
+    );
   }
   return POLICY_ALLOW;
 }
 
-export function canUpdateClient(membership: WorkspaceMember | null): PolicyResult {
+export function canUpdateClient(
+  membership: WorkspaceMember | null,
+): PolicyResult {
   if (!membership) {
-    return deny("CLIENT_NOT_A_MEMBER", "actor is not a member of the workspace");
+    return deny(
+      "CLIENT_NOT_A_MEMBER",
+      "actor is not a member of the workspace",
+    );
   }
   if (!hasAtLeastRole(membership.role, "editor")) {
-    return deny("CLIENT_INSUFFICIENT_ROLE", `role '${membership.role}' cannot update clients; 'editor' or 'owner' required`);
+    return deny(
+      "CLIENT_INSUFFICIENT_ROLE",
+      `role '${membership.role}' cannot update clients; 'editor' or 'owner' required`,
+    );
   }
   return POLICY_ALLOW;
 }
 
-export function canDeleteClient(membership: WorkspaceMember | null): PolicyResult {
+export function canDeleteClient(
+  membership: WorkspaceMember | null,
+): PolicyResult {
   if (!membership) {
-    return deny("CLIENT_NOT_A_MEMBER", "actor is not a member of the workspace");
+    return deny(
+      "CLIENT_NOT_A_MEMBER",
+      "actor is not a member of the workspace",
+    );
   }
   if (membership.role !== "owner") {
-    return deny("CLIENT_INSUFFICIENT_ROLE", `role '${membership.role}' cannot delete clients; 'owner' required`);
+    return deny(
+      "CLIENT_INSUFFICIENT_ROLE",
+      `role '${membership.role}' cannot delete clients; 'owner' required`,
+    );
   }
   return POLICY_ALLOW;
 }
 
-export function canRestoreClient(membership: WorkspaceMember | null): PolicyResult {
+export function canRestoreClient(
+  membership: WorkspaceMember | null,
+): PolicyResult {
   return canDeleteClient(membership);
 }

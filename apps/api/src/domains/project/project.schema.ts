@@ -1,7 +1,12 @@
 import { z } from "zod";
 
 export const projectPricingModelEnum = z.enum(["fixed", "hourly", "retainer"]);
-export const projectStatusEnum = z.enum(["draft", "active", "completed", "archived"]);
+export const projectStatusEnum = z.enum([
+  "draft",
+  "active",
+  "completed",
+  "archived",
+]);
 
 export const createProjectSchema = z
   .object({
@@ -71,11 +76,7 @@ export const updateProjectSchema = z
       .min(1, "Project name is required")
       .max(255, "Project name must not exceed 255 characters")
       .optional(),
-    clientId: z
-      .string()
-      .uuid("Invalid client ID")
-      .nullable()
-      .optional(),
+    clientId: z.string().uuid("Invalid client ID").nullable().optional(),
     description: z
       .string()
       .trim()
@@ -125,7 +126,9 @@ export const changeProjectStatusSchema = z.object({
   status: projectStatusEnum,
 });
 
-export type ChangeProjectStatusRequest = z.infer<typeof changeProjectStatusSchema>;
+export type ChangeProjectStatusRequest = z.infer<
+  typeof changeProjectStatusSchema
+>;
 
 export const projectParamsSchema = z.object({
   workspaceId: z.string().uuid("Workspace ID must be a valid UUID"),
@@ -136,10 +139,7 @@ export const listProjectsQuerySchema = z.object({
   status: z
     .enum(["draft", "active", "completed", "archived", "all"])
     .default("active"),
-  clientId: z
-    .string()
-    .uuid("Client ID must be a valid UUID")
-    .optional(),
+  clientId: z.string().uuid("Client ID must be a valid UUID").optional(),
   excludeDeleted: z
     .string()
     .optional()

@@ -22,13 +22,16 @@ import {
   canUpdateProject,
   canViewProject,
 } from "./project.policies";
-import { type ProjectRepository, slugify } from "./repository/project.repository";
 import type {
   ChangeProjectStatusServiceInput,
   CreateProjectServiceInput,
   ProjectQueryFilters,
   UpdateProjectServiceInput,
 } from "./project.types";
+import {
+  type ProjectRepository,
+  slugify,
+} from "./repository/project.repository";
 
 export type Result<T> =
   | { success: true; data: T }
@@ -74,12 +77,19 @@ export class ProjectService {
 
       // Validate Client belong to Workspace if clientId provided
       if (input.clientId) {
-        const client = await this.clientRepo.getById(input.clientId, workspaceId, {
-          includeDeleted: true,
-        });
+        const client = await this.clientRepo.getById(
+          input.clientId,
+          workspaceId,
+          {
+            includeDeleted: true,
+          },
+        );
         if (!client || client.workspaceId !== workspaceId) {
           return err(
-            new ProjectClientWorkspaceMismatchError(input.clientId, workspaceId),
+            new ProjectClientWorkspaceMismatchError(
+              input.clientId,
+              workspaceId,
+            ),
           );
         }
       }
@@ -90,7 +100,12 @@ export class ProjectService {
           return err(
             new ProjectValidationError(
               "Target completion date cannot be before start date",
-              [{ path: "targetDate", message: "Target completion date cannot be before start date" }],
+              [
+                {
+                  path: "targetDate",
+                  message: "Target completion date cannot be before start date",
+                },
+              ],
             ),
           );
         }
@@ -129,7 +144,10 @@ export class ProjectService {
       }
       if (msg.includes("Client does not exist")) {
         return err(
-          new ProjectClientWorkspaceMismatchError(input.clientId || "", workspaceId),
+          new ProjectClientWorkspaceMismatchError(
+            input.clientId || "",
+            workspaceId,
+          ),
         );
       }
       return err(new ProjectInternalError("createProject", error));
@@ -239,25 +257,39 @@ export class ProjectService {
 
       // Validate Client belongs to Workspace if changing clientId
       if (input.clientId !== undefined && input.clientId !== null) {
-        const client = await this.clientRepo.getById(input.clientId, workspaceId, {
-          includeDeleted: true,
-        });
+        const client = await this.clientRepo.getById(
+          input.clientId,
+          workspaceId,
+          {
+            includeDeleted: true,
+          },
+        );
         if (!client || client.workspaceId !== workspaceId) {
           return err(
-            new ProjectClientWorkspaceMismatchError(input.clientId, workspaceId),
+            new ProjectClientWorkspaceMismatchError(
+              input.clientId,
+              workspaceId,
+            ),
           );
         }
       }
 
       // Validate dates
-      const effectiveStart = input.startDate !== undefined ? input.startDate : existing.startDate;
-      const effectiveTarget = input.targetDate !== undefined ? input.targetDate : existing.targetDate;
+      const effectiveStart =
+        input.startDate !== undefined ? input.startDate : existing.startDate;
+      const effectiveTarget =
+        input.targetDate !== undefined ? input.targetDate : existing.targetDate;
       if (effectiveStart && effectiveTarget) {
         if (new Date(effectiveTarget) < new Date(effectiveStart)) {
           return err(
             new ProjectValidationError(
               "Target completion date cannot be before start date",
-              [{ path: "targetDate", message: "Target completion date cannot be before start date" }],
+              [
+                {
+                  path: "targetDate",
+                  message: "Target completion date cannot be before start date",
+                },
+              ],
             ),
           );
         }

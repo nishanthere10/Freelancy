@@ -21,11 +21,30 @@ import {
 
 const router: ExpressRouter = Router({ mergeParams: true });
 
-router.get("/", validateParams(clientParamsSchema), validateQuery(listClientsQuerySchema), listClients);
-router.post("/", validateParams(clientParamsSchema), validateBody(createClientSchema), createClient);
+router.get(
+  "/",
+  validateParams(clientParamsSchema),
+  validateQuery(listClientsQuerySchema),
+  listClients,
+);
+router.post(
+  "/",
+  validateParams(clientParamsSchema),
+  validateBody(createClientSchema),
+  createClient,
+);
 router.get("/:clientId", validateParams(clientParamsSchema), getClient);
-router.patch("/:clientId", validateParams(clientParamsSchema), validateBody(updateClientSchema), updateClient);
+router.patch(
+  "/:clientId",
+  validateParams(clientParamsSchema),
+  validateBody(updateClientSchema),
+  updateClient,
+);
 router.delete("/:clientId", validateParams(clientParamsSchema), deleteClient);
-router.post("/:clientId/restore", validateParams(clientParamsSchema), restoreClient);
+router.post(
+  "/:clientId/restore",
+  validateParams(clientParamsSchema),
+  restoreClient,
+);
 
 export default router;

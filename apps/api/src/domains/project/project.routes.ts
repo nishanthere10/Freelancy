@@ -48,7 +48,11 @@ router.patch(
   validateBody(changeProjectStatusSchema),
   changeProjectStatus,
 );
-router.delete("/:projectId", validateParams(projectParamsSchema), deleteProject);
+router.delete(
+  "/:projectId",
+  validateParams(projectParamsSchema),
+  deleteProject,
+);
 router.post(
   "/:projectId/restore",
   validateParams(projectParamsSchema),

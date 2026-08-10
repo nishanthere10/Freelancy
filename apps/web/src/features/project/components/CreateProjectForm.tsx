@@ -78,10 +78,11 @@ export function CreateProjectForm({
         />
 
         <div className="flex flex-col gap-2 w-full">
-          <label className="text-sm font-medium text-[var(--color-ink-deep)] leading-none">
+          <label htmlFor="project-client-select" className="text-sm font-medium text-[var(--color-ink-deep)] leading-none">
             Client
           </label>
           <select
+            id="project-client-select"
             {...form.register('clientId')}
             disabled={isSubmitting}
             className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--color-hairline)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-yellow)]"
@@ -97,10 +98,11 @@ export function CreateProjectForm({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2 w-full">
-            <label className="text-sm font-medium text-[var(--color-ink-deep)] leading-none">
+            <label htmlFor="project-pricing-model-select" className="text-sm font-medium text-[var(--color-ink-deep)] leading-none">
               Pricing Model
             </label>
             <select
+              id="project-pricing-model-select"
               {...form.register('pricingModel')}
               disabled={isSubmitting}
               className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--color-hairline)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-yellow)]"
@@ -137,18 +139,21 @@ export function CreateProjectForm({
         </div>
 
         <div className="flex flex-col gap-2 w-full">
-          <label className="text-sm font-medium text-[var(--color-ink-deep)] leading-none">
+          <label htmlFor="project-description-input" className="text-sm font-medium text-[var(--color-ink-deep)] leading-none">
             Description / Scope
           </label>
           <textarea
+            id="project-description-input"
             {...form.register('description')}
             rows={3}
             placeholder="Briefly describe project scope, key deliverables, or milestones..."
             disabled={isSubmitting}
+            aria-invalid={Boolean(form.formState.errors.description)}
+            aria-describedby={form.formState.errors.description ? 'project-description-error' : undefined}
             className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--color-hairline)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-yellow)]"
           />
           {form.formState.errors.description?.message && (
-            <p className="text-xs text-[var(--color-error)]">
+            <p id="project-description-error" className="text-xs text-[var(--color-error)]">
               {String(form.formState.errors.description.message)}
             </p>
           )}

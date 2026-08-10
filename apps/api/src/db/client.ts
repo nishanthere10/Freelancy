@@ -32,4 +32,3 @@ const client = postgres(connectionString, {
 
 // Create drizzle instance with schema
 export const db = drizzle(client, { schema });
-

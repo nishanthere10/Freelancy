@@ -320,7 +320,10 @@ describe("WorkspaceService", () => {
       );
 
       if (!result.success) {
-        console.error("VALIDATION ERROR:", JSON.stringify(result.error, null, 2));
+        console.error(
+          "VALIDATION ERROR:",
+          JSON.stringify(result.error, null, 2),
+        );
       }
       expect(result.success).toBe(true);
       if (result.success) {
@@ -329,7 +332,10 @@ describe("WorkspaceService", () => {
       }
 
       // Verify creator is owner member
-      const membership = await memberRepo.getByWorkspaceAndUser(result.data.id, userId);
+      const membership = await memberRepo.getByWorkspaceAndUser(
+        result.data.id,
+        userId,
+      );
       expect(membership?.role).toBe("owner");
 
       // Verify event emitted

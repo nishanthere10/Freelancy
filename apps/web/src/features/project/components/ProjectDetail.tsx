@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, Button } from '@shared/components';
-import { ArrowLeft, UserCheck, CalendarBlank, CurrencyInr, PencilSimple, Archive, Briefcase } from '@phosphor-icons/react';
+import { ArrowLeft, UserCheck, CalendarBlank, CurrencyInr, PencilSimple, Archive, ArrowClockwise, Briefcase, Check, X } from '@phosphor-icons/react';
 import type { ProjectResponse } from '../api';
+import { useDeleteProject, useRestoreProject } from '../hooks';
 import { ProjectStatusControl } from './ProjectStatusControl';
 
 interface ProjectDetailProps {
@@ -18,6 +20,26 @@ export function ProjectDetail({
   onBack,
   onEdit,
 }: ProjectDetailProps) {
+  const [confirmingArchive, setConfirmingArchive] = useState(false);
+  const { mutate: deleteProject, isPending: isDeleting } = useDeleteProject(workspaceId);
+  const { mutate: restoreProject, isPending: isRestoring } = useRestoreProject(workspaceId);
+
+  const isArchived = project.status === 'archived' || Boolean(project.deletedAt);
+
+  const handleConfirmArchive = () => {
+    deleteProject(project.id, {
+      onSuccess: () => {
+        setConfirmingArchive(false);
+        onBack();
+      },
+      onSettled: () => setConfirmingArchive(false),
+    });
+  };
+
+  const handleRestore = () => {
+    restoreProject(project.id);
+  };
+
   const formattedBudget = project.budgetAmount
     ? `${project.budgetCurrency || 'INR'} ${Number(project.budgetAmount).toLocaleString()}`
     : 'Not specified';
@@ -29,9 +51,50 @@ export function ProjectDetail({
           <ArrowLeft className="h-4 w-4 mr-1.5" /> Back to Projects
         </Button>
         <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={() => onEdit(project)}>
-            <PencilSimple className="h-4 w-4 mr-1.5" /> Edit Project
-          </Button>
+          {!isArchived ? (
+            confirmingArchive ? (
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-medium text-red-600 mr-1">Archive?</span>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleConfirmArchive}
+                  disabled={isDeleting}
+                  className="h-8 px-2.5 text-xs bg-red-600 text-white hover:bg-red-700 border-none"
+                >
+                  <Check className="h-3.5 w-3.5 mr-1" /> Yes
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setConfirmingArchive(false)}
+                  disabled={isDeleting}
+                  className="h-8 px-2.5 text-xs"
+                >
+                  <X className="h-3.5 w-3.5 mr-1" /> No
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Button variant="secondary" size="sm" onClick={() => onEdit(project)}>
+                  <PencilSimple className="h-4 w-4 mr-1.5" /> Edit Project
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setConfirmingArchive(true)}
+                  disabled={isDeleting}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Archive className="h-4 w-4 mr-1.5" /> Archive
+                </Button>
+              </>
+            )
+          ) : (
+            <Button variant="secondary" size="sm" onClick={handleRestore} disabled={isRestoring}>
+              <ArrowClockwise className="h-4 w-4 mr-1.5" /> Restore Project
+            </Button>
+          )}
         </div>
       </div>
 

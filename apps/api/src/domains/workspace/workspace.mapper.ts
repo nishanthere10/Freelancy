@@ -27,7 +27,6 @@ export function mapWorkspaceToResponse(
   };
 }
 
-
 /**
  * Map workspace memberships (workspace + role) to responses
  */
@@ -36,4 +35,3 @@ export function mapMembershipsToResponse(
 ): WorkspaceResponse[] {
   return memberships.map(({ workspace }) => mapWorkspaceToResponse(workspace));
 }
-

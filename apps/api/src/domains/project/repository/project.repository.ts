@@ -1,4 +1,4 @@
-import { type Project, projectsTable, clientsTable } from "@repo/database";
+import { type Project, clientsTable, projectsTable } from "@repo/database";
 import { and, eq, ilike, isNotNull, isNull, or } from "drizzle-orm";
 import { db } from "../../../db/client";
 import type {
@@ -38,7 +38,10 @@ export class ProjectRepository {
           description: data.description?.trim() || null,
           pricingModel: data.pricingModel || "fixed",
           budgetCurrency: data.budgetCurrency?.toUpperCase().trim() || "INR",
-          budgetAmount: data.budgetAmount !== undefined && data.budgetAmount !== null ? String(data.budgetAmount) : null,
+          budgetAmount:
+            data.budgetAmount !== undefined && data.budgetAmount !== null
+              ? String(data.budgetAmount)
+              : null,
           startDate: data.startDate || null,
           targetDate: data.targetDate || null,
           status: "draft",
@@ -58,13 +61,17 @@ export class ProjectRepository {
         pgError.code === "23505" &&
         pgError.constraint === "idx_projects_workspace_slug"
       ) {
-        throw new Error("A project with this slug already exists in this workspace");
+        throw new Error(
+          "A project with this slug already exists in this workspace",
+        );
       }
       if (
         pgError.code === "23503" &&
         pgError.constraint === "fk_projects_workspace_client"
       ) {
-        throw new Error("Client does not exist or does not belong to this workspace");
+        throw new Error(
+          "Client does not exist or does not belong to this workspace",
+        );
       }
       throw error;
     }
@@ -148,13 +155,14 @@ export class ProjectRepository {
 
     if (filters.search && filters.search.trim().length > 0) {
       const term = `%${filters.search.trim()}%`;
-      conditions.push(
-        or(
-          ilike(projectsTable.name, term),
-          ilike(projectsTable.description, term),
-          ilike(clientsTable.name, term),
-        )!,
+      const searchCond = or(
+        ilike(projectsTable.name, term),
+        ilike(projectsTable.description, term),
+        ilike(clientsTable.name, term),
       );
+      if (searchCond) {
+        conditions.push(searchCond);
+      }
     }
 
     const results = await db
@@ -192,16 +200,21 @@ export class ProjectRepository {
     if (data.name !== undefined) updateData.name = data.name.trim();
     if (data.slug !== undefined) updateData.slug = data.slug.trim();
     if (data.clientId !== undefined) updateData.clientId = data.clientId;
-    if (data.description !== undefined) updateData.description = data.description;
-    if (data.pricingModel !== undefined) updateData.pricingModel = data.pricingModel;
-    if (data.budgetCurrency !== undefined) updateData.budgetCurrency = data.budgetCurrency.toUpperCase().trim();
+    if (data.description !== undefined)
+      updateData.description = data.description;
+    if (data.pricingModel !== undefined)
+      updateData.pricingModel = data.pricingModel;
+    if (data.budgetCurrency !== undefined)
+      updateData.budgetCurrency = data.budgetCurrency.toUpperCase().trim();
     if (data.budgetAmount !== undefined) {
-      updateData.budgetAmount = data.budgetAmount !== null ? String(data.budgetAmount) : null;
+      updateData.budgetAmount =
+        data.budgetAmount !== null ? String(data.budgetAmount) : null;
     }
     if (data.startDate !== undefined) updateData.startDate = data.startDate;
     if (data.targetDate !== undefined) updateData.targetDate = data.targetDate;
     if (data.status !== undefined) updateData.status = data.status;
-    if (data.completedAt !== undefined) updateData.completedAt = data.completedAt;
+    if (data.completedAt !== undefined)
+      updateData.completedAt = data.completedAt;
 
     try {
       const [project] = await db
@@ -227,13 +240,17 @@ export class ProjectRepository {
         pgError.code === "23505" &&
         pgError.constraint === "idx_projects_workspace_slug"
       ) {
-        throw new Error("A project with this slug already exists in this workspace");
+        throw new Error(
+          "A project with this slug already exists in this workspace",
+        );
       }
       if (
         pgError.code === "23503" &&
         pgError.constraint === "fk_projects_workspace_client"
       ) {
-        throw new Error("Client does not exist or does not belong to this workspace");
+        throw new Error(
+          "Client does not exist or does not belong to this workspace",
+        );
       }
       throw error;
     }

@@ -1,4 +1,4 @@
-import type { Project, ProjectStatus, PricingModel } from "@repo/database";
+import type { PricingModel, Project, ProjectStatus } from "@repo/database";
 
 export interface ProjectResponse {
   id: string;
@@ -51,14 +51,16 @@ export interface ChangeProjectStatusServiceInput {
   status: ProjectStatus;
 }
 
-export interface CreateProjectRepositoryInput extends CreateProjectServiceInput {
+export interface CreateProjectRepositoryInput
+  extends CreateProjectServiceInput {
   workspaceId: string;
   slug: string;
   createdBy: string;
   updatedBy: string;
 }
 
-export interface UpdateProjectRepositoryInput extends UpdateProjectServiceInput {
+export interface UpdateProjectRepositoryInput
+  extends UpdateProjectServiceInput {
   updatedBy: string;
   completedAt?: Date | null;
 }

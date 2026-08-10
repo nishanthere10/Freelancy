@@ -17,12 +17,12 @@ import {
   canUpdateClient,
   canViewClient,
 } from "./client.policies";
-import type { ClientRepository } from "./repository/client.repository";
 import type {
   ClientQueryFilters,
   CreateClientServiceInput,
   UpdateClientServiceInput,
 } from "./client.types";
+import type { ClientRepository } from "./repository/client.repository";
 
 export type Result<T> =
   | { success: true; data: T }
@@ -65,7 +65,10 @@ export class ClientService {
         );
       }
 
-      const existing = await this.clientRepo.getByEmail(input.email, workspaceId);
+      const existing = await this.clientRepo.getByEmail(
+        input.email,
+        workspaceId,
+      );
       if (existing) {
         return err(new ClientEmailAlreadyExistsError(input.email, workspaceId));
       }
@@ -90,6 +93,7 @@ export class ClientService {
     } catch (error: unknown) {
       if (error instanceof ClientDomainError) return err(error);
       const msg = error instanceof Error ? error.message : String(error);
+      console.error("[ClientService.createClient] Unexpected error:", error);
       if (msg.includes("already exists")) {
         return err(new ClientEmailAlreadyExistsError(input.email, workspaceId));
       }
@@ -198,10 +202,18 @@ export class ClientService {
         return err(new ClientDeletedError(clientId, "update"));
       }
 
-      if (input.email && input.email.toLowerCase() !== existing.email.toLowerCase()) {
-        const emailCheck = await this.clientRepo.getByEmail(input.email, workspaceId);
+      if (
+        input.email &&
+        input.email.toLowerCase() !== existing.email.toLowerCase()
+      ) {
+        const emailCheck = await this.clientRepo.getByEmail(
+          input.email,
+          workspaceId,
+        );
         if (emailCheck && emailCheck.id !== clientId) {
-          return err(new ClientEmailAlreadyExistsError(input.email, workspaceId));
+          return err(
+            new ClientEmailAlreadyExistsError(input.email, workspaceId),
+          );
         }
       }
 
@@ -225,7 +237,9 @@ export class ClientService {
       if (error instanceof ClientDomainError) return err(error);
       const msg = error instanceof Error ? error.message : String(error);
       if (msg.includes("already exists")) {
-        return err(new ClientEmailAlreadyExistsError(input.email || "", workspaceId));
+        return err(
+          new ClientEmailAlreadyExistsError(input.email || "", workspaceId),
+        );
       }
       return err(new ClientInternalError("updateClient", error));
     }

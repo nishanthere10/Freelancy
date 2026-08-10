@@ -3,7 +3,7 @@ import { createError, createSuccess } from "../../utils/response";
 import { ClientRepository } from "../client/repository/client.repository";
 import { WorkspaceMemberRepository } from "../workspace/repository";
 import { NullProjectEventEmitter } from "./project.events";
-import { mapProjectsToResponse, mapProjectToResponse } from "./project.mapper";
+import { mapProjectToResponse, mapProjectsToResponse } from "./project.mapper";
 import type {
   ChangeProjectStatusRequest,
   CreateProjectRequest,

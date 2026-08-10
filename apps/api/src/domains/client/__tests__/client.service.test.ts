@@ -29,7 +29,9 @@ class FakeClientRepository implements Partial<ClientRepository> {
         !c.deletedAt,
     );
     if (existing) {
-      throw new Error("A client with this email already exists in this workspace");
+      throw new Error(
+        "A client with this email already exists in this workspace",
+      );
     }
 
     const id = `c0000000-0000-0000-0000-${String(this.nextId++).padStart(12, "0")}`;
@@ -90,7 +92,12 @@ class FakeClientRepository implements Partial<ClientRepository> {
     return Array.from(this.clients.values()).filter((c) => {
       if (c.workspaceId !== filters.workspaceId) return false;
       if (filters.excludeDeleted !== false && c.deletedAt) return false;
-      if (filters.status && filters.status !== "all" && c.status !== filters.status) return false;
+      if (
+        filters.status &&
+        filters.status !== "all" &&
+        c.status !== filters.status
+      )
+        return false;
       if (filters.search) {
         const term = filters.search.toLowerCase();
         const matches =
@@ -108,7 +115,9 @@ class FakeClientRepository implements Partial<ClientRepository> {
     workspaceId: string,
     data: UpdateClientRepositoryInput,
   ): Promise<Client> {
-    const client = await this.getById(id, workspaceId, { includeDeleted: true });
+    const client = await this.getById(id, workspaceId, {
+      includeDeleted: true,
+    });
     if (!client || client.deletedAt) throw new Error("Client not found");
     const updated: Client = {
       ...client,
@@ -120,7 +129,11 @@ class FakeClientRepository implements Partial<ClientRepository> {
     return updated;
   }
 
-  async softDelete(id: string, workspaceId: string, deletedBy: string): Promise<Client> {
+  async softDelete(
+    id: string,
+    workspaceId: string,
+    deletedBy: string,
+  ): Promise<Client> {
     const client = await this.getById(id, workspaceId);
     if (!client) throw new Error("Client not found");
     const deleted: Client = {
@@ -134,9 +147,16 @@ class FakeClientRepository implements Partial<ClientRepository> {
     return deleted;
   }
 
-  async restore(id: string, workspaceId: string, restoredBy: string): Promise<Client> {
-    const client = await this.getById(id, workspaceId, { includeDeleted: true });
-    if (!client || !client.deletedAt) throw new Error("Client not found or not deleted");
+  async restore(
+    id: string,
+    workspaceId: string,
+    restoredBy: string,
+  ): Promise<Client> {
+    const client = await this.getById(id, workspaceId, {
+      includeDeleted: true,
+    });
+    if (!client || !client.deletedAt)
+      throw new Error("Client not found or not deleted");
     const restored: Client = {
       ...client,
       status: "active",
@@ -149,7 +169,9 @@ class FakeClientRepository implements Partial<ClientRepository> {
   }
 }
 
-class FakeWorkspaceMemberRepository implements Partial<WorkspaceMemberRepository> {
+class FakeWorkspaceMemberRepository
+  implements Partial<WorkspaceMemberRepository>
+{
   private members: Map<string, WorkspaceMember> = new Map();
 
   addMember(workspaceId: string, userId: string, role: WorkspaceRole) {
@@ -286,7 +308,11 @@ describe("ClientService", () => {
       }
 
       // Viewer cannot delete
-      const viewDelRes = await service.deleteClient(clientId, workspaceId, viewerId);
+      const viewDelRes = await service.deleteClient(
+        clientId,
+        workspaceId,
+        viewerId,
+      );
       expect(viewDelRes.success).toBe(false);
 
       // Owner can delete
@@ -304,11 +330,19 @@ describe("ClientService", () => {
       expect(updateDelRes.error).toBeInstanceOf(ClientDeletedError);
 
       // Restore
-      const restoreRes = await service.restoreClient(clientId, workspaceId, ownerId);
+      const restoreRes = await service.restoreClient(
+        clientId,
+        workspaceId,
+        ownerId,
+      );
       expect(restoreRes.success).toBe(true);
 
       // Restoring active client fails
-      const restoreActiveRes = await service.restoreClient(clientId, workspaceId, ownerId);
+      const restoreActiveRes = await service.restoreClient(
+        clientId,
+        workspaceId,
+        ownerId,
+      );
       expect(restoreActiveRes.success).toBe(false);
       expect(restoreActiveRes.error).toBeInstanceOf(ClientNotDeletedError);
     });

@@ -31,8 +31,13 @@ export class ClientEmailAlreadyExistsError extends ClientDomainError {
   readonly code = "CLIENT_EMAIL_ALREADY_EXISTS";
   readonly errorKind = "conflict" as const;
 
-  constructor(public readonly email: string, public readonly workspaceId: string) {
-    super(`Client with email '${email}' already exists in workspace '${workspaceId}'`);
+  constructor(
+    public readonly email: string,
+    public readonly workspaceId: string,
+  ) {
+    super(
+      `Client with email '${email}' already exists in workspace '${workspaceId}'`,
+    );
   }
 }
 
@@ -40,7 +45,10 @@ export class ClientDeletedError extends ClientDomainError {
   readonly code = "CLIENT_DELETED";
   readonly errorKind = "conflict" as const;
 
-  constructor(public readonly clientId: string, public readonly operation: string) {
+  constructor(
+    public readonly clientId: string,
+    public readonly operation: string,
+  ) {
     super(`Cannot ${operation} client '${clientId}' because it is deleted`);
   }
 }
@@ -64,7 +72,9 @@ export class ClientPermissionDeniedError extends ClientDomainError {
     public readonly workspaceId: string,
     public readonly reason: string,
   ) {
-    super(`Permission denied: cannot ${operation} client in workspace '${workspaceId}': ${reason}`);
+    super(
+      `Permission denied: cannot ${operation} client in workspace '${workspaceId}': ${reason}`,
+    );
   }
 }
 
@@ -89,7 +99,8 @@ export class ClientValidationError extends ClientDomainError {
       path: issue.path.join("."),
       message: issue.message,
     }));
-    const summary = mapped.length > 0 ? mapped[0].message : "Client input validation failed";
+    const summary =
+      mapped.length > 0 ? mapped[0].message : "Client input validation failed";
     return new ClientValidationError(summary, mapped);
   }
 }
@@ -98,11 +109,16 @@ export class ClientInternalError extends ClientDomainError {
   readonly code = "CLIENT_INTERNAL_ERROR";
   readonly errorKind = "internal" as const;
 
-  constructor(public readonly operation: string, public readonly cause?: unknown) {
+  constructor(
+    public readonly operation: string,
+    public readonly cause?: unknown,
+  ) {
     super(`Client operation '${operation}' failed unexpectedly`);
   }
 }
 
-export function isClientDomainError(error: unknown): error is ClientDomainError {
+export function isClientDomainError(
+  error: unknown,
+): error is ClientDomainError {
   return error instanceof ClientDomainError;
 }

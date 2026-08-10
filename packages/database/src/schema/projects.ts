@@ -52,6 +52,7 @@ export const projectsTable = pgTable(
     workspaceSlugUnique: uniqueIndex('idx_projects_workspace_slug')
       .on(table.workspaceId, table.slug)
       .where(isNull(table.deletedAt)),
+    workspaceIdIdUnique: uniqueIndex('idx_projects_workspace_id_id').on(table.workspaceId, table.id),
     fkWorkspace: foreignKey({
       columns: [table.workspaceId],
       foreignColumns: [workspacesTable.id],

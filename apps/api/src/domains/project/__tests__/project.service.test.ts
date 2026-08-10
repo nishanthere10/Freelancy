@@ -1,4 +1,9 @@
-import type { Client, Project, WorkspaceMember, WorkspaceRole } from "@repo/database";
+import type {
+  Client,
+  Project,
+  WorkspaceMember,
+  WorkspaceRole,
+} from "@repo/database";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { ClientRepository } from "../../client/repository/client.repository";
 import type { WorkspaceMemberRepository } from "../../workspace/repository";
@@ -32,7 +37,9 @@ class FakeProjectRepository implements Partial<ProjectRepository> {
         !p.deletedAt,
     );
     if (existingSlug) {
-      throw new Error("A project with this slug already exists in this workspace");
+      throw new Error(
+        "A project with this slug already exists in this workspace",
+      );
     }
 
     const id = `p0000000-0000-0000-0000-${String(this.nextId++).padStart(12, "0")}`;
@@ -47,7 +54,10 @@ class FakeProjectRepository implements Partial<ProjectRepository> {
       status: "draft",
       pricingModel: data.pricingModel || "fixed",
       budgetCurrency: data.budgetCurrency || "INR",
-      budgetAmount: data.budgetAmount !== undefined && data.budgetAmount !== null ? String(data.budgetAmount) : null,
+      budgetAmount:
+        data.budgetAmount !== undefined && data.budgetAmount !== null
+          ? String(data.budgetAmount)
+          : null,
       startDate: data.startDate || null,
       targetDate: data.targetDate || null,
       completedAt: null,
@@ -93,7 +103,12 @@ class FakeProjectRepository implements Partial<ProjectRepository> {
       if (p.workspaceId !== filters.workspaceId) return false;
       if (filters.clientId && p.clientId !== filters.clientId) return false;
       if (filters.excludeDeleted !== false && p.deletedAt) return false;
-      if (filters.status && filters.status !== "all" && p.status !== filters.status) return false;
+      if (
+        filters.status &&
+        filters.status !== "all" &&
+        p.status !== filters.status
+      )
+        return false;
       if (filters.search) {
         const term = filters.search.toLowerCase();
         const matches =
@@ -115,7 +130,12 @@ class FakeProjectRepository implements Partial<ProjectRepository> {
     const updated: Project = {
       ...p,
       ...data,
-      budgetAmount: data.budgetAmount !== undefined ? (data.budgetAmount !== null ? String(data.budgetAmount) : null) : p.budgetAmount,
+      budgetAmount:
+        data.budgetAmount !== undefined
+          ? data.budgetAmount !== null
+            ? String(data.budgetAmount)
+            : null
+          : p.budgetAmount,
       updatedAt: new Date(),
       updatedBy: data.updatedBy,
     };
@@ -123,7 +143,11 @@ class FakeProjectRepository implements Partial<ProjectRepository> {
     return updated;
   }
 
-  async softDelete(id: string, workspaceId: string, deletedBy: string): Promise<Project> {
+  async softDelete(
+    id: string,
+    workspaceId: string,
+    deletedBy: string,
+  ): Promise<Project> {
     const p = await this.getById(id, workspaceId);
     if (!p) throw new Error("Project not found");
     const deleted: Project = {
@@ -137,7 +161,11 @@ class FakeProjectRepository implements Partial<ProjectRepository> {
     return deleted;
   }
 
-  async restore(id: string, workspaceId: string, restoredBy: string): Promise<Project> {
+  async restore(
+    id: string,
+    workspaceId: string,
+    restoredBy: string,
+  ): Promise<Project> {
     const p = await this.getById(id, workspaceId, { includeDeleted: true });
     if (!p || !p.deletedAt) throw new Error("Project not found or not deleted");
     const restored: Project = {
@@ -166,7 +194,9 @@ class FakeClientRepository implements Partial<ClientRepository> {
   }
 }
 
-class FakeWorkspaceMemberRepository implements Partial<WorkspaceMemberRepository> {
+class FakeWorkspaceMemberRepository
+  implements Partial<WorkspaceMemberRepository>
+{
   private members: Map<string, WorkspaceMember> = new Map();
 
   addMember(workspaceId: string, userId: string, role: WorkspaceRole) {

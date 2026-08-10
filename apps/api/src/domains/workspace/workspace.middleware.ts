@@ -65,4 +65,3 @@ export function validateParams(schema: ZodSchema) {
     }
   };
 }
-

@@ -134,3 +134,16 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
 );
 
 Dialog.displayName = 'Dialog';
+
+export function DialogContent({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <div className={cn("space-y-4", className)}>{children}</div>;
+}
+
+export function DialogHeader({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <div className={cn("flex flex-col space-y-1.5", className)}>{children}</div>;
+}
+
+export function DialogTitle({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <h2 className={cn("text-lg font-semibold text-[var(--color-ink-deep)]", className)}>{children}</h2>;
+}
+

@@ -100,9 +100,7 @@ const createWorkspaceMemberSchema = z
   })
   .strict(); // Reject unknown fields
 
-type CreateWorkspaceMemberRequest = z.infer<
-  typeof createWorkspaceMemberSchema
->;
+type CreateWorkspaceMemberRequest = z.infer<typeof createWorkspaceMemberSchema>;
 
 /**
  * Update workspace member schema
@@ -113,9 +111,7 @@ const updateWorkspaceMemberSchema = z
   })
   .strict(); // Reject unknown fields
 
-type UpdateWorkspaceMemberRequest = z.infer<
-  typeof updateWorkspaceMemberSchema
->;
+type UpdateWorkspaceMemberRequest = z.infer<typeof updateWorkspaceMemberSchema>;
 
 /**
  * Query parameter schemas
