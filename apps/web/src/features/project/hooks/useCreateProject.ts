@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { createProject, projectKeys, type CreateProjectInput } from '../api';
+import { dashboardKeys } from '@features/dashboard/api/dashboard.keys';
 
 export function useCreateProject(workspaceId: string) {
   const queryClient = useQueryClient();
@@ -11,6 +12,7 @@ export function useCreateProject(workspaceId: string) {
     mutationFn: (data: CreateProjectInput) => createProject(workspaceId, data),
     onSuccess: (project) => {
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.detail(workspaceId) });
       queryClient.setQueryData(projectKeys.detail(workspaceId, project.id), project);
       toast.success(`Project "${project.name}" created`);
     },

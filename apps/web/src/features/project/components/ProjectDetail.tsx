@@ -2,7 +2,21 @@
 
 import { useState } from 'react';
 import { Card, Button } from '@shared/components';
-import { ArrowLeft, UserCheck, CalendarBlank, CurrencyInr, PencilSimple, Archive, ArrowClockwise, Briefcase, Check, X } from '@phosphor-icons/react';
+import {
+  ArrowLeft,
+  UserCheck,
+  CalendarBlank,
+  CurrencyDollar,
+  PencilSimple,
+  Archive,
+  ArrowClockwise,
+  Briefcase,
+  Check,
+  X,
+  Tag,
+  Clock,
+  FileText,
+} from '@phosphor-icons/react';
 import type { ProjectResponse } from '../api';
 import { useDeleteProject, useRestoreProject } from '../hooks';
 import { ProjectStatusControl } from './ProjectStatusControl';
@@ -41,15 +55,22 @@ export function ProjectDetail({
   };
 
   const formattedBudget = project.budgetAmount
-    ? `${project.budgetCurrency || 'INR'} ${Number(project.budgetAmount).toLocaleString()}`
+    ? `${project.budgetCurrency || 'USD'} ${Number(project.budgetAmount).toLocaleString()}`
     : 'Not specified';
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-[1200px] w-full mx-auto">
+      {/* Top Header Navigation */}
       <div className="flex items-center justify-between">
-        <Button variant="secondary" size="sm" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4 mr-1.5" /> Back to Projects
-        </Button>
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-black transition-colors gap-2 group"
+        >
+          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+          <span>Back to Projects</span>
+        </button>
+
         <div className="flex items-center gap-2">
           {!isArchived ? (
             confirmingArchive ? (
@@ -98,11 +119,12 @@ export function ProjectDetail({
         </div>
       </div>
 
-      <Card className="p-6 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--color-hairline)]">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-2xl font-bold text-[var(--color-ink-deep)]">
+      {/* Main Project Overview Card */}
+      <Card className="p-6 sm:p-8 rounded-2xl border border-[var(--color-hairline,#e2e8f0)] bg-white shadow-sm space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-100">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink-deep,#0f172a)] tracking-tight">
                 {project.name}
               </h1>
               <ProjectStatusControl
@@ -111,50 +133,71 @@ export function ProjectDetail({
                 currentStatus={project.status}
               />
             </div>
-            <p className="text-sm text-[var(--color-slate-text)] flex items-center gap-1.5">
-              <UserCheck className="h-4 w-4 text-gray-400" />
+            <p className="text-sm font-medium text-[var(--color-slate-text,#64748b)] flex items-center gap-2">
+              <UserCheck className="h-4 w-4 text-amber-500" />
               <span>{project.clientName ? project.clientName : 'Internal Project'}</span>
               <span className="text-gray-300">•</span>
-              <span className="capitalize font-medium text-gray-600">{project.pricingModel} pricing</span>
+              <span className="capitalize font-semibold text-gray-700 flex items-center gap-1">
+                <Tag className="h-3.5 w-3.5 text-gray-400" />
+                {project.pricingModel} pricing
+              </span>
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl bg-gray-50 border border-gray-100 space-y-2">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
-              <CurrencyInr className="h-4 w-4 text-emerald-600" /> Financials
-            </h4>
-            <div className="text-sm">
-              <span className="text-gray-500">Budget: </span>
-              <span className="font-semibold text-gray-900">{formattedBudget}</span>
+        {/* Metric Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-5 rounded-2xl bg-emerald-50/50 border border-emerald-100 space-y-2">
+            <div className="flex items-center gap-2 text-emerald-800 text-xs font-bold uppercase tracking-wider">
+              <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-700">
+                <CurrencyDollar className="h-4 w-4" />
+              </div>
+              <span>Financial Model</span>
             </div>
-            <div className="text-xs text-gray-500 capitalize">
-              Pricing structure: {project.pricingModel}
+            <div className="text-xl font-bold text-gray-900 pt-1">{formattedBudget}</div>
+            <div className="text-xs text-gray-600 capitalize">
+              Billing structure: {project.pricingModel}
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-gray-50 border border-gray-100 space-y-2">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
-              <CalendarBlank className="h-4 w-4 text-blue-600" /> Timeline
-            </h4>
-            <div className="text-sm">
-              <span className="text-gray-500">Start Date: </span>
-              <span className="font-medium text-gray-900">{project.startDate || 'Not set'}</span>
+          <div className="p-5 rounded-2xl bg-blue-50/50 border border-blue-100 space-y-2">
+            <div className="flex items-center gap-2 text-blue-800 text-xs font-bold uppercase tracking-wider">
+              <div className="p-1.5 rounded-lg bg-blue-100 text-blue-700">
+                <CalendarBlank className="h-4 w-4" />
+              </div>
+              <span>Target Completion</span>
             </div>
-            <div className="text-sm">
-              <span className="text-gray-500">Target Date: </span>
-              <span className="font-medium text-gray-900">{project.targetDate || 'Not set'}</span>
+            <div className="text-xl font-bold text-gray-900 pt-1">
+              {project.targetDate || 'Not set'}
+            </div>
+            <div className="text-xs text-gray-600">
+              Start Date: {project.startDate || 'Not specified'}
+            </div>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-purple-50/50 border border-purple-100 space-y-2">
+            <div className="flex items-center gap-2 text-purple-800 text-xs font-bold uppercase tracking-wider">
+              <div className="p-1.5 rounded-lg bg-purple-100 text-purple-700">
+                <Clock className="h-4 w-4" />
+              </div>
+              <span>Status Overview</span>
+            </div>
+            <div className="text-xl font-bold text-gray-900 capitalize pt-1">
+              {project.status.replace('_', ' ')}
+            </div>
+            <div className="text-xs text-gray-600">
+              Workspace ID: <span className="font-mono">{workspaceId.slice(0, 8)}...</span>
             </div>
           </div>
         </div>
 
+        {/* Scope Description */}
         {project.description && (
-          <div className="space-y-2 pt-2">
-            <h4 className="text-sm font-semibold text-[var(--color-ink-deep)] flex items-center gap-1.5">
-              <Briefcase className="h-4 w-4 text-gray-500" /> Scope Overview
+          <div className="space-y-3 pt-4 border-t border-gray-100">
+            <h4 className="text-sm font-bold text-[var(--color-ink-deep,#0f172a)] flex items-center gap-2">
+              <FileText className="h-4 w-4 text-amber-500" /> Scope & Deliverables Overview
             </h4>
-            <div className="p-4 rounded-xl bg-white border border-[var(--color-hairline)] text-sm text-[var(--color-slate-text)] whitespace-pre-wrap">
+            <div className="p-5 rounded-2xl bg-gray-50/70 border border-gray-200 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
               {project.description}
             </div>
           </div>

@@ -7,6 +7,7 @@
 
 import { Card } from '@shared/components';
 import { Calendar, Copy, PencilSimple, Trash, UserPlus } from '@phosphor-icons/react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { WorkspaceResponse } from '../api';
 import { useDeleteWorkspace } from '../hooks';
@@ -17,7 +18,12 @@ interface WorkspaceCardProps {
 }
 
 export function WorkspaceCard({ workspace, onEdit }: WorkspaceCardProps) {
+  const router = useRouter();
   const { mutate: deleteWorkspace, isPending: isDeleting } = useDeleteWorkspace();
+
+  const handleCardClick = () => {
+    router.push(`/workspaces/${workspace.id}/dashboard`);
+  };
 
   const createdDate = new Date(workspace.createdAt).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -55,6 +61,7 @@ export function WorkspaceCard({ workspace, onEdit }: WorkspaceCardProps) {
 
   return (
     <Card
+      onClick={handleCardClick}
       className={[
         'group cursor-pointer transition-shadow duration-150 relative overflow-hidden',
         'hover:shadow-[var(--shadow-mockup)]',

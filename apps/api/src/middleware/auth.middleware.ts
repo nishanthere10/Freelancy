@@ -28,7 +28,6 @@ export const clerkAuth: RequestHandler = (req, res, next) => {
   return clerkMiddlewareHandler(req, res, next);
 };
 
-
 export async function userResolverMiddleware(
   req: AuthenticatedRequest,
   res: Response,

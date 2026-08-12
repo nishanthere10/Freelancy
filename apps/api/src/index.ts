@@ -12,6 +12,7 @@ import express, {
   type NextFunction,
 } from "express";
 import clientRoutes from "./domains/client/client.routes";
+import dashboardRoutes from "./domains/dashboard/dashboard.routes";
 import invoiceRoutes from "./domains/invoice/invoice.routes";
 import projectRoutes from "./domains/project/project.routes";
 import workspaceRoutes from "./domains/workspace/workspace.routes";
@@ -46,6 +47,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1", clerkAuth, userResolverMiddleware);
 
 app.use("/api/v1/workspaces", workspaceRoutes);
+app.use("/api/v1/workspaces/:workspaceId/dashboard", dashboardRoutes);
 app.use("/api/v1/workspaces/:workspaceId/clients", clientRoutes);
 app.use("/api/v1/workspaces/:workspaceId/projects", projectRoutes);
 app.use("/api/v1/workspaces/:workspaceId/invoices", invoiceRoutes);
@@ -81,7 +83,6 @@ async function ensureDefaultWorkspace() {
   ) {
     return;
   }
-
 
   const mockId = "550e8400-e29b-41d4-a716-446655440000";
   try {

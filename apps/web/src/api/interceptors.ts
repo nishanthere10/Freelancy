@@ -52,20 +52,12 @@ export function setupResponseInterceptor(
   instance.interceptors.response.use(
     (response: AxiosResponse) => response,
     (error: AxiosError) => {
-      if (
-        typeof window !== 'undefined' &&
-        error.response?.status === 401 &&
-        !window.location.pathname.startsWith('/sign-in') &&
-        !window.location.pathname.startsWith('/sign-up')
-      ) {
-        window.location.href = '/sign-in';
-      }
-
       const normalizedError = normalizeError(error);
       return Promise.reject(normalizedError);
     }
   );
 }
+
 
 
 /**

@@ -45,30 +45,10 @@ export function WorkspacePage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-canvas)]">
-      {/* Top nav bar */}
-      <header
-        className="sticky top-0 z-40 border-b border-[var(--color-hairline)]"
-        style={{ background: 'var(--color-canvas)' }}
-      >
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Brand mark */}
-          <div className="flex items-center gap-2">
-            <span
-              className="inline-flex items-center justify-center h-8 w-8 rounded-[var(--radius-sm)] text-xs font-semibold"
-              style={{
-                background: 'var(--color-brand-yellow)',
-                color: 'var(--color-primary)',
-              }}
-            >
-              F
-            </span>
-            <span className="text-sm font-medium text-[var(--color-ink-deep)]">Freelance OS</span>
-          </div>
-        </div>
-      </header>
-
       {/* Page body */}
-      <main className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
+      <main className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-10">
+
+
         <WorkspaceHeader onCreateClick={() => setCreateDialogOpen(true)} />
 
         {isEmpty ? (

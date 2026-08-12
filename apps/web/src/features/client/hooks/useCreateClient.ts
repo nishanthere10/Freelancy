@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { createClient, clientKeys, type CreateClientInput } from '../api';
+import { dashboardKeys } from '@features/dashboard/api/dashboard.keys';
 
 export function useCreateClient(workspaceId: string) {
   const queryClient = useQueryClient();
@@ -11,6 +12,7 @@ export function useCreateClient(workspaceId: string) {
     mutationFn: (data: CreateClientInput) => createClient(workspaceId, data),
     onSuccess: (client) => {
       queryClient.invalidateQueries({ queryKey: clientKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.detail(workspaceId) });
       queryClient.setQueryData(clientKeys.detail(workspaceId, client.id), client);
       toast.success(`Client "${client.name}" created`);
     },

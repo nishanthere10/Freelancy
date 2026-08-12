@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { createInvoice, invoiceKeys, type CreateInvoiceInput } from '../api';
+import { dashboardKeys } from '@features/dashboard/api/dashboard.keys';
 
 export function useCreateInvoice(workspaceId: string) {
   const queryClient = useQueryClient();
@@ -11,6 +12,7 @@ export function useCreateInvoice(workspaceId: string) {
     mutationFn: (data: CreateInvoiceInput) => createInvoice(workspaceId, data),
     onSuccess: (invoice) => {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.all(workspaceId) });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.detail(workspaceId) });
       toast.success('Draft invoice created');
     },
     onError: (error) => {

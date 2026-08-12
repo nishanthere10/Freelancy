@@ -2,8 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
-import { SquaresFour, Users, Briefcase, Receipt, Lightning } from '@phosphor-icons/react';
+import { Pacifico } from 'next/font/google';
+import { ChartPie, SquaresFour, Users, Briefcase, Receipt } from '@phosphor-icons/react';
 import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/nextjs';
+
+const pacifico = Pacifico({
+  weight: '400',
+  subsets: ['latin'],
+});
 
 export function Navbar() {
   const pathname = usePathname();
@@ -12,6 +18,12 @@ export function Navbar() {
   const workspaceId = params?.workspaceId as string | undefined;
 
   const navItems = [
+    {
+      label: 'Dashboard',
+      href: workspaceId ? `/workspaces/${workspaceId}/dashboard` : '/dashboard',
+      active: pathname?.includes('/dashboard'),
+      icon: ChartPie,
+    },
     {
       label: 'Workspaces',
       href: '/workspaces',
@@ -38,19 +50,16 @@ export function Navbar() {
     },
   ];
 
-
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-[var(--color-hairline)] shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
         {/* Brand */}
-        <Link href="/workspaces" className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-[var(--color-brand-yellow)] text-black flex items-center justify-center font-bold text-base shadow-sm">
-            <Lightning className="h-5 w-5 weight-bold" />
-          </div>
-          <span className="font-bold text-lg text-[var(--color-ink-deep)] tracking-tight">
-            Freelance OS
+        <Link href="/workspaces" className="flex items-center gap-2 group">
+          <span className={`${pacifico.className} text-[24px] text-[var(--color-ink-deep)] group-hover:text-[var(--color-brand-blue)] transition-colors mt-0.5`}>
+            Freelancy
           </span>
         </Link>
+
 
         {/* Navigation Links & User Controls */}
         <div className="flex items-center gap-4">
