@@ -82,14 +82,24 @@
     --color-error-border: #DC2626;
 
     /* Typography */
-    --font-family-sans: "Roobert PRO", "Noto Sans", -apple-system, BlinkMacSystemFont,
+    --font-family-sans: var(--font-plus-jakarta), "Roobert PRO", "Noto Sans", -apple-system, BlinkMacSystemFont,
       "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-family-mono: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-    /* Shadows (Miro elevation scale — predominantly flat) */
-    --shadow-subtle: 0px 1px 2px 0px rgba(5, 0, 56, 0.04);
-    --shadow-card: 0px 4px 12px 0px rgba(5, 0, 56, 0.06);
-    --shadow-mockup: 0px 12px 32px -4px rgba(5, 0, 56, 0.08);
-    --shadow-modal: 0px 16px 48px -8px rgba(5, 0, 56, 0.12);
+    /* Domain Accent Indicators */
+    --accent-client: var(--color-brand-teal);
+    --accent-project: var(--color-brand-yellow);
+    --accent-invoice: var(--color-brand-rose);
+
+    /* Glassmorphism */
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(229, 231, 235, 0.7);
+
+    /* Shadows (Miro elevation scale — refined depth) */
+    --shadow-subtle: 0px 1px 3px 0px rgba(5, 0, 56, 0.04), 0px 1px 2px -1px rgba(5, 0, 56, 0.04);
+    --shadow-card: 0px 4px 16px -2px rgba(5, 0, 56, 0.06), 0px 2px 4px -2px rgba(5, 0, 56, 0.04);
+    --shadow-card-hover: 0px 12px 28px -4px rgba(5, 0, 56, 0.1), 0px 4px 12px -2px rgba(5, 0, 56, 0.06);
+    --shadow-mockup: 0px 16px 40px -6px rgba(5, 0, 56, 0.1);
+    --shadow-modal: 0px 24px 60px -12px rgba(5, 0, 56, 0.16);
   }
 }

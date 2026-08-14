@@ -6,7 +6,7 @@
  * Supports ESC key, overlay-click to close, body scroll lock, and focus trap
  */
 
-import { useEffect, useRef, forwardRef, useState } from 'react';
+import { useEffect, useRef, forwardRef, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from '@phosphor-icons/react';
 import { cn } from '@shared/utils/cn';
@@ -20,14 +20,22 @@ export interface DialogProps {
   className?: string;
 }
 
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
+function useIsMounted() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
+}
+
 export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
   ({ open, onOpenChange, title, description, children, className }, ref) => {
     const dialogRef = useRef<HTMLDivElement>(null);
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-      setMounted(true);
-    }, []);
+    const mounted = useIsMounted();
 
     // Handle ESC key
     useEffect(() => {
@@ -73,11 +81,11 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
           aria-describedby={description ? 'dialog-description' : undefined}
           className={cn(
             'relative z-50 w-full max-w-md block',
-            'bg-[var(--color-canvas)] rounded-[var(--radius-xl)]',
-            'border border-[var(--color-hairline)]',
+            'bg-[var(--color-canvas)] rounded-[var(--radius-feature)]',
+            'border border-[var(--color-hairline-soft)]',
             'shadow-[var(--shadow-modal)]',
-            'p-6',
-            className
+            'p-7 animate-in fade-in-0 zoom-in-95 duration-200',
+            className,
           )}
         >
           {/* Header */}
@@ -104,7 +112,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
                 className={cn(
                   'flex-shrink-0 p-1.5 rounded-[var(--radius-md)]',
                   'text-[var(--color-steel)] hover:text-[var(--color-ink)] hover:bg-[var(--color-surface)]',
-                  'transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-blue)]'
+                  'transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-blue)]',
                 )}
                 aria-label="Close dialog"
               >
@@ -130,20 +138,41 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
     );
 
     return createPortal(dialogContent, document.body);
-  }
+  },
 );
 
 Dialog.displayName = 'Dialog';
 
-export function DialogContent({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("space-y-4", className)}>{children}</div>;
+export function DialogContent({
+  children,
+  className,
+}: { children: React.ReactNode; className?: string }) {
+  return <div className={cn('space-y-4', className)}>{children}</div>;
 }
 
-export function DialogHeader({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("flex flex-col space-y-1.5", className)}>{children}</div>;
+export function DialogHeader({
+  children,
+  className,
+}: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn('flex flex-col space-y-1.5', className)}>
+      {children}
+    </div>
+  );
 }
 
-export function DialogTitle({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <h2 className={cn("text-lg font-semibold text-[var(--color-ink-deep)]", className)}>{children}</h2>;
+export function DialogTitle({
+  children,
+  className,
+}: { children: React.ReactNode; className?: string }) {
+  return (
+    <h2
+      className={cn(
+        'text-lg font-semibold text-[var(--color-ink-deep)]',
+        className,
+      )}
+    >
+      {children}
+    </h2>
+  );
 }
-

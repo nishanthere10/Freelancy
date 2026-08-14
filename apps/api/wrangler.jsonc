@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "freelance-os-api",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-08-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "NODE_ENV": "production",
+    "FRONTEND_URL": "https://freelancy-omega.vercel.app",
+    "CLERK_PUBLISHABLE_KEY": "pk_test_bW9kZXJuLWZhd24tNjUuY2xlcmsuYWNjb3VudHMuZGV2JA"
+  }
+}

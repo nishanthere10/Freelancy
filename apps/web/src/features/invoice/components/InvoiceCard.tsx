@@ -11,18 +11,18 @@ export function InvoiceCard({ invoice, onSelect }: InvoiceCardProps) {
   return (
     <div
       onClick={() => onSelect(invoice)}
-      className="group relative bg-white p-5 rounded-2xl border border-[var(--color-hairline)] shadow-sm hover:shadow-md hover:border-amber-300 transition-all cursor-pointer flex flex-col justify-between"
+      className="group relative bg-white p-5 rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] border-t-4 border-t-[var(--color-brand-rose)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1 transition-all duration-200 cursor-pointer flex flex-col justify-between"
     >
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+          <span className="font-mono text-xs font-semibold text-[var(--color-slate-text)] bg-[var(--color-surface-soft)] px-2 py-0.5 rounded-[var(--radius-sm)] border border-[var(--color-hairline-soft)]">
             {invoice.invoiceNumber || 'DRAFT'}
           </span>
           <InvoiceStatusBadge status={invoice.status} />
         </div>
 
         <div>
-          <div className="flex items-center text-sm font-semibold text-[var(--color-ink-deep)] group-hover:text-amber-600 transition-colors">
+          <div className="flex items-center text-sm font-semibold text-[var(--color-ink-deep)] group-hover:text-[var(--color-brand-blue)] transition-colors">
             <User className="h-4 w-4 mr-1.5 text-gray-400 shrink-0" />
             <span className="truncate">{invoice.clientName || 'Unassigned Client'}</span>
           </div>

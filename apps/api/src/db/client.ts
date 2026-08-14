@@ -1,34 +1,37 @@
 /**
  * Database client
- * Singleton instance for database access using Drizzle ORM
- *
- * Connection pooling is handled by the postgres client.
- * In production, configure connection limits and timeouts via DATABASE_URL.
+ * Singleton instance for database access using Drizzle ORM and Neon Serverless driver
  */
 
+import { Pool, neonConfig } from "@neondatabase/serverless";
 import * as schema from "@repo/database";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/neon-serverless";
 
-const connectionString = process.env.DATABASE_URL;
-
-if (!connectionString) {
-  throw new Error("DATABASE_URL environment variable is required");
+// Configure Neon to use the native WebSocket available in Cloudflare Workers
+if (typeof WebSocket !== "undefined") {
+  neonConfig.webSocketConstructor = WebSocket;
 }
 
-// Create postgres connection with security and performance settings
-const client = postgres(connectionString, {
-  // SSL is required for production databases
-  ssl: "require",
-  // Connection timeout: 30 seconds
-  connect_timeout: 30,
-  // Idle connection timeout: 60 seconds
-  idle_timeout: 60,
-  // Max connection lifetime: 30 minutes
-  max_lifetime: 30 * 60,
-  // Enable error logging
-  debug: process.env.DEBUG_DB === "true",
-});
+let _db: ReturnType<typeof drizzle> | null = null;
 
-// Create drizzle instance with schema
-export const db = drizzle(client, { schema });
+const initDb = () => {
+  if (_db) return _db;
+  
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error("DATABASE_URL environment variable is required");
+  }
+
+  // Create Neon serverless pool compatible with Node.js and Cloudflare Workers
+  const pool = new Pool({ connectionString });
+
+  // Create drizzle instance with schema
+  _db = drizzle(pool, { schema });
+  return _db;
+};
+
+export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+  get: (_target, prop) => {
+    return initDb()[prop as keyof typeof _db];
+  },
+});

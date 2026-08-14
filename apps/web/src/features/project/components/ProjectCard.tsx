@@ -69,7 +69,7 @@ export function ProjectCard({
 
   return (
     <Card
-      className="p-6 rounded-2xl hover:shadow-lg transition-all duration-200 cursor-pointer relative flex flex-col justify-between border border-[var(--color-hairline,#e2e8f0)] bg-white group hover:border-amber-300 space-y-4"
+      className="p-6 rounded-[var(--radius-xl)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-200 cursor-pointer relative flex flex-col justify-between border border-[var(--color-hairline-soft)] border-t-4 border-t-[var(--color-brand-yellow)] bg-white group hover:-translate-y-1 space-y-4"
       onClick={() => onSelect?.(project)}
     >
       <div className="space-y-3.5">
@@ -80,7 +80,7 @@ export function ProjectCard({
             projectId={project.id}
             currentStatus={project.status}
           />
-          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200 flex items-center gap-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[var(--color-surface-soft)] text-[var(--color-charcoal)] border border-[var(--color-hairline-soft)] flex items-center gap-1">
             <Tag className="h-3 w-3" />
             {project.pricingModel}
           </span>
@@ -88,7 +88,7 @@ export function ProjectCard({
 
         {/* Project Name & Client */}
         <div>
-          <h3 className="font-bold text-[var(--color-ink-deep,#0f172a)] text-lg leading-snug group-hover:text-amber-600 transition-colors">
+          <h3 className="font-bold text-[var(--color-ink-deep)] text-lg leading-snug group-hover:text-[var(--color-brand-blue)] transition-colors">
             {project.name}
           </h3>
 

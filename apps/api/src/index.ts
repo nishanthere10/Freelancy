@@ -1,86 +1,22 @@
 /**
  * Freelance OS API
- * Main entry point for the backend server
+ * Main entry point for local Node.js development server
  */
 
 import "dotenv/config";
-import cors from "cors";
-import express, {
-  type Application,
-  type Request,
-  type Response,
-  type NextFunction,
-} from "express";
-import clientRoutes from "./domains/client/client.routes";
-import dashboardRoutes from "./domains/dashboard/dashboard.routes";
-import invoiceRoutes from "./domains/invoice/invoice.routes";
-import projectRoutes from "./domains/project/project.routes";
-import workspaceRoutes from "./domains/workspace/workspace.routes";
-import {
-  clerkAuth,
-  userResolverMiddleware,
-} from "./middleware/auth.middleware";
-
-const app: Application = express();
-const PORT = process.env.PORT || 3000;
-
-// Middleware
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5000",
-    credentials: true,
-  }),
-);
-app.use(express.json());
-
-// Health check endpoint
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
-});
-
-// Basic routes placeholder
-app.get("/", (req, res) => {
-  res.json({ message: "Freelance OS API v1" });
-});
-
-// API Routes with authentication & user resolution
-app.use("/api/v1", clerkAuth, userResolverMiddleware);
-
-app.use("/api/v1/workspaces", workspaceRoutes);
-app.use("/api/v1/workspaces/:workspaceId/dashboard", dashboardRoutes);
-app.use("/api/v1/workspaces/:workspaceId/clients", clientRoutes);
-app.use("/api/v1/workspaces/:workspaceId/projects", projectRoutes);
-app.use("/api/v1/workspaces/:workspaceId/invoices", invoiceRoutes);
-
-// Error handling middleware
-app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
-  console.error("API Error:", err);
-  const message =
-    err instanceof Error ? err.message : "An unexpected error occurred";
-  res.status(500).json({
-    success: false,
-    error: {
-      code: "INTERNAL_ERROR",
-      message,
-    },
-  });
-});
-
 import {
   usersTable,
   workspaceMembersTable,
   workspacesTable,
 } from "@repo/database";
 import { and, eq } from "drizzle-orm";
-// Auto-seed default workspace for mock dev user
+import app from "./app";
+import { config } from "./config";
 import { db } from "./db/client";
 
 async function ensureDefaultWorkspace() {
   // Only auto-seed mock workspace if explicitly enabled for local unit tests
-  if (
-    process.env.NODE_ENV === "production" ||
-    process.env.ENABLE_MOCK_AUTH !== "true"
-  ) {
+  if (config.isProduction || !config.enableMockAuth) {
     return;
   }
 
@@ -150,9 +86,9 @@ async function ensureDefaultWorkspace() {
   }
 }
 
-// Start server
-app.listen(PORT, async () => {
-  console.log(`Server running on port ${PORT}`);
+// Start server listener for local Node.js environment
+app.listen(config.port, async () => {
+  console.log(`Server running on port ${config.port}`);
   await ensureDefaultWorkspace();
 });
 

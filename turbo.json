@@ -1,8 +1,14 @@
-﻿{
+{
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**"]
+      "outputs": ["dist/**", ".next/**"],
+      "env": [
+        "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+        "CLERK_SECRET_KEY",
+        "NEXT_PUBLIC_API_URL",
+        "NODE_ENV"
+      ]
     },
     "typecheck": {
       "dependsOn": ["^typecheck"]

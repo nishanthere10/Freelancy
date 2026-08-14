@@ -6,25 +6,19 @@ import { QueryProvider } from './QueryProvider';
 import { ToastProvider } from './ToastProvider';
 import { CustomThemeProvider } from './ThemeProvider';
 
-const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const envKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const isValidKey = typeof envKey === 'string' && (envKey.startsWith('pk_test_') || envKey.startsWith('pk_live_'));
+const publishableKey = isValidKey ? envKey : 'pk_test_Y2xlcmsuZXhhbXBsZS5jb20k';
 
 export function AppProviders({ children }: { children: ReactNode }) {
-  const content = (
-    <CustomThemeProvider>
-      <QueryProvider>
-        {children}
-        <ToastProvider />
-      </QueryProvider>
-    </CustomThemeProvider>
-  );
-
-  if (!publishableKey) {
-    return content;
-  }
-
   return (
     <ClerkProvider publishableKey={publishableKey}>
-      {content}
+      <CustomThemeProvider>
+        <QueryProvider>
+          {children}
+          <ToastProvider />
+        </QueryProvider>
+      </CustomThemeProvider>
     </ClerkProvider>
   );
 }

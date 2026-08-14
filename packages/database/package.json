@@ -8,6 +8,7 @@
     "db:push": "drizzle-kit push:pg",
     "db:generate": "drizzle-kit generate:pg",
     "db:studio": "drizzle-kit studio",
+    "db:migrate": "tsx src/migrate.ts",
     "typecheck": "tsc --noEmit"
   },
   "exports": {
@@ -15,13 +16,14 @@
     "./schema": "./src/schema/index.ts"
   },
   "dependencies": {
-    "drizzle-orm": "^0.30.10"
+    "drizzle-orm": "^0.30.10",
+    "postgres": "^3.4.4"
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
     "drizzle-kit": "^0.20.14",
-    "postgres": "^3.4.4",
     "@types/node": "^20.10.6",
+    "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   }
 }

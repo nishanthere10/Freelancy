@@ -1,0 +1,16 @@
+node_modules
+**/node_modules
+.next
+**/.next
+.turbo
+**/.turbo
+dist
+**/dist
+graphify-out
+.git
+.agents
+.gemini
+*.log
+docs
+planning
+*.md

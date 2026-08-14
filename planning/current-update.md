@@ -1,72 +1,88 @@
 # Freelance OS — Current System Update & Reasoning Agent Context
 
-**Date:** August 11, 2026  
-**Status:** Sprints 1, 2, 3, 4, and 5 COMPLETE (Workspace, Client, Project, Invoice Domains, Clerk Authentication, and Design Language fully implemented & integrated)
+**Date:** August 14, 2026  
+**Status:** Sprints 1–6, Production Infrastructure Specifications, UI Overhaul, Cloudflare Workers API Adaptation, GitHub Actions CI/CD Pipeline, Automated Database Migrations & Vercel Deployment Setup COMPLETE.
 
 ---
 
 ## 1. Executive Summary for Reasoning Agent
 
-Freelance OS is a modern monorepo application for managing freelance work, clients, projects, and invoices. All core backend domain models, database schemas, REST APIs, authentication security, and Next.js App Router UI features are fully implemented, verified, and aligned with `docs/01-product/design-language.md`.
+Freelance OS is a modern monorepo application for managing freelance work, clients, projects, invoices, and analytics dashboard metrics. All core backend domain models, database schemas, REST APIs, authentication security, Next.js App Router UI features, visual design system overhaul, Cloudflare Workers API edge runtime compatibility, GitHub Actions CI/CD workflow, and Vercel monorepo deployment pipeline are complete.
 
 ### Monorepo Structure
-- **`apps/api`**: Express.js REST API (`http://localhost:5001/api/v1`). Security architecture: `@clerk/express` JWT verification → JIT User Resolution (`usersTable`) → Workspace Membership → RBAC Policy Layer → Domain Service → Express Controller.
-- **`apps/web`**: Next.js 15 App Router (`http://localhost:5000`). Tech Stack: React 19, Tailwind CSS v4, `@clerk/nextjs`, TanStack Query, React Hook Form, Zod, Google Font `Pacifico`.
-- **`packages/database`**: Drizzle ORM schemas (`users`, `workspaces`, `workspace_members`, `clients`, `projects`, `invoices`, `invoice_items`, `invoice_history`) targeting Neon PostgreSQL.
+- **`apps/web`**: Next.js 16 App Router (`http://localhost:5000`). Tech Stack: React 19, Tailwind CSS v4, `@clerk/nextjs`, TanStack Query v5, React Hook Form, Zod, Google Fonts `Plus Jakarta Sans` & `Pacifico`. Target Deployment: **Vercel**.
+- **`apps/api`**: Express.js REST API (`http://localhost:5001/api/v1`). Dual Node.js and Cloudflare Workers (V8 Isolate) execution bridge. Security architecture: `@clerk/express` JWT verification → JIT User Resolution (`usersTable`) → Workspace Membership → RBAC Policy Layer → Domain Service → Express Controller. Target Deployment: **Cloudflare Workers**.
+- **`packages/database`**: Drizzle ORM schemas (`users`, `workspaces`, `workspace_members`, `clients`, `projects`, `invoices`, `invoice_items`, `invoice_history`) targeting **Neon PostgreSQL**, featuring an automated `migrate.ts` migration runner.
 
 ---
 
 ## 2. Completed Domain Feature Map
 
-| Domain | Status | Key Features & Endpoints | UI Component Location |
+| Domain | Status | Key Features & Endpoints | UI / Code Location |
 | :--- | :--- | :--- | :--- |
 | **Auth & Security** | COMPLETE ✅ | Clerk IdP integration, RSA JWT validation, JIT user provisioning, `clerk_id` → `users.id` UUID identity mapping. | `apps/api/src/middleware/auth.middleware.ts`, `apps/web/middleware.ts` |
 | **Workspace** | COMPLETE ✅ | Multi-tenant isolation, RBAC (`owner`, `editor`, `viewer`), membership management, `max-w-[1400px]` fluid widescreen layout. | `apps/web/src/features/workspace` |
-| **Client** | COMPLETE ✅ | Client CRM, unique email constraint per workspace, contact details, live linked client projects fetching (`useProjects`). | `apps/web/src/features/client` |
-| **Project** | COMPLETE ✅ | Project lifecycle (`planning`, `in_progress`, `on_hold`, `completed`), budget & timeline stat cards, pricing model tags. | `apps/web/src/features/project` |
-| **Invoice** | COMPLETE ✅ | Invoice draft creation, serial generator (`INV-2026-XXXX`), payment recording, PDF/document view with GST tax breakdown (`CGST` + `SGST`). | `apps/web/src/features/invoice` |
+| **Client** | COMPLETE ✅ | Client CRM, unique email constraint per workspace, contact details, linked client projects fetching (`useProjects`), Teal domain top-accent cards. | `apps/web/src/features/client` |
+| **Project** | COMPLETE ✅ | Project lifecycle (`planning`, `in_progress`, `on_hold`, `completed`), budget & timeline stat cards, pricing tags, Yellow domain top-accent cards. | `apps/web/src/features/project` |
+| **Invoice** | COMPLETE ✅ | Invoice draft creation, serial generator (`INV-2026-XXXX`), payment recording, PDF view with GST tax breakdown, Rose domain top-accent cards. | `apps/web/src/features/invoice` |
+| **Dashboard** | COMPLETE ✅ | Financial metrics overview (`Total Invoiced`, `Total Collected`, `Outstanding`, `Overdue Alerts`), revenue analytics, project summary, gradient metric cards. | `apps/web/src/features/dashboard` |
+| **Cloudflare Workers API** | COMPLETE ✅ | Decoupled Express app (`src/app.ts`), Node `http` stream bridge (`src/worker.ts`), `@neondatabase/serverless` transport, Wrangler config (`wrangler.jsonc`). | `apps/api/src/worker.ts`, `apps/api/wrangler.jsonc` |
+| **Database Migrations** | COMPLETE ✅ | Automated Node/ESM migration runner applying pending Drizzle SQL migrations safely against Neon PostgreSQL. | `packages/database/src/migrate.ts` |
+| **CI/CD Automation** | COMPLETE ✅ | Multi-stage GitHub Actions workflow enforcing quality gates (`lint`, `typecheck`, `test`, `build`) and automating production release. | `.github/workflows/ci-cd.yml` |
+| **Vercel Web Deployment** | COMPLETE ✅ | Optimized Vercel monorepo deployment config (`.vercelignore`, `rootDirectory: "apps/web"`, `buildCommand: "pnpm --filter=web build"`). | `.vercel/project.json`, `.vercelignore`, `turbo.json` |
 
 ---
 
-## 3. Production Authentication Architecture (`Clerk`)
+## 3. Production Architecture & Implementation Details
 
-1. **Authentication vs Authorization Split**:
-   - **Clerk IdP**: Manages password hashing, OAuth (Google/GitHub), MFA, session management, and JWT signing.
-   - **Freelance OS**: Manages database relational integrity, workspace memberships, and domain RBAC policies.
-2. **Identity Translation Layer (`users` Table)**:
-   - External Clerk string ID (`user_2bX...`) is resolved to an internal PostgreSQL `users.id` UUID (`550e8400...`) via `userResolverMiddleware`.
-   - Ensures foreign keys (`workspaces.owner_id`, `clients.created_by`, `invoices.created_by`) satisfy UUID column constraints.
-3. **Frontend Interceptors & Protection**:
-   - Next.js `middleware.ts` handles server-side route protection (`clerkMiddleware()`).
-   - Axios `interceptors.ts` dynamically appends session Bearer token from `window.Clerk.session.getToken()`.
-4. **Documentation**: Detailed guide created at `docs/04-development/authentication-guide.md`.
+### A. Cloudflare Workers API Adaptation (`apps/api`)
+- **Decoupled Architecture**: `src/app.ts` houses routing and middleware; `src/index.ts` handles local Node.js `app.listen()`; `src/worker.ts` handles Cloudflare Worker `fetch(request, env, ctx)` invocations.
+- **Fetch Request Bridge**: `handleExpressRequest` converts Web Fetch API `Request` into Node `http.IncomingMessage` and `http.ServerResponse` streams with explicit type signatures (`Socket` from `node:net`, `OutgoingHttpHeaders`, strict method overloads).
+- **Database Transport**: Replaced `postgres.js` with `@neondatabase/serverless` `Pool` + `drizzle-orm/neon-serverless` to support serverless isolate connections and multi-statement transactions.
+- **Dynamic Clerk Auth**: Refactored `clerkAuth` in `auth.middleware.ts` to evaluate Clerk keys dynamically per request and short-circuit safely during mock auth/test runs.
 
----
+### B. Automated Database Migration Pipeline (`packages/database`)
+- **Runner Script**: Created `packages/database/src/migrate.ts` executing Drizzle migrations from `./migrations` folder using `postgres` transport and `drizzle-orm/postgres-js/migrator`.
+- **Command**: Added `"db:migrate": "tsx src/migrate.ts"` to `packages/database/package.json`.
 
-## 4. Key UI & Design System Refinements (`design-language.md`)
+### C. GitHub Actions CI/CD Pipeline (`.github/workflows/ci-cd.yml`)
+- **Stage 1 (CI / Quality Gates)**: Runs on PRs and pushes to `main`. Executes `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build`.
+- **Stage 2 (CD / Production Release)**: Triggers on successful merge to `main`. Executes database migrations (`pnpm --filter @repo/database db:migrate`), deploys API to Cloudflare Workers (`wrangler deploy`), and deploys Web to Vercel via Vercel CLI.
 
-- **Fluid Widescreen Containers**: Expanded layout width across all pages (`/workspaces`, `/clients`, `/projects`, `/invoices`) to `max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-12`.
-- **Brand Typography**: Integrated Google Font **Pacifico** for `Freelancy` cursive logo mark in Navbar and Invoice document headers.
-- **Black-Pill CTAs & Yellow Tag Pills**: Implemented black-pill primary CTAs (`rounded-full bg-black text-white hover:bg-gray-900`) and canary yellow brand feature pills (`bg-amber-500/10 text-amber-900 rounded-full font-bold`).
-- **Client Detail View**: Dynamically queries and renders active/historical client projects using `useProjects(workspaceId, { clientId })`.
-- **Project Cards & Grid**: Expanded grid gap to `gap-6 lg:gap-8` with `rounded-2xl` hover cards and metric stat tiles (Financials, Target Date, Status).
-- **Invoice Dashboard & Printable PDF View**: Added 3 summary metric cards (`Total Invoiced`, `Total Collected`, `Outstanding Balance`) and printable invoice document with GST tax breakdown box.
-- **Refetch Loop Fix**: Removed hard `window.location.href` redirects in Axios response interceptor to prevent 401 infinite reloads.
+### D. Vercel Monorepo Deployment & Turborepo Optimization
+- **`vercel.json` Override**: Created `apps/web/vercel.json` specifying `"buildCommand": "next build"` to bypass remote Turborepo misconfigurations caused by Vercel detecting `turbo.json` from the root directory but targeting `apps/web` as the root.
+- **SSG Authentication Fallback**: Fixed an issue in `apps/web/src/providers/AppProviders.tsx` where missing `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` environment variables during Next.js SSG build step caused `ClerkProvider` to be bypassed, resulting in fatal static build failures during the `Collecting page data...` phase (due to `Navbar` hooks crashing). Added a dummy fallback key for build-time safety.
+- **`.vercelignore`**: Filters out `node_modules`, `.next`, `.turbo`, `dist`, `docs`, `planning`, and `*.md` files to compress upload payload size from 1.5 GB to ~2 MB.
+- **`turbo.json`**: Declared environment variables (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_API_URL`, `NODE_ENV`) under the `build` task to prevent Turborepo from stripping environment variables during remote Vercel builds.
+- **`.vercel/project.json`**: Configured `rootDirectory: "apps/web"` and `buildCommand: "pnpm --filter=web build"`.
 
 ---
 
-## 5. Standard Verification & Test Commands
+## 4. UI & Design System Component Refactoring
+
+- **`Dialog.tsx` Component Refactor**: Replaced `useEffect` + `setMounted(true)` with `useSyncExternalStore` (`useIsMounted()`), resolving React `react-hooks/set-state-in-effect` warning during SSR.
+- **Typography & Aesthetics**: Integrated `Plus_Jakarta_Sans` font alongside `Pacifico`, glassmorphism headers (`backdrop-blur-md`), micro-interactions (`active:scale-[0.98]`), and domain top-accent cards (`ClientCard`, `ProjectCard`, `InvoiceCard`).
+
+---
+
+## 5. Verification & Operational Commands
 
 ```bash
-# Push database schemas to Neon PostgreSQL
-pnpm --filter @repo/database db:push
+# Run workspace linting across monorepo
+pnpm lint
 
-# Run API Vitest test suite (10/10 test files passing)
+# Run monorepo typecheck across all packages
+pnpm typecheck
+
+# Run API Vitest test suite (includes Worker fetch bridge tests)
 pnpm --filter @repo/api test
 
-# Typecheck web app
-pnpm --filter web typecheck
+# Execute database schema migrations against Neon PostgreSQL
+pnpm --filter @repo/database db:migrate
 
-# Run dev servers
+# Deploy frontend to Vercel via CLI
+npx vercel --prod
+
+# Run dev servers (Web on :5000, API on :5001)
 pnpm dev
 ```

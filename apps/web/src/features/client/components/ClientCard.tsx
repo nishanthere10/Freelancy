@@ -50,18 +50,18 @@ export function ClientCard({
 
   return (
     <Card
-      className="p-6 rounded-2xl hover:shadow-lg transition-all duration-200 cursor-pointer relative flex flex-col justify-between border border-[var(--color-hairline,#e2e8f0)] bg-white group hover:border-amber-300"
+      className="p-6 rounded-[var(--radius-xl)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-200 cursor-pointer relative flex flex-col justify-between border border-[var(--color-hairline-soft)] border-t-4 border-t-[var(--color-brand-teal)] bg-white group hover:-translate-y-1"
       onClick={() => onSelect?.(client)}
     >
       <div className="space-y-4">
         {/* Header with avatar & status */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-base shadow-sm group-hover:scale-105 transition-transform">
+            <div className="h-11 w-11 rounded-[var(--radius-lg)] bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border border-[var(--color-brand-teal)]/20 flex items-center justify-center font-bold text-base shadow-xs group-hover:scale-105 transition-transform">
               {client.name.slice(0, 2).toUpperCase()}
             </div>
             <div>
-              <h3 className="font-bold text-[var(--color-ink-deep,#0f172a)] text-base leading-snug group-hover:text-amber-600 transition-colors">
+              <h3 className="font-bold text-[var(--color-ink-deep)] text-base leading-snug group-hover:text-[var(--color-brand-teal)] transition-colors">
                 {client.name}
               </h3>
               {client.companyName ? (

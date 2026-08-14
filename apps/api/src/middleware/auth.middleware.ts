@@ -14,18 +14,16 @@ export interface AuthenticatedRequest extends Request {
   user?: AuthUser;
 }
 
-const publishableKey =
-  process.env.CLERK_PUBLISHABLE_KEY ||
-  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-const secretKey = process.env.CLERK_SECRET_KEY;
-
-const clerkMiddlewareHandler =
-  publishableKey && secretKey
-    ? clerkMiddleware({ publishableKey, secretKey })
-    : (((_req, _res, next) => next()) as RequestHandler);
-
 export const clerkAuth: RequestHandler = (req, res, next) => {
-  return clerkMiddlewareHandler(req, res, next);
+  const publishableKey =
+    process.env.CLERK_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const secretKey = process.env.CLERK_SECRET_KEY;
+
+  if (publishableKey && secretKey) {
+    return clerkMiddleware({ publishableKey, secretKey })(req, res, next);
+  }
+  return next();
 };
 
 export async function userResolverMiddleware(
@@ -40,10 +38,8 @@ export async function userResolverMiddleware(
       process.env.NODE_ENV === "test";
     const mockAuthHeader = req.headers["x-mock-user-id"] as string | undefined;
 
-    // Check if Clerk authentication header exists
-    const auth = getAuth(req);
-
-    if (!isProd && allowMock && (!auth || !auth.userId)) {
+    // Short-circuit in mock auth / test mode without calling Clerk getAuth(req)
+    if (!isProd && allowMock) {
       const mockId = mockAuthHeader || "550e8400-e29b-41d4-a716-446655440000";
       req.user = {
         id: mockId,
@@ -53,9 +49,17 @@ export async function userResolverMiddleware(
       return next();
     }
 
+    // In production, safely inspect Clerk authentication session
+    let auth: ReturnType<typeof getAuth> | null = null;
+    try {
+      auth = getAuth(req);
+    } catch (_err) {
+      auth = null;
+    }
+
     if (!auth || !auth.userId) {
-      // Unauthenticated request - req.user remains undefined
-      return next();
+      // Unauthenticated request - gracefully return 401 Unauthorized JSON
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     const clerkId = auth.userId;

@@ -64,7 +64,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const base =
-      'inline-flex items-center justify-center font-medium text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-brand-blue)] disabled:opacity-50 disabled:pointer-events-none';
+      'inline-flex items-center justify-center font-medium text-sm transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-brand-blue)] disabled:opacity-50 disabled:pointer-events-none hover:shadow-xs';
 
     const sizeClass = variant === 'link' || variant === 'icon' ? '' : sizeStyles[size as Exclude<ButtonSize, 'icon'>] ?? sizeStyles.md;
 
