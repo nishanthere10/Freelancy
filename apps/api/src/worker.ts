@@ -164,13 +164,22 @@ export async function handleExpressRequest(
           // Instead of rejecting the promise, format a proper 500 response with CORS
           res.statusCode = 500;
           res.setHeader("Content-Type", "application/json");
-          res.setHeader("Access-Control-Allow-Origin", request.headers.get("origin") || "*");
+          res.setHeader(
+            "Access-Control-Allow-Origin",
+            request.headers.get("origin") || "*",
+          );
           res.setHeader("Access-Control-Allow-Credentials", "true");
           res.end(
             JSON.stringify({
               success: false,
-              error: { code: "INTERNAL_ERROR", message: err instanceof Error ? err.message : "An unexpected error occurred" },
-            })
+              error: {
+                code: "INTERNAL_ERROR",
+                message:
+                  err instanceof Error
+                    ? err.message
+                    : "An unexpected error occurred",
+              },
+            }),
           );
           return;
         }
@@ -178,7 +187,10 @@ export async function handleExpressRequest(
         if (!res.writableEnded) {
           res.statusCode = 404;
           res.setHeader("Content-Type", "application/json");
-          res.setHeader("Access-Control-Allow-Origin", request.headers.get("origin") || "*");
+          res.setHeader(
+            "Access-Control-Allow-Origin",
+            request.headers.get("origin") || "*",
+          );
           res.setHeader("Access-Control-Allow-Credentials", "true");
           res.end(
             JSON.stringify({
@@ -199,10 +211,13 @@ export async function handleExpressRequest(
         new Response(
           JSON.stringify({
             success: false,
-            error: { code: "INTERNAL_ERROR", message: err instanceof Error ? err.message : String(err) },
+            error: {
+              code: "INTERNAL_ERROR",
+              message: err instanceof Error ? err.message : String(err),
+            },
           }),
-          { status: 500, headers }
-        )
+          { status: 500, headers },
+        ),
       );
     }
   });
@@ -225,12 +240,10 @@ export default {
 
       // Startup Check: Validate critical environment variables
       const missingVars: string[] = [];
-      if (process.env.NODE_ENV !== "test") {
-        if (!process.env.DATABASE_URL) missingVars.push("DATABASE_URL");
-        if (!process.env.CLERK_SECRET_KEY) missingVars.push("CLERK_SECRET_KEY");
-        if (!process.env.CLERK_PUBLISHABLE_KEY && !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-          missingVars.push("CLERK_PUBLISHABLE_KEY");
-        }
+      if (!process.env.DATABASE_URL) missingVars.push("DATABASE_URL");
+      if (!process.env.CLERK_SECRET_KEY) missingVars.push("CLERK_SECRET_KEY");
+      if (!process.env.CLERK_PUBLISHABLE_KEY && !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+        missingVars.push("CLERK_PUBLISHABLE_KEY");
       }
 
       if (missingVars.length > 0) {
@@ -250,7 +263,7 @@ export default {
               "Access-Control-Allow-Origin": origin,
               "Access-Control-Allow-Credentials": "true",
             },
-          }
+          },
         );
       }
 
@@ -260,7 +273,10 @@ export default {
       return new Response(
         JSON.stringify({
           success: false,
-          error: { code: "INTERNAL_ERROR", message: err instanceof Error ? err.message : String(err) },
+          error: {
+            code: "INTERNAL_ERROR",
+            message: err instanceof Error ? err.message : String(err),
+          },
         }),
         {
           status: 500,
@@ -269,7 +285,7 @@ export default {
             "Access-Control-Allow-Origin": origin,
             "Access-Control-Allow-Credentials": "true",
           },
-        }
+        },
       );
     }
   },
