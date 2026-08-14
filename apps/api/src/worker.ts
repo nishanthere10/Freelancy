@@ -225,10 +225,12 @@ export default {
 
       // Startup Check: Validate critical environment variables
       const missingVars: string[] = [];
-      if (!process.env.DATABASE_URL) missingVars.push("DATABASE_URL");
-      if (!process.env.CLERK_SECRET_KEY) missingVars.push("CLERK_SECRET_KEY");
-      if (!process.env.CLERK_PUBLISHABLE_KEY && !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-        missingVars.push("CLERK_PUBLISHABLE_KEY");
+      if (process.env.NODE_ENV !== "test") {
+        if (!process.env.DATABASE_URL) missingVars.push("DATABASE_URL");
+        if (!process.env.CLERK_SECRET_KEY) missingVars.push("CLERK_SECRET_KEY");
+        if (!process.env.CLERK_PUBLISHABLE_KEY && !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+          missingVars.push("CLERK_PUBLISHABLE_KEY");
+        }
       }
 
       if (missingVars.length > 0) {

@@ -21,7 +21,16 @@ export const clerkAuth: RequestHandler = (req, res, next) => {
   const secretKey = process.env.CLERK_SECRET_KEY;
 
   if (publishableKey && secretKey) {
-    return clerkMiddleware({ publishableKey, secretKey })(req, res, next);
+    // WORKAROUND: Cloudflare Workers crash with "stream is not readable" if a Node.js 
+    // Readable stream is passed as the body to the Web Request constructor.
+    // By temporarily spoofing the method to GET, Clerk won't attach the body to the Request.
+    const originalMethod = req.method;
+    req.method = "GET";
+    
+    return clerkMiddleware({ publishableKey, secretKey })(req, res, (err) => {
+      req.method = originalMethod;
+      next(err);
+    });
   }
   return next();
 };
