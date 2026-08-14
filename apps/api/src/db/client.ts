@@ -16,7 +16,7 @@ let _db: ReturnType<typeof drizzle> | null = null;
 
 const initDb = () => {
   if (_db) return _db;
-  
+
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error("DATABASE_URL environment variable is required");

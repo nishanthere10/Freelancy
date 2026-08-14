@@ -26,11 +26,11 @@ export const app: Application = express();
 // Global Middleware
 app.use((req, res, next) => {
   const allowedOrigins = [
-    'https://freelancy-omega.vercel.app',
-    'http://localhost:5000',
-    'http://localhost:3000'
+    "https://freelancy-omega.vercel.app",
+    "http://localhost:5000",
+    "http://localhost:3000",
   ];
-  
+
   if (config.frontendUrl && !allowedOrigins.includes(config.frontendUrl)) {
     allowedOrigins.push(config.frontendUrl);
   }
@@ -38,8 +38,8 @@ app.use((req, res, next) => {
   cors({
     origin: allowedOrigins,
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })(req, res, next);
 });
 // Health check endpoint (Liveness probe)
