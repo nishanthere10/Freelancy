@@ -60,12 +60,10 @@ export class InvoiceRepository {
           throw new Error("Failed to create invoice header");
         }
 
-        const insertedItems: InvoiceItem[] = [];
-        for (let i = 0; i < data.items.length; i++) {
-          const item = data.items[i];
-          const [insertedItem] = await tx
-            .insert(invoiceItemsTable)
-            .values({
+        const insertedItems = await tx
+          .insert(invoiceItemsTable)
+          .values(
+            data.items.map((item, i) => ({
               workspaceId: data.workspaceId,
               invoiceId: invoice.id,
               description: item.description.trim(),
@@ -73,13 +71,9 @@ export class InvoiceRepository {
               unitPrice: item.unitPrice || "0.00",
               amount: item.amount || "0.00",
               sortOrder: item.sortOrder ?? i,
-            })
-            .returning();
-
-          if (insertedItem) {
-            insertedItems.push(insertedItem);
-          }
-        }
+            })),
+          )
+          .returning();
 
         // Fetch client and project names if available
         let clientName: string | null = null;

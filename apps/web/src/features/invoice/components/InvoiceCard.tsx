@@ -1,4 +1,4 @@
-import { Calendar, CurrencyInr, Eye, User, Folder } from '@phosphor-icons/react';
+import { Calendar, CurrencyInr, User, Folder } from '@phosphor-icons/react';
 import type { InvoiceResponse } from '../api';
 import { InvoiceStatusBadge } from './InvoiceStatusBadge';
 

@@ -10,7 +10,7 @@ export function useUpdateInvoice(workspaceId: string) {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateInvoiceInput }) =>
       updateInvoice(workspaceId, id, data),
-    onSuccess: (invoice) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.all(workspaceId) });
       toast.success('Draft invoice updated');
     },

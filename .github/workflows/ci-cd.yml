@@ -83,6 +83,7 @@ jobs:
 
       - name: Deploy Frontend to Vercel
         run: |
+          rm -rf .vercel apps/web/.vercel
           pnpm install --global vercel
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
           vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}

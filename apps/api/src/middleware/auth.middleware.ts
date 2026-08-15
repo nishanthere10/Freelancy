@@ -60,11 +60,16 @@ export async function userResolverMiddleware(
     }
 
     // In production, safely inspect Clerk authentication session
+    // Spoof req.method to GET to prevent Clerk from passing the Node readable stream to Web Request
     let auth: ReturnType<typeof getAuth> | null = null;
+    const originalMethod = req.method;
+    req.method = "GET";
     try {
       auth = getAuth(req);
     } catch (_err) {
       auth = null;
+    } finally {
+      req.method = originalMethod;
     }
 
     if (!auth || !auth.userId) {

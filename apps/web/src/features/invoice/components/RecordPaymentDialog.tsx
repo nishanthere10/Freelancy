@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input } from '@shared/components';
-import { CurrencyInr } from '@phosphor-icons/react';
 import { useRecordPayment } from '../hooks';
 import type { InvoiceResponse } from '../api';
 

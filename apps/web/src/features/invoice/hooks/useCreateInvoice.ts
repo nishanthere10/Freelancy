@@ -10,7 +10,7 @@ export function useCreateInvoice(workspaceId: string) {
 
   return useMutation({
     mutationFn: (data: CreateInvoiceInput) => createInvoice(workspaceId, data),
-    onSuccess: (invoice) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.all(workspaceId) });
       queryClient.invalidateQueries({ queryKey: dashboardKeys.detail(workspaceId) });
       toast.success('Draft invoice created');

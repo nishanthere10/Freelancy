@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button, Input, Skeleton } from '@shared/components';
-import { Plus, MagnifyingGlass, Users, Buildings } from '@phosphor-icons/react';
+import { Plus, MagnifyingGlass, Users } from '@phosphor-icons/react';
 import { useClients } from '../hooks';
 import type { ClientResponse, ClientStatus } from '../api';
 import { ClientList } from './ClientList';

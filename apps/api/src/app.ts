@@ -31,7 +31,7 @@ import { requestLoggerMiddleware } from "./middleware/request-logger.middleware"
 import { logger } from "./utils/logger";
 import { createError } from "./utils/response";
 
-export const app: Application = express();
+const app: Application = express();
 
 // 1. Correlation & Request Tracing Middleware
 app.use(requestIdMiddleware);

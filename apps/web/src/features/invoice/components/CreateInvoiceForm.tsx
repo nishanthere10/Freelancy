@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button, Input } from '@shared/components';
-import { Plus, Trash, CalendarBlank, User, Folder, Receipt, Percent } from '@phosphor-icons/react';
+import { Plus, Trash, CalendarBlank, User, Receipt } from '@phosphor-icons/react';
 import { useClients } from '../../client/hooks';
 import { useProjects } from '../../project/hooks';
 import type { CreateInvoiceInput, CreateInvoiceItemInput } from '../api';

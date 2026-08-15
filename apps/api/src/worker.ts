@@ -154,8 +154,18 @@ export async function handleExpressRequest(
         return res;
       };
 
-      // Inject request body into req stream
+      // Inject request body into req stream and pre-parse JSON if present
       if (bodyBuffer && bodyBuffer.length > 0) {
+        const contentType = request.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+          try {
+            (req as unknown as { body: unknown }).body = JSON.parse(
+              bodyBuffer.toString("utf-8"),
+            );
+          } catch {
+            // Keep raw for express body parser
+          }
+        }
         req.push(bodyBuffer);
       }
       req.push(null);

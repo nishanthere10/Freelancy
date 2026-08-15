@@ -509,8 +509,8 @@ Errors are passed through standardized status codes and normalized payload forma
 ### HTTP Status Code Mapping
 
 | Status Code | Error Code | Trigger Condition |
-| :--- | :--- | :--- |
-| **`400 Bad Request`** | `VALIDATION_ERROR` | Zod input schema validation failure or invalid state transition |
+| :--- | :--- | :--- |Zod input schema validation 
+| **`400 Bad Request`** | `VALIDATION_ERROR` | failure or invalid state transition |
 | **`401 Unauthorized`** | `UNAUTHORIZED` | Missing, malformed, or expired Clerk JWT session token |
 | **`403 Forbidden`** | `FORBIDDEN` | Authenticated user is not a workspace member or role lacks policy permission |
 | **`404 Not Found`** | `NOT_FOUND` | Target record does not exist or has been soft-deleted |

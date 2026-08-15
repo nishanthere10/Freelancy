@@ -10,7 +10,6 @@ import {
   PencilSimple,
   Archive,
   ArrowClockwise,
-  Briefcase,
   Check,
   X,
   Tag,
