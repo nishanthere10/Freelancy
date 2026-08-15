@@ -18,6 +18,7 @@ export interface ErrorResponse {
   success: false;
   error: string;
   message: string;
+  requestId?: string;
   details?: Record<string, unknown>;
 }
 
@@ -54,11 +55,13 @@ export function createError(
   error: string,
   message: string,
   details?: Record<string, unknown>,
+  requestId?: string,
 ): ErrorResponse {
   return {
     success: false,
     error,
     message,
+    requestId,
     details,
   };
 }
@@ -66,7 +69,7 @@ export function createError(
 /**
  * Create a paginated response
  */
-function createPaginated<T>(
+export function createPaginated<T>(
   data: T[],
   total: number,
   page: number,

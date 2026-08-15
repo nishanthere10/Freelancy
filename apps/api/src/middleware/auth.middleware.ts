@@ -3,6 +3,7 @@ import { usersTable } from "@repo/database";
 import { eq } from "drizzle-orm";
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 import { db } from "../db/client";
+import { logger } from "../utils/logger";
 
 export interface AuthUser {
   id: string; // Internal UUID
@@ -21,12 +22,12 @@ export const clerkAuth: RequestHandler = (req, res, next) => {
   const secretKey = process.env.CLERK_SECRET_KEY;
 
   if (publishableKey && secretKey) {
-    // WORKAROUND: Cloudflare Workers crash with "stream is not readable" if a Node.js 
+    // WORKAROUND: Cloudflare Workers crash with "stream is not readable" if a Node.js
     // Readable stream is passed as the body to the Web Request constructor.
     // By temporarily spoofing the method to GET, Clerk won't attach the body to the Request.
     const originalMethod = req.method;
     req.method = "GET";
-    
+
     return clerkMiddleware({ publishableKey, secretKey })(req, res, (err) => {
       req.method = originalMethod;
       next(err);
@@ -67,8 +68,19 @@ export async function userResolverMiddleware(
     }
 
     if (!auth || !auth.userId) {
-      // Unauthenticated request - gracefully return 401 Unauthorized JSON
-      return res.status(401).json({ error: "Unauthorized" });
+      const requestId = req.id || (req.headers["x-request-id"] as string);
+      logger.warn("Unauthenticated API request rejected", {
+        requestId,
+        path: req.path,
+        method: req.method,
+      });
+
+      return res.status(401).json({
+        success: false,
+        error: "UNAUTHORIZED",
+        message: "Authentication required",
+        requestId,
+      });
     }
 
     const clerkId = auth.userId;
@@ -113,12 +125,17 @@ export async function userResolverMiddleware(
     }
 
     if (user.status !== "active") {
+      const requestId = req.id || (req.headers["x-request-id"] as string);
+      logger.warn(`Deactivated user access blocked: ${user.id}`, {
+        requestId,
+        userId: user.id,
+      });
+
       return res.status(401).json({
         success: false,
-        error: {
-          code: "USER_INACTIVE",
-          message: "User account has been deactivated",
-        },
+        error: "USER_INACTIVE",
+        message: "User account has been deactivated",
+        requestId,
       });
     }
 
@@ -130,7 +147,10 @@ export async function userResolverMiddleware(
 
     next();
   } catch (error) {
-    console.error("User resolution middleware error:", error);
+    logger.error("User resolution middleware error", {
+      requestId: req.id,
+      error,
+    });
     next(error);
   }
 }

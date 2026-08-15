@@ -137,7 +137,19 @@ Next.js UI renders data via TanStack Query
 
 ---
 
-## 8. Operational Rollback Protocols
+## 8. Observability, Logging & Health Probes
+
+- **Structured JSON Logs**: All server logs are formatted as JSON lines containing `timestamp`, `level`, `requestId`, `method`, `path`, `status`, and `durationMs`.
+- **Request Tracing**: Inbound requests receive or propagate an `x-request-id` header for cross-platform debugging.
+- **Health Probes**:
+  - `GET /health`: Liveness probe for edge routing.
+  - `GET /health/ready`: Readiness probe executing `SELECT 1` against Neon PostgreSQL.
+  - `GET /version`: Exposes active Git commit SHA and environment metadata.
+- **Rate Limiting**: Sliding-window in-memory rate limiting applied to general reads (300 req/min) and mutations (60 req/min).
+
+---
+
+## 9. Operational Rollback Protocols
 
 - **Web Deployment Rollback**: Navigate to Vercel Dashboard -> Deployments -> Select previous build -> Click **Promote to Production**. (< 10s execution).
 - **Worker API Rollback**: Execute `wrangler rollback` via Wrangler CLI or select previous deployment version in Cloudflare Dashboard. (< 5s execution).

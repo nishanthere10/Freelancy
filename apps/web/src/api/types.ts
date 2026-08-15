@@ -11,6 +11,7 @@ interface ErrorResponse {
   success: false;
   error: string;
   message: string;
+  requestId?: string;
   details?: Record<string, unknown>;
 }
 
@@ -24,7 +25,8 @@ export class ApiError extends Error {
     public code: string,
     message: string,
     public details?: Record<string, unknown>,
-    public status?: number
+    public status?: number,
+    public requestId?: string
   ) {
     super(message);
     this.name = 'ApiError';
@@ -34,9 +36,10 @@ export class ApiError extends Error {
 /**
  * Normalized API error
  */
-interface NormalizedError {
+export interface NormalizedError {
   code: string;
   message: string;
   details?: Record<string, unknown>;
   status: number;
+  requestId?: string;
 }

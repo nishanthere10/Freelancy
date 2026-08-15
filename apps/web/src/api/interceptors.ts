@@ -9,7 +9,7 @@ import { ApiError } from './types';
 /**
  * Request interceptor
  * - Add auth token if available
- * - Add common headers
+ * - Add correlation tracking headers
  */
 export function setupRequestInterceptor(
   instance: ReturnType<typeof axios.create>
@@ -40,11 +40,10 @@ export function setupRequestInterceptor(
   });
 }
 
-
 /**
  * Response interceptor
  * - Normalize errors
- * - Handle specific error codes
+ * - Extract requestId and error context
  */
 export function setupResponseInterceptor(
   instance: ReturnType<typeof axios.create>
@@ -58,18 +57,21 @@ export function setupResponseInterceptor(
   );
 }
 
-
-
 /**
- * Normalize axios error to standardized format
+ * Normalize axios error to standardized format with request correlation ID
  */
 function normalizeError(error: AxiosError): ApiError {
+  const requestId =
+    (error.response?.headers?.['x-request-id'] as string | undefined) ||
+    (error.response?.data as { requestId?: string } | undefined)?.requestId;
+
   // API error response
   if (error.response?.status && error.response.data) {
     const data = error.response.data as {
       error?: string | { code?: string; message?: string };
       message?: string;
       details?: Record<string, unknown>;
+      requestId?: string;
     };
 
     let errorCode = 'UNKNOWN_ERROR';
@@ -90,10 +92,10 @@ function normalizeError(error: AxiosError): ApiError {
       errorCode,
       errorMessage,
       data.details,
-      error.response.status
+      error.response.status,
+      requestId
     );
   }
-
 
   // Network error
   if (error.message === 'Network Error') {
@@ -101,7 +103,8 @@ function normalizeError(error: AxiosError): ApiError {
       'NETWORK_ERROR',
       'Network error. Check your connection.',
       undefined,
-      0
+      0,
+      requestId
     );
   }
 
@@ -111,7 +114,8 @@ function normalizeError(error: AxiosError): ApiError {
       'TIMEOUT',
       'Request timeout. Please try again.',
       undefined,
-      408
+      408,
+      requestId
     );
   }
 
@@ -120,6 +124,7 @@ function normalizeError(error: AxiosError): ApiError {
     'UNKNOWN_ERROR',
     error.message || 'An unexpected error occurred',
     undefined,
-    error.response?.status
+    error.response?.status,
+    requestId
   );
 }

@@ -22,7 +22,7 @@ export function MarketingFooter() {
               Get started with Freelancy today. No credit card required. Cancel anytime.
             </p>
             <Link
-              href="/signup"
+              href="/sign-up"
               className="inline-flex items-center justify-center px-10 py-5 bg-white text-[#050038] rounded-[var(--radius-full)] text-[18px] font-medium hover:scale-[1.02] transition-transform shadow-[var(--shadow-card)]"
             >
               Get started free

@@ -11,8 +11,12 @@ describe("Cloudflare Worker Entrypoint & Express Bridge", () => {
     const response = await handleExpressRequest(app, request as any);
     expect(response.status).toBe(200);
 
-    const body = await response.json();
-    expect(body).toEqual({ status: "ok" });
+    const body = (await response.json()) as {
+      status: string;
+      timestamp?: string;
+    };
+    expect(body.status).toBe("ok");
+    expect(body.timestamp).toBeDefined();
   });
 
   it("should handle GET / via worker.fetch export and return API v1 message", async () => {
@@ -27,8 +31,8 @@ describe("Cloudflare Worker Entrypoint & Express Bridge", () => {
     );
     expect(response.status).toBe(200);
 
-    const body = await response.json();
-    expect(body).toEqual({ message: "Freelance OS API v1" });
+    const body = (await response.json()) as { message: string };
+    expect(body.message).toBe("Freelance OS API v1");
   });
 
   it("should handle 404 for non-existent routes", async () => {

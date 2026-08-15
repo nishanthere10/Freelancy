@@ -32,9 +32,11 @@ export async function apiGet<T>(url: string, config?: AxiosRequestConfig): Promi
   const response = await client.get<ApiResponse<T>>(url, config);
   if (!response.data.success) {
     throw new ApiError(
-      'API_ERROR',
+      response.data.error || 'API_ERROR',
       response.data.message || 'API request failed',
-      response.data.details
+      response.data.details,
+      response.status,
+      response.data.requestId || (response.headers['x-request-id'] as string | undefined)
     );
   }
   return response.data.data;
@@ -47,9 +49,11 @@ export async function apiPost<T>(url: string, data?: unknown, config?: AxiosRequ
   const response = await client.post<ApiResponse<T>>(url, data, config);
   if (!response.data.success) {
     throw new ApiError(
-      'API_ERROR',
+      response.data.error || 'API_ERROR',
       response.data.message || 'API request failed',
-      response.data.details
+      response.data.details,
+      response.status,
+      response.data.requestId || (response.headers['x-request-id'] as string | undefined)
     );
   }
   return response.data.data;
@@ -62,9 +66,11 @@ export async function apiPatch<T>(url: string, data?: unknown, config?: AxiosReq
   const response = await client.patch<ApiResponse<T>>(url, data, config);
   if (!response.data.success) {
     throw new ApiError(
-      'API_ERROR',
+      response.data.error || 'API_ERROR',
       response.data.message || 'API request failed',
-      response.data.details
+      response.data.details,
+      response.status,
+      response.data.requestId || (response.headers['x-request-id'] as string | undefined)
     );
   }
   return response.data.data;
@@ -77,11 +83,12 @@ export async function apiDelete<T>(url: string, config?: AxiosRequestConfig): Pr
   const response = await client.delete<ApiResponse<T>>(url, config);
   if (!response.data.success) {
     throw new ApiError(
-      'API_ERROR',
+      response.data.error || 'API_ERROR',
       response.data.message || 'API request failed',
-      response.data.details
+      response.data.details,
+      response.status,
+      response.data.requestId || (response.headers['x-request-id'] as string | undefined)
     );
   }
   return response.data.data;
 }
-

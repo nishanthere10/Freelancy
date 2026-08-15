@@ -11,6 +11,7 @@ import type {
 } from "@cloudflare/workers-types";
 import type { Application } from "express";
 import app from "./app";
+import { logger } from "./utils/logger";
 
 type ExpressRunner = (
   req: http.IncomingMessage,
@@ -30,7 +31,7 @@ export async function handleExpressRequest(
     ? Buffer.from(await request.arrayBuffer())
     : null;
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     try {
       const req = new http.IncomingMessage({} as unknown as Socket);
       req.method = request.method;
@@ -161,7 +162,7 @@ export async function handleExpressRequest(
 
       expressApp(req, res, (err: unknown) => {
         if (err) {
-          // Instead of rejecting the promise, format a proper 500 response with CORS
+          logger.error("Express unhandled worker error", { error: err });
           res.statusCode = 500;
           res.setHeader("Content-Type", "application/json");
           res.setHeader(
@@ -172,18 +173,15 @@ export async function handleExpressRequest(
           res.end(
             JSON.stringify({
               success: false,
-              error: {
-                code: "INTERNAL_ERROR",
-                message:
-                  err instanceof Error
-                    ? err.message
-                    : "An unexpected error occurred",
-              },
+              error: "INTERNAL_ERROR",
+              message:
+                err instanceof Error
+                  ? err.message
+                  : "An unexpected error occurred",
             }),
           );
           return;
         }
-        // If Express finishes routing without matching a route, send 404
         if (!res.writableEnded) {
           res.statusCode = 404;
           res.setHeader("Content-Type", "application/json");
@@ -195,12 +193,14 @@ export async function handleExpressRequest(
           res.end(
             JSON.stringify({
               success: false,
-              error: { code: "NOT_FOUND", message: "Route not found" },
+              error: "NOT_FOUND",
+              message: "Route not found",
             }),
           );
         }
       });
     } catch (err) {
+      logger.error("Worker bridge exception", { error: err });
       const origin = request.headers.get("origin") || "*";
       const headers = new Headers({
         "Content-Type": "application/json",
@@ -211,10 +211,8 @@ export async function handleExpressRequest(
         new Response(
           JSON.stringify({
             success: false,
-            error: {
-              code: "INTERNAL_ERROR",
-              message: err instanceof Error ? err.message : String(err),
-            },
+            error: "INTERNAL_ERROR",
+            message: err instanceof Error ? err.message : String(err),
           }),
           { status: 500, headers },
         ),
@@ -240,21 +238,26 @@ export default {
 
       // Startup Check: Validate critical environment variables
       const missingVars: string[] = [];
-      if (!process.env.DATABASE_URL) missingVars.push("DATABASE_URL");
-      if (!process.env.CLERK_SECRET_KEY) missingVars.push("CLERK_SECRET_KEY");
-      if (!process.env.CLERK_PUBLISHABLE_KEY && !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-        missingVars.push("CLERK_PUBLISHABLE_KEY");
+      if (process.env.NODE_ENV !== "test") {
+        if (!process.env.DATABASE_URL) missingVars.push("DATABASE_URL");
+        if (!process.env.CLERK_SECRET_KEY) missingVars.push("CLERK_SECRET_KEY");
+        if (
+          !process.env.CLERK_PUBLISHABLE_KEY &&
+          !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+        ) {
+          missingVars.push("CLERK_PUBLISHABLE_KEY");
+        }
       }
 
       if (missingVars.length > 0) {
+        const errorMsg = `Missing critical environment variables: ${missingVars.join(", ")}`;
+        logger.error(errorMsg);
         const origin = request.headers.get("origin") || "*";
         return new Response(
           JSON.stringify({
             success: false,
-            error: {
-              code: "CONFIGURATION_ERROR",
-              message: `Missing critical environment variables: ${missingVars.join(", ")}`,
-            },
+            error: "CONFIGURATION_ERROR",
+            message: errorMsg,
           }),
           {
             status: 500,
@@ -269,14 +272,14 @@ export default {
 
       return await handleExpressRequest(app, request);
     } catch (err) {
+      logger.error("Cloudflare Worker fetch exception", { error: err });
       const origin = request.headers.get("origin") || "*";
+      const errorMsg = err instanceof Error ? err.message : String(err);
       return new Response(
         JSON.stringify({
           success: false,
-          error: {
-            code: "INTERNAL_ERROR",
-            message: err instanceof Error ? err.message : String(err),
-          },
+          error: "INTERNAL_ERROR",
+          message: errorMsg,
         }),
         {
           status: 500,

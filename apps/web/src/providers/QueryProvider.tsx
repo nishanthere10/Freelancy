@@ -17,7 +17,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
             refetchOnWindowFocus: false,
           },
           mutations: {
-            retry: 1,
+            retry: 0, // Disabled: prevent duplicate financial and state mutations
           },
         },
       }),

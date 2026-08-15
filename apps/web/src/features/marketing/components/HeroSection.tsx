@@ -52,7 +52,7 @@ export function HeroSection() {
               className="flex flex-col sm:flex-row items-center gap-4"
             >
               <Link
-                href="/signup"
+                href="/sign-up"
                 className="w-full sm:w-auto px-8 py-4 bg-[var(--color-primary)] text-[var(--color-on-primary)] rounded-[var(--radius-full)] text-[16px] font-medium hover:bg-[var(--color-charcoal)] transition-all shadow-[var(--shadow-card)] flex items-center justify-center gap-2 group hover:scale-[1.02]"
               >
                 Get started free

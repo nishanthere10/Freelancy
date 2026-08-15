@@ -1,7 +1,7 @@
 # Freelance OS — Current System Update & Reasoning Agent Context
 
-**Date:** August 14, 2026  
-**Status:** Sprints 1–6, Production Infrastructure Specifications, UI Overhaul, Cloudflare Workers API Adaptation, GitHub Actions CI/CD Pipeline, Automated Database Migrations & Vercel Deployment Setup COMPLETE.
+**Date:** August 15, 2026  
+**Status:** Sprints 1–6, Production Infrastructure Specifications, UI Overhaul, Cloudflare Workers API Adaptation, GitHub Actions CI/CD Pipeline, Automated Database Migrations, Vercel Deployment & Production Secrets Setup COMPLETE.
 
 ---
 
@@ -56,6 +56,13 @@ Freelance OS is a modern monorepo application for managing freelance work, clien
 - **`turbo.json`**: Declared environment variables (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_API_URL`, `NODE_ENV`) under the `build` task to prevent Turborepo from stripping environment variables during remote Vercel builds.
 - **`.vercel/project.json`**: Configured `rootDirectory: "apps/web"` and `buildCommand: "pnpm --filter=web build"`.
 
+### E. Cloudflare Worker Edge Runtime & CORS Resilience Fixes
+- **Stream Consumption Workaround**: Solved `"stream is not readable"` crashes on POST/PATCH requests caused by `@clerk/express` wrapping Node request streams into Web `Request` objects on Cloudflare Workers. Applied a method-spoofing mechanism in `clerkAuth` and reordered `express.json()` to parse bodies after authentication.
+- **Neon Serverless WebSocket Driver**: Configured `neonConfig.webSocketConstructor = WebSocket` in `apps/api/src/db/client.ts` to enable Neon PostgreSQL connections over native Cloudflare Worker WebSockets, preventing missing `ws` driver crashes on GET requests.
+- **Global CORS & Preflight Handling**: Implemented wildcard/regex origin matching in `apps/api/src/app.ts` to dynamically allow all Vercel domains (`*.vercel.app`) and local development ports. Added explicit `app.options("*")` preflight handler supporting `GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD`.
+- **Global Error Fallback with CORS Headers**: Wrapped `worker.ts` fetch handler and `app.ts` error handlers with defensive `try...catch` blocks that return standard JSON error responses (`{ success: false, error: { code, message } }`) with status `500` and attached CORS headers, preventing false browser CORS errors caused by unhandled Cloudflare HTML crash pages.
+- **Environment Variable Startup Check**: Added a startup check in `worker.ts` that immediately validates `DATABASE_URL` and `CLERK_SECRET_KEY` on production requests, while safely bypassing the check during `NODE_ENV === "test"`.
+
 ---
 
 ## 4. UI & Design System Component Refactoring
@@ -82,6 +89,9 @@ pnpm --filter @repo/database db:migrate
 
 # Deploy frontend to Vercel via CLI
 npx vercel --prod
+
+# Deploy API to Cloudflare Workers
+pnpm --filter @repo/api exec wrangler deploy
 
 # Run dev servers (Web on :5000, API on :5001)
 pnpm dev

@@ -36,12 +36,12 @@ export function MarketingNav() {
 
         {/* CTAs */}
         <div className="flex items-center gap-5">
-          <Link href="/login" className="text-[15px] font-medium text-[var(--color-charcoal)] hover:text-[var(--color-ink)] transition-colors hidden sm:block">
+          <Link href="/sign-in" className="text-[15px] font-medium text-[var(--color-charcoal)] hover:text-[var(--color-ink)] transition-colors hidden sm:block">
             Log in
           </Link>
           <div className="h-6 w-px bg-[var(--color-hairline)] hidden sm:block"></div>
           <Link
-            href="/signup"
+            href="/sign-up"
             className="px-6 py-2.5 bg-[var(--color-primary)] text-[var(--color-on-primary)] rounded-[var(--radius-full)] text-[15px] font-medium hover:bg-[var(--color-charcoal)] transition-colors shadow-sm"
           >
             Get started free
