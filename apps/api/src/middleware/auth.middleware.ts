@@ -27,16 +27,22 @@ export const clerkAuth: RequestHandler = (req, res, next) => {
       // discards the returned Promise. Express 4.x cannot handle unhandled
       // Promise rejections — in Cloudflare Workers this causes a bare 500
       // with no CORS headers or error body. We catch the Promise explicitly.
-      const result = clerkMiddleware({ publishableKey, secretKey })(
+      const result: unknown = clerkMiddleware({ publishableKey, secretKey })(
         req,
         res,
         next,
       );
-      if (result && typeof (result as Promise<void>).catch === "function") {
-        (result as Promise<void>).catch((err) => {
-          logger.error("clerkMiddleware async rejection", { error: err });
-          next(err);
-        });
+      if (
+        result &&
+        typeof (result as { catch?: (fn: (err: unknown) => void) => void })
+          .catch === "function"
+      ) {
+        (result as { catch: (fn: (err: unknown) => void) => void }).catch(
+          (err: unknown) => {
+            logger.error("clerkMiddleware async rejection", { error: err });
+            next(err);
+          },
+        );
       }
     } catch (err) {
       logger.error("clerkMiddleware sync exception", { error: err });
