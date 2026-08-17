@@ -95,6 +95,22 @@ export async function handleExpressRequest(
         return res;
       };
 
+      // Required by @clerk/express v1.7.82 which calls res.appendHeader()
+      // after successful JWT verification to set Clerk-specific response headers.
+      res.appendHeader = (
+        name: string,
+        value: string | readonly string[],
+      ): http.ServerResponse => {
+        if (Array.isArray(value)) {
+          for (const v of value) {
+            responseHeaders.append(name, String(v));
+          }
+        } else {
+          responseHeaders.append(name, String(value));
+        }
+        return res;
+      };
+
       res.getHeader = (name: string): string | undefined =>
         responseHeaders.get(name) || undefined;
 
@@ -162,10 +178,15 @@ export async function handleExpressRequest(
             (req as unknown as { body: unknown }).body = JSON.parse(
               bodyBuffer.toString("utf-8"),
             );
+            // Signal to body-parser (express.json()) that the body is already parsed.
+            // Without this, body-parser tries to re-read the IncomingMessage stream
+            // which fails in Cloudflare Workers because the stream is already ended.
+            (req as unknown as { _body: boolean })._body = true;
           } catch {
             // Keep raw for express body parser
           }
         }
+        req.headers["content-length"] = String(bodyBuffer.length);
         req.push(bodyBuffer);
       }
       req.push(null);

@@ -22,16 +22,27 @@ export const clerkAuth: RequestHandler = (req, res, next) => {
   const secretKey = process.env.CLERK_SECRET_KEY;
 
   if (publishableKey && secretKey) {
-    // WORKAROUND: Cloudflare Workers crash with "stream is not readable" if a Node.js
-    // Readable stream is passed as the body to the Web Request constructor.
-    // By temporarily spoofing the method to GET, Clerk won't attach the body to the Request.
-    const originalMethod = req.method;
-    req.method = "GET";
-
-    return clerkMiddleware({ publishableKey, secretKey })(req, res, (err) => {
-      req.method = originalMethod;
+    try {
+      // clerkMiddleware() wraps an async function in a sync wrapper that
+      // discards the returned Promise. Express 4.x cannot handle unhandled
+      // Promise rejections — in Cloudflare Workers this causes a bare 500
+      // with no CORS headers or error body. We catch the Promise explicitly.
+      const result = clerkMiddleware({ publishableKey, secretKey })(
+        req,
+        res,
+        next,
+      );
+      if (result && typeof (result as Promise<void>).catch === "function") {
+        (result as Promise<void>).catch((err) => {
+          logger.error("clerkMiddleware async rejection", { error: err });
+          next(err);
+        });
+      }
+    } catch (err) {
+      logger.error("clerkMiddleware sync exception", { error: err });
       next(err);
-    });
+    }
+    return;
   }
   return next();
 };
@@ -59,17 +70,13 @@ export async function userResolverMiddleware(
       return next();
     }
 
-    // In production, safely inspect Clerk authentication session
-    // Spoof req.method to GET to prevent Clerk from passing the Node readable stream to Web Request
+    // In production, inspect Clerk authentication session.
+    // getAuth() reads req.auth set by clerkMiddleware — no stream access.
     let auth: ReturnType<typeof getAuth> | null = null;
-    const originalMethod = req.method;
-    req.method = "GET";
     try {
       auth = getAuth(req);
     } catch (_err) {
       auth = null;
-    } finally {
-      req.method = originalMethod;
     }
 
     if (!auth || !auth.userId) {
