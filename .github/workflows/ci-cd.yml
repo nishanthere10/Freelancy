@@ -83,18 +83,15 @@ jobs:
 
       - name: Deploy Frontend to Vercel
         run: |
-          rm -rf apps/web/.vercel
           pnpm install --global vercel
-          vercel pull --yes --environment=production --cwd apps/web --token=${{ secrets.VERCEL_TOKEN }}
-          vercel build --prod --cwd apps/web --token=${{ secrets.VERCEL_TOKEN }}
-          vercel deploy --prebuilt --prod --cwd apps/web --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           NEXT_PUBLIC_COMMIT_SHA: ${{ github.sha }}
 
       - name: Production Post-Deployment Health Check
-        if: env.API_URL != ''
+        if: vars.NEXT_PUBLIC_API_URL != ''
         run: |
           echo "Verifying live production API health..."
           curl --fail --retry 3 --retry-delay 5 --silent --show-error "${{ env.API_URL }}/health" || exit 1
