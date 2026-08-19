@@ -1,8 +1,12 @@
 -- Create enum type for workspace roles
-CREATE TYPE workspace_role AS ENUM ('owner', 'editor', 'viewer');
+DO $$ BEGIN
+  CREATE TYPE workspace_role AS ENUM ('owner', 'editor', 'viewer');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
 -- Create workspaces table
-CREATE TABLE workspaces (
+CREATE TABLE IF NOT EXISTS workspaces (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name varchar(255) NOT NULL,
   slug varchar(255) NOT NULL UNIQUE,
@@ -22,11 +26,11 @@ CREATE TABLE workspaces (
 );
 
 -- Create workspaces indexes
-CREATE INDEX idx_workspace_owner_id ON workspaces(owner_id);
-CREATE INDEX idx_workspace_slug ON workspaces(slug);
+CREATE INDEX IF NOT EXISTS idx_workspace_owner_id ON workspaces(owner_id);
+CREATE INDEX IF NOT EXISTS idx_workspace_slug ON workspaces(slug);
 
 -- Create workspace_members table
-CREATE TABLE workspace_members (
+CREATE TABLE IF NOT EXISTS workspace_members (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
   user_id uuid NOT NULL,
@@ -44,9 +48,9 @@ CREATE TABLE workspace_members (
 );
 
 -- Create workspace_members indexes
-CREATE INDEX idx_workspace_members_workspace_id ON workspace_members(workspace_id);
-CREATE INDEX idx_workspace_members_user_id ON workspace_members(user_id);
-CREATE INDEX idx_workspace_members_unique ON workspace_members(workspace_id, user_id) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_workspace_members_workspace_id ON workspace_members(workspace_id);
+CREATE INDEX IF NOT EXISTS idx_workspace_members_user_id ON workspace_members(user_id);
+CREATE INDEX IF NOT EXISTS idx_workspace_members_unique ON workspace_members(workspace_id, user_id) WHERE deleted_at IS NULL;
 
 -- Add comments for documentation
 COMMENT ON TABLE workspaces IS 'Represents a workspace that contains projects, invoices, and team members';

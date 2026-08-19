@@ -13,6 +13,7 @@ import express, {
 } from "express";
 import { config } from "./config";
 import { db } from "./db/client";
+import activityRoutes from "./domains/activity/activity.routes";
 import clientRoutes from "./domains/client/client.routes";
 import dashboardRoutes from "./domains/dashboard/dashboard.routes";
 import invoiceRoutes from "./domains/invoice/invoice.routes";
@@ -179,6 +180,7 @@ app.use(
   strictMutationRateLimiter,
   invoiceRoutes,
 );
+app.use("/api/v1/workspaces/:workspaceId/activity", activityRoutes);
 
 // Catch-all 404 handler
 app.use((req: Request, res: Response) => {

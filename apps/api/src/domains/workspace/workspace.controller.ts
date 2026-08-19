@@ -5,9 +5,10 @@
 
 import type { NextFunction, Request, Response } from "express";
 import { createError, createSuccess } from "../../utils/response";
+import { ActivityEventConsumer } from "../activity/activity.consumer";
+import { ActivityRepository } from "../activity/repository/activity.repository";
 import { WorkspaceMemberRepository } from "./repository";
 import { WorkspaceRepository } from "./repository";
-import { NullWorkspaceEventEmitter } from "./workspace.events";
 import {
   mapMembershipsToResponse,
   mapWorkspaceToResponse,
@@ -26,13 +27,16 @@ interface AuthRequest extends Request {
   user?: { id: string };
 }
 
+const activityRepo = new ActivityRepository();
+const activityConsumer = new ActivityEventConsumer(activityRepo);
+
 /**
- * Service instance (TODO: inject via DI container in production)
+ * Service instance
  */
 const workspaceService = new WorkspaceService(
   new WorkspaceRepository(),
   new WorkspaceMemberRepository(),
-  new NullWorkspaceEventEmitter(),
+  activityConsumer,
 );
 
 /**

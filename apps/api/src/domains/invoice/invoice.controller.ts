@@ -1,9 +1,13 @@
 import type { NextFunction, Request, Response } from "express";
 import { createError, createSuccess } from "../../utils/response";
+import {
+  ActivityEventConsumer,
+  InvoiceEventEmitterAdapter,
+} from "../activity/activity.consumer";
+import { ActivityRepository } from "../activity/repository/activity.repository";
 import { ClientRepository } from "../client/repository/client.repository";
 import { ProjectRepository } from "../project/repository/project.repository";
 import { WorkspaceMemberRepository } from "../workspace/repository";
-import { NullInvoiceEventEmitter } from "./invoice.events";
 import { mapInvoiceToResponse, mapInvoicesToResponse } from "./invoice.mapper";
 import type {
   CancelInvoiceInput,
@@ -20,12 +24,16 @@ interface AuthRequest extends Request {
   user?: { id: string };
 }
 
+const activityRepo = new ActivityRepository();
+const activityConsumer = new ActivityEventConsumer(activityRepo);
+const invoiceEmitter = new InvoiceEventEmitterAdapter(activityConsumer);
+
 const invoiceService = new InvoiceService(
   new InvoiceRepository(),
   new WorkspaceMemberRepository(),
   new ClientRepository(),
   new ProjectRepository(),
-  new NullInvoiceEventEmitter(),
+  invoiceEmitter,
 );
 
 function getUserId(req: AuthRequest): string | null {

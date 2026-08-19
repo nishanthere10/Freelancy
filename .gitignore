@@ -40,3 +40,5 @@ skills
 graphify-out
 .vercel
 .kiro
+.env*
+.kiro

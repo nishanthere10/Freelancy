@@ -9,6 +9,7 @@
     "db:generate": "drizzle-kit generate:pg",
     "db:studio": "drizzle-kit studio",
     "db:migrate": "tsx src/migrate.ts",
+    "db:seed": "tsx src/seed.ts",
     "typecheck": "tsc --noEmit"
   },
   "exports": {

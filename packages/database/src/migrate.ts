@@ -2,10 +2,42 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+function loadEnv() {
+  if (process.env.DATABASE_URL) return;
+  const candidates = [
+    path.resolve(__dirname, '../.env'),
+    path.resolve(__dirname, '../../../.env'),
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(process.cwd(), 'packages/database/.env'),
+  ];
+  for (const envPath of candidates) {
+    if (fs.existsSync(envPath)) {
+      try {
+        const lines = fs.readFileSync(envPath, 'utf8').split('\n');
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+            const [key, ...rest] = trimmed.split('=');
+            const val = rest.join('=').trim().replace(/^["']|["']$/g, '');
+            const cleanKey = key.trim();
+            if (cleanKey && val && !process.env[cleanKey]) {
+              process.env[cleanKey] = val;
+            }
+          }
+        }
+        if (process.env.DATABASE_URL) break;
+      } catch {
+        // Ignore read errors and proceed
+      }
+    }
+  }
+}
 
 function sanitizeDbUrl(url: string): string {
   try {
@@ -16,6 +48,7 @@ function sanitizeDbUrl(url: string): string {
 }
 
 async function runMigrations() {
+  loadEnv();
   const startTime = Date.now();
   const connectionString = process.env.DATABASE_URL;
 
@@ -43,16 +76,27 @@ async function runMigrations() {
   const db = drizzle(sql);
 
   try {
+    const migrationsFolder = path.resolve(__dirname, '../migrations');
+    const sqlFiles = fs
+      .readdirSync(migrationsFolder)
+      .filter((f) => f.endsWith('.sql'))
+      .sort();
+
     console.log(JSON.stringify({
       timestamp: new Date().toISOString(),
       level: 'info',
       event: 'MIGRATION_APPLYING',
-      message: 'Executing pending SQL migrations via Drizzle...',
+      message: `Executing ${sqlFiles.length} SQL migration files...`,
+      files: sqlFiles,
     }));
 
-    await migrate(db, {
-      migrationsFolder: path.resolve(__dirname, '../migrations'),
-    });
+    for (const file of sqlFiles) {
+      const filePath = path.join(migrationsFolder, file);
+      const sqlContent = fs.readFileSync(filePath, 'utf8');
+      if (sqlContent.trim()) {
+        await sql.unsafe(sqlContent);
+      }
+    }
 
     const durationMs = Date.now() - startTime;
     console.log(JSON.stringify({

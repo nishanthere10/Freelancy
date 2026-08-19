@@ -1,7 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
 import { createError, createSuccess } from "../../utils/response";
+import {
+  ActivityEventConsumer,
+  ClientEventEmitterAdapter,
+} from "../activity/activity.consumer";
+import { ActivityRepository } from "../activity/repository/activity.repository";
 import { WorkspaceMemberRepository } from "../workspace/repository";
-import { NullClientEventEmitter } from "./client.events";
 import { mapClientToResponse, mapClientsToResponse } from "./client.mapper";
 import type { CreateClientRequest, UpdateClientRequest } from "./client.schema";
 import { ClientService } from "./client.service";
@@ -15,10 +19,14 @@ interface AuthRequest extends Request {
   user?: { id: string };
 }
 
+const activityRepo = new ActivityRepository();
+const activityConsumer = new ActivityEventConsumer(activityRepo);
+const clientEmitter = new ClientEventEmitterAdapter(activityConsumer);
+
 const clientService = new ClientService(
   new ClientRepository(),
   new WorkspaceMemberRepository(),
-  new NullClientEventEmitter(),
+  clientEmitter,
 );
 
 function getUserId(req: AuthRequest): string | null {

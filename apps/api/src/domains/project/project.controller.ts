@@ -1,8 +1,12 @@
 import type { NextFunction, Request, Response } from "express";
 import { createError, createSuccess } from "../../utils/response";
+import {
+  ActivityEventConsumer,
+  ProjectEventEmitterAdapter,
+} from "../activity/activity.consumer";
+import { ActivityRepository } from "../activity/repository/activity.repository";
 import { ClientRepository } from "../client/repository/client.repository";
 import { WorkspaceMemberRepository } from "../workspace/repository";
-import { NullProjectEventEmitter } from "./project.events";
 import { mapProjectToResponse, mapProjectsToResponse } from "./project.mapper";
 import type {
   ChangeProjectStatusRequest,
@@ -20,11 +24,15 @@ interface AuthRequest extends Request {
   user?: { id: string };
 }
 
+const activityRepo = new ActivityRepository();
+const activityConsumer = new ActivityEventConsumer(activityRepo);
+const projectEmitter = new ProjectEventEmitterAdapter(activityConsumer);
+
 const projectService = new ProjectService(
   new ProjectRepository(),
   new WorkspaceMemberRepository(),
   new ClientRepository(),
-  new NullProjectEventEmitter(),
+  projectEmitter,
 );
 
 function getUserId(req: AuthRequest): string | null {

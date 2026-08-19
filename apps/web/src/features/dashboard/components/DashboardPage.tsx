@@ -9,6 +9,7 @@ import { InvoiceSummaryCard } from './InvoiceSummaryCard';
 import { RecentInvoicesList } from './RecentInvoicesList';
 import { DashboardSkeleton } from './DashboardSkeleton';
 import { DashboardEmptyState } from './DashboardEmptyState';
+import { ActivityFeed } from '@features/activity';
 
 interface DashboardPageProps {
   workspaceId: string;
@@ -97,11 +98,18 @@ export function DashboardPage({ workspaceId }: DashboardPageProps) {
         />
       </div>
 
-      {/* Recent Invoices Table */}
-      <RecentInvoicesList
-        workspaceId={workspaceId}
-        invoices={dashboard?.recentInvoices || []}
-      />
+      {/* Tables & Activity Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <RecentInvoicesList
+            workspaceId={workspaceId}
+            invoices={dashboard?.recentInvoices || []}
+          />
+        </div>
+        <div className="lg:col-span-1">
+          <ActivityFeed workspaceId={workspaceId} maxItems={6} />
+        </div>
+      </div>
     </div>
   );
 }

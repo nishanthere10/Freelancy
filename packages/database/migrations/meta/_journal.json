@@ -8,6 +8,41 @@
       "when": 1786225743971,
       "tag": "0000_glorious_gorilla_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1786225743972,
+      "tag": "0001_init_workspaces",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1786225743973,
+      "tag": "0002_add_clients",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1786225743974,
+      "tag": "0003_add_projects",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1786225743975,
+      "tag": "0004_add_invoices",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1786225743976,
+      "tag": "0005_add_activity_events",
+      "breakpoints": true
     }
   ]
 }
