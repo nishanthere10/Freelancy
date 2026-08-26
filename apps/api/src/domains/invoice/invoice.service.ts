@@ -9,6 +9,7 @@ import {
   InvoiceInternalError,
   InvoiceInvalidStatusTransitionError,
   InvoiceNotFoundError,
+  InvoiceOverpaymentError,
   InvoicePermissionDeniedError,
   InvoiceProjectMismatchError,
 } from "./invoice.errors";
@@ -461,6 +462,15 @@ export class InvoiceService {
         return err(new InvoiceNotFoundError(id));
       }
 
+      // Replay / idempotency guard: if invoice is already paid and paymentReference matches, return existing invoice
+      if (
+        input.paymentReference &&
+        existing.paymentReference === input.paymentReference &&
+        existing.status === "paid"
+      ) {
+        return ok(existing);
+      }
+
       if (existing.status !== "sent" && existing.status !== "overdue") {
         return err(
           new InvoiceInvalidStatusTransitionError(id, existing.status, "paid"),
@@ -468,7 +478,20 @@ export class InvoiceService {
       }
 
       const currentPaid = Number(existing.amountPaid || "0.00");
+      const currentDue = Number(existing.amountDue || existing.totalAmount);
       const paymentIncrement = Number(input.amountPaid);
+
+      // Overpayment guard: payment cannot exceed remaining amount due
+      if (paymentIncrement > currentDue + 0.001) {
+        return err(
+          new InvoiceOverpaymentError(
+            id,
+            input.amountPaid,
+            existing.amountDue || existing.totalAmount,
+          ),
+        );
+      }
+
       const newAmountPaidNum = currentPaid + paymentIncrement;
       const totalAmountNum = Number(existing.totalAmount);
       const newAmountDueNum = Math.max(0, totalAmountNum - newAmountPaidNum);
@@ -530,7 +553,7 @@ export class InvoiceService {
         return err(new InvoiceNotFoundError(id));
       }
 
-      if (existing.status === "cancelled") {
+      if (existing.status === "paid" || existing.status === "cancelled") {
         return err(
           new InvoiceInvalidStatusTransitionError(
             id,

@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+# Principle of Least Privilege: Default token has read-only access to repository contents
+permissions:
+  contents: read
+
 jobs:
   ci:
     name: Code Quality & Build Verification

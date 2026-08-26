@@ -10,7 +10,7 @@ import type {
   Request as WorkerRequest,
 } from "@cloudflare/workers-types";
 import type { Application } from "express";
-import app from "./app";
+import app, { isAllowedOrigin } from "./app";
 import { logger } from "./utils/logger";
 
 type ExpressRunner = (
@@ -18,6 +18,36 @@ type ExpressRunner = (
   res: http.ServerResponse,
   next: (err?: unknown) => void,
 ) => void;
+
+const MAX_BODY_SIZE_BYTES = 1024 * 1024; // 1MB payload ceiling
+
+/**
+ * Creates standardized secure response headers for Worker-level error/fallback responses
+ */
+function createWorkerResponseHeaders(requestOrigin: string | null): Headers {
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "Referrer-Policy": "no-referrer",
+  });
+
+  if (requestOrigin && isAllowedOrigin(requestOrigin)) {
+    headers.set("Access-Control-Allow-Origin", requestOrigin);
+    headers.set("Access-Control-Allow-Credentials", "true");
+    headers.set(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
+    );
+    headers.set(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, X-Requested-With, X-Request-ID, x-request-id, Idempotency-Key, idempotency-key",
+    );
+  }
+
+  return headers;
+}
 
 /**
  * Executes a Web API Request through the Express pipeline using node:http primitives
@@ -27,9 +57,45 @@ export async function handleExpressRequest(
   request: WorkerRequest,
 ): Promise<Response> {
   const url = new URL(request.url);
-  const bodyBuffer = request.body
-    ? Buffer.from(await request.arrayBuffer())
-    : null;
+  const rawOrigin = request.headers.get("origin");
+
+  // Enforce body size limit before reading arrayBuffer into memory
+  const contentLengthHeader = request.headers.get("content-length");
+  if (
+    contentLengthHeader &&
+    Number.parseInt(contentLengthHeader, 10) > MAX_BODY_SIZE_BYTES
+  ) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "PAYLOAD_TOO_LARGE",
+        message: "Request payload exceeds the maximum limit of 1MB",
+      }),
+      {
+        status: 413,
+        headers: createWorkerResponseHeaders(rawOrigin),
+      },
+    );
+  }
+
+  let bodyBuffer: Buffer | null = null;
+  if (request.body) {
+    const rawArrayBuffer = await request.arrayBuffer();
+    if (rawArrayBuffer.byteLength > MAX_BODY_SIZE_BYTES) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "PAYLOAD_TOO_LARGE",
+          message: "Request payload exceeds the maximum limit of 1MB",
+        }),
+        {
+          status: 413,
+          headers: createWorkerResponseHeaders(rawOrigin),
+        },
+      );
+    }
+    bodyBuffer = Buffer.from(rawArrayBuffer);
+  }
 
   return new Promise((resolve) => {
     try {
@@ -156,12 +222,25 @@ export async function handleExpressRequest(
           );
         }
 
-        const combinedBody = Buffer.concat(chunks);
         const finalStatus =
           res.statusCode && res.statusCode !== 200
             ? res.statusCode
             : statusCode;
-        const response = new Response(combinedBody, {
+
+        // Cloudflare Workers and Web Fetch standard strictly require null body for 204, 304, 205, and 1xx statuses
+        const isNullBodyStatus =
+          finalStatus === 204 ||
+          finalStatus === 304 ||
+          finalStatus === 205 ||
+          (finalStatus >= 100 && finalStatus < 200);
+
+        const responseBody = isNullBodyStatus
+          ? null
+          : chunks.length > 0
+            ? Buffer.concat(chunks)
+            : null;
+
+        const response = new Response(responseBody, {
           status: finalStatus,
           headers: responseHeaders,
         });
@@ -179,8 +258,6 @@ export async function handleExpressRequest(
               bodyBuffer.toString("utf-8"),
             );
             // Signal to body-parser (express.json()) that the body is already parsed.
-            // Without this, body-parser tries to re-read the IncomingMessage stream
-            // which fails in Cloudflare Workers because the stream is already ended.
             (req as unknown as { _body: boolean })._body = true;
           } catch {
             // Keep raw for express body parser
@@ -196,19 +273,28 @@ export async function handleExpressRequest(
           logger.error("Express unhandled worker error", { error: err });
           res.statusCode = 500;
           res.setHeader("Content-Type", "application/json");
-          res.setHeader(
-            "Access-Control-Allow-Origin",
-            request.headers.get("origin") || "*",
-          );
-          res.setHeader("Access-Control-Allow-Credentials", "true");
+          if (rawOrigin && isAllowedOrigin(rawOrigin)) {
+            res.setHeader("Access-Control-Allow-Origin", rawOrigin);
+            res.setHeader("Access-Control-Allow-Credentials", "true");
+            res.setHeader(
+              "Access-Control-Allow-Methods",
+              "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
+            );
+            res.setHeader(
+              "Access-Control-Allow-Headers",
+              "Content-Type, Authorization, X-Requested-With, X-Request-ID, x-request-id, Idempotency-Key, idempotency-key",
+            );
+          }
           res.end(
             JSON.stringify({
               success: false,
               error: "INTERNAL_ERROR",
               message:
-                err instanceof Error
-                  ? err.message
-                  : "An unexpected error occurred",
+                process.env.NODE_ENV === "production"
+                  ? "An unexpected internal error occurred"
+                  : err instanceof Error
+                    ? err.message
+                    : "An unexpected error occurred",
             }),
           );
           return;
@@ -216,11 +302,18 @@ export async function handleExpressRequest(
         if (!res.writableEnded) {
           res.statusCode = 404;
           res.setHeader("Content-Type", "application/json");
-          res.setHeader(
-            "Access-Control-Allow-Origin",
-            request.headers.get("origin") || "*",
-          );
-          res.setHeader("Access-Control-Allow-Credentials", "true");
+          if (rawOrigin && isAllowedOrigin(rawOrigin)) {
+            res.setHeader("Access-Control-Allow-Origin", rawOrigin);
+            res.setHeader("Access-Control-Allow-Credentials", "true");
+            res.setHeader(
+              "Access-Control-Allow-Methods",
+              "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
+            );
+            res.setHeader(
+              "Access-Control-Allow-Headers",
+              "Content-Type, Authorization, X-Requested-With, X-Request-ID, x-request-id, Idempotency-Key, idempotency-key",
+            );
+          }
           res.end(
             JSON.stringify({
               success: false,
@@ -232,18 +325,18 @@ export async function handleExpressRequest(
       });
     } catch (err) {
       logger.error("Worker bridge exception", { error: err });
-      const origin = request.headers.get("origin") || "*";
-      const headers = new Headers({
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": origin,
-        "Access-Control-Allow-Credentials": "true",
-      });
+      const headers = createWorkerResponseHeaders(rawOrigin);
       resolve(
         new Response(
           JSON.stringify({
             success: false,
             error: "INTERNAL_ERROR",
-            message: err instanceof Error ? err.message : String(err),
+            message:
+              process.env.NODE_ENV === "production"
+                ? "An unexpected internal error occurred"
+                : err instanceof Error
+                  ? err.message
+                  : String(err),
           }),
           { status: 500, headers },
         ),
@@ -258,6 +351,7 @@ export default {
     env: Record<string, string>,
     _ctx: ExecutionContext,
   ): Promise<Response> {
+    const rawOrigin = request.headers.get("origin");
     try {
       if (env) {
         for (const [key, value] of Object.entries(env)) {
@@ -283,7 +377,6 @@ export default {
       if (missingVars.length > 0) {
         const errorMsg = `Missing critical environment variables: ${missingVars.join(", ")}`;
         logger.error(errorMsg);
-        const origin = request.headers.get("origin") || "*";
         return new Response(
           JSON.stringify({
             success: false,
@@ -292,11 +385,7 @@ export default {
           }),
           {
             status: 500,
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": origin,
-              "Access-Control-Allow-Credentials": "true",
-            },
+            headers: createWorkerResponseHeaders(rawOrigin),
           },
         );
       }
@@ -304,8 +393,13 @@ export default {
       return await handleExpressRequest(app, request);
     } catch (err) {
       logger.error("Cloudflare Worker fetch exception", { error: err });
-      const origin = request.headers.get("origin") || "*";
-      const errorMsg = err instanceof Error ? err.message : String(err);
+      const errorMsg =
+        process.env.NODE_ENV === "production"
+          ? "An unexpected internal error occurred"
+          : err instanceof Error
+            ? err.message
+            : String(err);
+
       return new Response(
         JSON.stringify({
           success: false,
@@ -314,11 +408,7 @@ export default {
         }),
         {
           status: 500,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": origin,
-            "Access-Control-Allow-Credentials": "true",
-          },
+          headers: createWorkerResponseHeaders(rawOrigin),
         },
       );
     }

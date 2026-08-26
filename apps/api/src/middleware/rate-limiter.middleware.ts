@@ -6,10 +6,12 @@ interface RateLimitRecord {
   resetAt: number;
 }
 
-interface RateLimitOptions {
+export interface RateLimitOptions {
   windowMs?: number; // Time window in ms (default: 60,000 = 1 min)
   max?: number; // Max requests per window (default: 120)
   message?: string;
+  keyGenerator?: (req: Request) => string;
+  skipInTest?: boolean;
 }
 
 /**
@@ -21,6 +23,7 @@ export function createRateLimiter(options: RateLimitOptions = {}) {
   const maxRequests = options.max || 120;
   const message =
     options.message || "Too many requests, please try again later.";
+  const skipInTest = options.skipInTest !== false;
 
   const store = new Map<string, RateLimitRecord>();
 
@@ -38,9 +41,13 @@ export function createRateLimiter(options: RateLimitOptions = {}) {
     }
   };
 
-  return (req: Request, res: Response, next: NextFunction): void => {
-    // Bypass in test environments
-    if (process.env.NODE_ENV === "test") {
+  const limiter = (req: Request, res: Response, next: NextFunction): void => {
+    // Bypass in test environments unless explicitly forced for rate-limit tests
+    if (
+      process.env.NODE_ENV === "test" &&
+      skipInTest &&
+      req.headers["x-test-rate-limit"] !== "true"
+    ) {
       next();
       return;
     }
@@ -53,9 +60,11 @@ export function createRateLimiter(options: RateLimitOptions = {}) {
       req.ip ||
       "unknown-client";
 
-    const key = `${req.method}:${req.baseUrl || req.path}:${clientIp}`;
-    const now = Date.now();
+    const key = options.keyGenerator
+      ? options.keyGenerator(req)
+      : `${req.method}:${req.baseUrl || req.path}:${clientIp}`;
 
+    const now = Date.now();
     const record = store.get(key);
 
     if (!record || record.resetAt <= now) {
@@ -77,6 +86,12 @@ export function createRateLimiter(options: RateLimitOptions = {}) {
     res.setHeader("X-RateLimit-Reset", Math.ceil(record.resetAt / 1000));
 
     if (record.count > maxRequests) {
+      const retryAfterSeconds = Math.max(
+        1,
+        Math.ceil((record.resetAt - now) / 1000),
+      );
+      res.setHeader("Retry-After", retryAfterSeconds);
+
       const requestId = req.id || (req.headers["x-request-id"] as string);
       res
         .status(429)
@@ -88,6 +103,15 @@ export function createRateLimiter(options: RateLimitOptions = {}) {
 
     next();
   };
+
+  // Helper for test cleanup
+  limiter.resetStore = () => {
+    store.clear();
+  };
+
+  limiter.getStoreSize = () => store.size;
+
+  return limiter;
 }
 
 export const generalRateLimiter = createRateLimiter({

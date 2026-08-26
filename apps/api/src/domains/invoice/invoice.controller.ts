@@ -50,6 +50,7 @@ export function handleDomainError(
     case "INVOICE_PERMISSION_DENIED":
       return res.status(403).json(createError("FORBIDDEN", error.message));
     case "INVOICE_VALIDATION_FAILED":
+    case "INVOICE_OVERPAYMENT":
       return res
         .status(400)
         .json(createError("VALIDATION_ERROR", error.message));

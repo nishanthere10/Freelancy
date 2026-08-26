@@ -66,7 +66,7 @@ export async function listActivity(
       if (result.error.code === "PERMISSION_DENIED") {
         return res
           .status(403)
-          .json(createError(result.error.code, result.error.message));
+          .json(createError("FORBIDDEN", result.error.message));
       }
       return res
         .status(500)

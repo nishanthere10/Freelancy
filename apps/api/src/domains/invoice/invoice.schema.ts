@@ -4,19 +4,27 @@ export const invoiceItemSchema = z.object({
   description: z.string().trim().min(1, "Item description is required"),
   quantity: z
     .union([z.number(), z.string()])
-    .transform((val) => String(val))
+    .transform((val) => String(val).trim())
     .refine(
       (val) => !Number.isNaN(Number(val)) && Number(val) > 0,
       "Quantity must be greater than 0",
+    )
+    .refine(
+      (val) => /^\d+(\.\d{1,2})?$/.test(val),
+      "Quantity must have at most 2 decimal places",
     )
     .optional()
     .default("1.00"),
   unitPrice: z
     .union([z.number(), z.string()])
-    .transform((val) => String(val))
+    .transform((val) => String(val).trim())
     .refine(
       (val) => !Number.isNaN(Number(val)) && Number(val) >= 0,
       "Unit price must be non-negative",
+    )
+    .refine(
+      (val) => /^\d+(\.\d{1,2})?$/.test(val),
+      "Unit price must have at most 2 decimal places",
     )
     .optional()
     .default("0.00"),
@@ -35,7 +43,7 @@ export const createInvoiceSchema = z.object({
     .default("INR"),
   discountRate: z
     .union([z.number(), z.string()])
-    .transform((val) => String(val))
+    .transform((val) => String(val).trim())
     .refine(
       (val) =>
         !Number.isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100,
@@ -45,7 +53,7 @@ export const createInvoiceSchema = z.object({
     .default("0.00"),
   taxRate: z
     .union([z.number(), z.string()])
-    .transform((val) => String(val))
+    .transform((val) => String(val).trim())
     .refine(
       (val) =>
         !Number.isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100,
@@ -53,11 +61,12 @@ export const createInvoiceSchema = z.object({
     )
     .optional()
     .default("18.00"),
-  notes: z.string().optional().nullable(),
-  terms: z.string().optional().nullable(),
+  notes: z.string().max(2000).optional().nullable(),
+  terms: z.string().max(2000).optional().nullable(),
   items: z
     .array(invoiceItemSchema)
-    .min(1, "At least one line item is required"),
+    .min(1, "At least one line item is required")
+    .max(100, "Maximum 100 line items allowed per invoice"),
 });
 
 export const updateInvoiceSchema = createInvoiceSchema.partial();
@@ -70,18 +79,23 @@ export const sendInvoiceSchema = z.object({
 export const recordPaymentSchema = z.object({
   amountPaid: z
     .union([z.number(), z.string()])
-    .transform((val) => String(val))
+    .transform((val) => String(val).trim())
     .refine(
       (val) => !Number.isNaN(Number(val)) && Number(val) > 0,
       "Amount paid must be greater than 0",
+    )
+    .refine(
+      (val) => /^\d+(\.\d{1,2})?$/.test(val),
+      "Amount paid must have at most 2 decimal places",
     ),
-  paymentMethod: z.string().optional().nullable(),
-  paymentReference: z.string().optional().nullable(),
+  paymentMethod: z.string().trim().max(100).optional().nullable(),
+  paymentReference: z.string().trim().max(100).optional().nullable(),
   paidAt: z.string().optional().nullable(),
+  idempotencyKey: z.string().trim().max(128).optional().nullable(),
 });
 
 export const cancelInvoiceSchema = z.object({
-  reason: z.string().optional(),
+  reason: z.string().max(500).optional(),
 });
 
 export const invoiceQuerySchema = z.object({
@@ -90,7 +104,7 @@ export const invoiceQuerySchema = z.object({
   status: z
     .enum(["all", "draft", "sent", "paid", "overdue", "cancelled"])
     .optional(),
-  search: z.string().optional(),
+  search: z.string().max(255).optional(),
 });
 
 export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;

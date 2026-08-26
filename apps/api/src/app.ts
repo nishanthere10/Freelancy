@@ -34,11 +34,11 @@ import { createError } from "./utils/response";
 
 const app: Application = express();
 
-// 1. Correlation & Request Tracing Middleware
-app.use(requestIdMiddleware);
-
-// 2. Global CORS Middleware
-app.use((req, res, next) => {
+/**
+ * Validates whether an incoming HTTP origin matches approved security boundaries.
+ */
+export function isAllowedOrigin(origin?: string | null): boolean {
+  if (!origin) return false;
   const allowedOrigins = [
     "https://freelancy-omega.vercel.app",
     "http://localhost:5000",
@@ -49,17 +49,29 @@ app.use((req, res, next) => {
     allowedOrigins.push(config.frontendUrl);
   }
 
+  if (allowedOrigins.includes(origin)) return true;
+  if (/^https:\/\/[a-zA-Z0-9-]+\.vercel\.app$/.test(origin)) return true;
+  if (/^http:\/\/localhost:\d+$/.test(origin)) return true;
+
+  return false;
+}
+
+// 1. Correlation & Request Tracing Middleware
+app.use(requestIdMiddleware);
+
+// 2. Global CORS Middleware (Strict Origin Validation)
+app.use((req, res, next) => {
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      const isAllowed =
-        allowedOrigins.includes(origin) ||
-        /^https:\/\/.*\.vercel\.app$/.test(origin) ||
-        /^http:\/\/localhost:\d+$/.test(origin);
-      if (isAllowed) {
+      if (!origin) {
+        // Direct non-browser / server-to-server requests
+        return callback(null, true);
+      }
+      if (isAllowedOrigin(origin)) {
         callback(null, true);
       } else {
-        callback(null, true); // Allow reflection for resilience
+        // Block arbitrary reflection
+        callback(null, false);
       }
     },
     credentials: true,
@@ -70,27 +82,46 @@ app.use((req, res, next) => {
       "X-Requested-With",
       "X-Request-ID",
       "x-request-id",
+      "Idempotency-Key",
+      "idempotency-key",
     ],
   })(req, res, next);
 });
 
 // Explicit preflight handler
 app.options("*", (req, res) => {
-  const origin = req.headers.origin || "*";
-  res.setHeader("Access-Control-Allow-Origin", origin);
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, X-Requested-With, X-Request-ID, x-request-id",
-  );
-  res.sendStatus(204);
+  const origin = req.headers.origin;
+  if (origin && isAllowedOrigin(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, X-Requested-With, X-Request-ID, x-request-id, Idempotency-Key, idempotency-key",
+    );
+  }
+  res.status(204).end();
 });
 
-// 3. Structured Request Latency & Status Logger
+// 3. API Security Headers Middleware
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader(
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains",
+  );
+  res.setHeader("Referrer-Policy", "no-referrer");
+  if (req.path.startsWith("/api/")) {
+    res.setHeader("Cache-Control", "no-store, max-age=0");
+  }
+  next();
+});
+
+// 4. Structured Request Latency & Status Logger
 app.use(requestLoggerMiddleware);
 
 // ==========================================
@@ -159,8 +190,8 @@ app.get("/", (_req: Request, res: Response) => {
 app.use("/api/v1", generalRateLimiter);
 app.use("/api/v1", clerkAuth, userResolverMiddleware);
 
-// Parse JSON bodies only after authentication to prevent Clerk stream collision
-app.use(express.json());
+// Parse JSON bodies bounded to 1MB to protect against memory exhaustion DoS
+app.use(express.json({ limit: "1mb" }));
 
 // Domain Routes
 app.use("/api/v1/workspaces", strictMutationRateLimiter, workspaceRoutes);
@@ -185,9 +216,17 @@ app.use("/api/v1/workspaces/:workspaceId/activity", activityRoutes);
 // Catch-all 404 handler
 app.use((req: Request, res: Response) => {
   const origin = req.headers.origin;
-  if (origin) {
+  if (origin && isAllowedOrigin(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, X-Requested-With, X-Request-ID, x-request-id, Idempotency-Key, idempotency-key",
+    );
   }
   res.status(404).json(createError("NOT_FOUND", "Route not found"));
 });
@@ -195,9 +234,35 @@ app.use((req: Request, res: Response) => {
 // Global Error Handling Middleware
 app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   const requestId = req.id || (req.headers["x-request-id"] as string);
-  const message =
-    err instanceof Error ? err.message : "An unexpected error occurred";
-  const code = (err as { code?: string })?.code || "INTERNAL_ERROR";
+  const errorObj = err as {
+    type?: string;
+    status?: number;
+    statusCode?: number;
+    code?: string;
+    message?: string;
+  };
+
+  // Handle Payload Too Large from body-parser
+  if (errorObj?.type === "entity.too.large" || errorObj?.status === 413) {
+    return res
+      .status(413)
+      .json(
+        createError(
+          "PAYLOAD_TOO_LARGE",
+          "Request payload exceeds the maximum limit of 1MB",
+          undefined,
+          requestId,
+        ),
+      );
+  }
+
+  const isProd = process.env.NODE_ENV === "production";
+  const code = errorObj?.code || "INTERNAL_ERROR";
+  const message = isProd
+    ? "An unexpected internal error occurred"
+    : err instanceof Error
+      ? err.message
+      : "An unexpected error occurred";
 
   logger.error(`API Exception on ${req.method} ${req.path}`, {
     requestId,
@@ -208,9 +273,17 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   });
 
   const origin = req.headers.origin;
-  if (origin) {
+  if (origin && isAllowedOrigin(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, X-Requested-With, X-Request-ID, x-request-id, Idempotency-Key, idempotency-key",
+    );
   }
   if (requestId) {
     res.setHeader("x-request-id", requestId);

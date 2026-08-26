@@ -29,15 +29,72 @@ import type { ActivityRepository } from "./repository/activity.repository";
  * Non-blocking / fail-safe: errors in activity persistence are logged but never crash
  * or roll back the primary business transaction.
  */
+/**
+ * Recursively sanitizes and bounds activity metadata to prevent credential leakage
+ * and unbounded JSONB database bloat.
+ */
+export function sanitizeActivityMetadata(
+  metadata?: ActivityMetadata,
+): ActivityMetadata | undefined {
+  if (!metadata || typeof metadata !== "object") return undefined;
+
+  const SENSITIVE_KEY_PATTERN =
+    /password|secret|token|apikey|api_key|auth|authorization|credential|creditcard|cvv/i;
+  const MAX_STRING_LENGTH = 1000;
+  const MAX_KEYS = 50;
+
+  const sanitized: Record<string, unknown> = {};
+  let keyCount = 0;
+
+  for (const [k, v] of Object.entries(metadata)) {
+    if (keyCount >= MAX_KEYS) break;
+
+    // Redact sensitive keys
+    if (SENSITIVE_KEY_PATTERN.test(k)) {
+      sanitized[k] = "[REDACTED]";
+      keyCount++;
+      continue;
+    }
+
+    if (typeof v === "string") {
+      sanitized[k] =
+        v.length > MAX_STRING_LENGTH
+          ? `${v.slice(0, MAX_STRING_LENGTH)}...[TRUNCATED]`
+          : v;
+    } else if (Array.isArray(v)) {
+      sanitized[k] = v
+        .slice(0, 50)
+        .map((item) =>
+          typeof item === "string" && item.length > MAX_STRING_LENGTH
+            ? `${item.slice(0, MAX_STRING_LENGTH)}...[TRUNCATED]`
+            : item,
+        );
+    } else if (v && typeof v === "object") {
+      sanitized[k] = sanitizeActivityMetadata(v as ActivityMetadata);
+    } else {
+      sanitized[k] = v;
+    }
+
+    keyCount++;
+  }
+
+  return sanitized as ActivityMetadata;
+}
+
 export class ActivityEventConsumer implements IWorkspaceEventEmitter {
   constructor(private readonly activityRepo: ActivityRepository) {}
 
   /**
-   * Universal event ingest method
+   * Universal event ingest method with defensive sanitization
    */
   async ingest(input: CreateActivityInput): Promise<void> {
     try {
-      await this.activityRepo.create(input);
+      const sanitizedInput: CreateActivityInput = {
+        ...input,
+        metadata: sanitizeActivityMetadata(input.metadata),
+      };
+
+      await this.activityRepo.create(sanitizedInput);
       logger.debug("Activity event persisted", {
         workspaceId: input.workspaceId,
         eventType: input.eventType,

@@ -25,6 +25,10 @@ export const createClientSchema = z.object({
     .trim()
     .url("Website must be a valid URL")
     .max(255, "Website must not exceed 255 characters")
+    .refine(
+      (val) => !val || /^https?:\/\//i.test(val),
+      "Website must start with http:// or https://",
+    )
     .optional()
     .nullable()
     .transform((val) => val || undefined),

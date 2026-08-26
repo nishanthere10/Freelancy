@@ -113,6 +113,21 @@ export class InvoiceProjectMismatchError extends InvoiceDomainError {
   }
 }
 
+export class InvoiceOverpaymentError extends InvoiceDomainError {
+  readonly code = "INVOICE_OVERPAYMENT";
+  readonly errorKind = "validation" as const;
+
+  constructor(
+    public readonly invoiceId: string,
+    public readonly amountPaid: string,
+    public readonly amountDue: string,
+  ) {
+    super(
+      `Payment amount '${amountPaid}' exceeds remaining amount due '${amountDue}' for invoice '${invoiceId}'`,
+    );
+  }
+}
+
 export class InvoicePermissionDeniedError extends InvoiceDomainError {
   readonly code = "INVOICE_PERMISSION_DENIED";
   readonly errorKind = "permission_denied" as const;
