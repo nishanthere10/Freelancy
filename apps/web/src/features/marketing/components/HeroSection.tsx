@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, Sparkles, Plus, MousePointer2, Settings, Users, Layout, Zap, CheckCircle2, MoreHorizontal } from 'lucide-react';
+import { ArrowRight, Sparkle, Plus, Cursor, Gear, Users, Layout, Lightning, CheckCircle, DotsThree } from '@phosphor-icons/react';
 
 export function HeroSection() {
   return (
@@ -20,8 +20,8 @@ export function HeroSection() {
               className="flex mb-6"
             >
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] rounded-[var(--radius-full)] text-[13px] font-bold tracking-tight shadow-sm border border-[var(--color-brand-blue)]/20 hover:scale-105 transition-transform cursor-pointer">
-                <Sparkles size={14} className="text-[var(--color-brand-blue)]" />
-                New: AI Workflows are here <ArrowRight size={14} className="ml-1" />
+                <Sparkle size={14} weight="fill" className="text-[var(--color-brand-blue)]" />
+                New: AI Workflows are here <ArrowRight size={14} weight="bold" className="ml-1" />
               </div>
             </motion.div>
 
@@ -31,7 +31,7 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <h1 className="text-[52px] md:text-[68px] lg:text-[76px] font-medium leading-[1.05] tracking-[-2px] text-[var(--color-ink)] mb-6">
+              <h1 className="text-[52px] md:text-[68px] lg:text-[80px] font-medium leading-[1.05] tracking-[-0.02em] text-[var(--color-ink)] mb-6">
                 See how freelancers get <span className="text-[var(--color-brand-blue)] relative inline-block whitespace-nowrap">
                   great
                   <svg className="absolute w-full h-3 -bottom-1 left-0 text-[var(--color-brand-yellow)]" viewBox="0 0 100 10" preserveAspectRatio="none">
@@ -56,7 +56,7 @@ export function HeroSection() {
                 className="w-full sm:w-auto px-8 py-4 bg-[var(--color-primary)] text-[var(--color-on-primary)] rounded-[var(--radius-full)] text-[16px] font-medium hover:bg-[var(--color-charcoal)] transition-all shadow-[var(--shadow-card)] flex items-center justify-center gap-2 group hover:scale-[1.02]"
               >
                 Get started free
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                <ArrowRight size={18} weight="bold" className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="#demo"
@@ -91,15 +91,15 @@ export function HeroSection() {
             {/* Soft background glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-[var(--color-brand-yellow)]/20 blur-[100px] rounded-full pointer-events-none z-0"></div>
 
-            <div className="w-full h-full min-h-[400px] lg:min-h-full bg-[var(--color-canvas)] rounded-[var(--radius-feature)] border border-[var(--color-hairline-soft)] shadow-[var(--shadow-modal)] overflow-hidden relative group z-10">
+            <div className="w-full h-full min-h-[400px] lg:min-h-full bg-[var(--color-canvas)] rounded-[var(--radius-feature)] border border-[var(--color-hairline-soft)] shadow-[var(--shadow-mockup)] overflow-hidden relative group z-10">
               
               {/* Mockup UI Sidebar */}
               <div className="absolute left-0 top-0 bottom-0 w-[60px] bg-[var(--color-canvas)] border-r border-[var(--color-hairline-soft)] z-20 flex flex-col items-center py-4 gap-4 shadow-sm">
-                <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] flex items-center justify-center text-[var(--color-brand-blue)] cursor-pointer"><MousePointer2 size={18} /></div>
-                <div className="w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center hover:bg-[var(--color-surface)] cursor-pointer text-[var(--color-slate)]"><Layout size={18} /></div>
-                <div className="w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center hover:bg-[var(--color-surface)] cursor-pointer text-[var(--color-slate)]"><Plus size={18} /></div>
-                <div className="w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center hover:bg-[var(--color-surface)] cursor-pointer text-[var(--color-slate)]"><Users size={18} /></div>
-                <div className="mt-auto w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center hover:bg-[var(--color-surface)] cursor-pointer text-[var(--color-slate)]"><Settings size={18} /></div>
+                <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-surface-soft)] flex items-center justify-center text-[var(--color-brand-blue)] cursor-pointer"><Cursor size={20} weight="fill" /></div>
+                <div className="w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center hover:bg-[var(--color-surface)] cursor-pointer text-[var(--color-slate)]"><Layout size={20} /></div>
+                <div className="w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center hover:bg-[var(--color-surface)] cursor-pointer text-[var(--color-slate)]"><Plus size={20} weight="bold" /></div>
+                <div className="w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center hover:bg-[var(--color-surface)] cursor-pointer text-[var(--color-slate)]"><Users size={20} /></div>
+                <div className="mt-auto w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center hover:bg-[var(--color-surface)] cursor-pointer text-[var(--color-slate)]"><Gear size={20} /></div>
               </div>
 
               {/* Mockup Header */}
@@ -108,13 +108,13 @@ export function HeroSection() {
                   <div className="w-3 h-3 rounded-full bg-[var(--color-success-accent)]"></div>
                   <span className="text-[14px] font-medium text-[var(--color-ink-deep)]">Website Redesign — Q3</span>
                   <div className="h-4 w-px bg-[var(--color-hairline)] mx-1"></div>
-                  <MoreHorizontal size={16} className="text-[var(--color-slate)]" />
+                  <DotsThree size={20} weight="bold" className="text-[var(--color-slate)]" />
                 </div>
                 <div className="flex gap-2">
                   <div className="w-9 h-9 rounded-full bg-[var(--color-brand-yellow)] border-2 border-[var(--color-canvas)] shadow-sm flex items-center justify-center font-bold text-[12px] text-[var(--color-primary)]">KF</div>
                   <div className="w-9 h-9 rounded-full bg-[var(--color-brand-blue)] text-white border-2 border-[var(--color-canvas)] shadow-sm -ml-4 flex items-center justify-center font-bold text-[12px]">Alex</div>
                   <div className="w-9 h-9 rounded-full bg-[var(--color-surface)] border-2 border-[var(--color-canvas)] shadow-sm -ml-4 flex items-center justify-center text-[12px] text-[var(--color-slate)]">
-                    <Plus size={14} />
+                    <Plus size={14} weight="bold" />
                   </div>
                 </div>
               </div>
@@ -131,7 +131,7 @@ export function HeroSection() {
                   className="absolute z-30 pointer-events-none"
                 >
                   <div className="relative">
-                    <MousePointer2 size={24} className="text-[var(--color-brand-blue)] drop-shadow-md fill-[var(--color-brand-blue)]" />
+                    <Cursor size={28} weight="fill" className="text-[var(--color-brand-blue)] drop-shadow-md" />
                     <div className="absolute top-6 left-4 bg-[var(--color-brand-blue)] text-white text-[10px] px-2 py-1 rounded-[var(--radius-sm)] font-medium whitespace-nowrap shadow-sm">
                       Alex (Client)
                     </div>
@@ -146,7 +146,7 @@ export function HeroSection() {
                 >
                   <div className="w-full flex justify-between items-start mb-4">
                     <div className="w-10 h-1.5 bg-[var(--color-primary)]/10 rounded-full"></div>
-                    <Zap size={16} className="text-[var(--color-primary)]/40" />
+                    <Lightning size={18} weight="fill" className="text-[var(--color-primary)]/40" />
                   </div>
                   <div className="text-[var(--color-primary)] font-medium text-[18px] lg:text-[20px] leading-tight mb-2">Define MVP scope with client</div>
                   <div className="text-[var(--color-primary)]/70 text-[13px]">Due by Friday EOD.</div>
@@ -163,7 +163,7 @@ export function HeroSection() {
                   <div className="text-[var(--color-primary)] font-medium text-[18px] lg:text-[20px] leading-tight mb-3">Review wireframes & sign off</div>
                   <div className="w-full h-12 bg-white/40 rounded-[var(--radius-sm)] border border-white/50 flex items-center justify-center">
                     <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-brand-blue)]">
-                      <Layout size={14} />
+                      <Layout size={16} weight="fill" />
                     </div>
                   </div>
                 </motion.div>
@@ -175,7 +175,7 @@ export function HeroSection() {
                   className="absolute bottom-[60px] left-[80px] lg:bottom-[80px] w-[280px] lg:w-[320px] bg-[var(--color-canvas)] rounded-[var(--radius-xl)] shadow-[var(--shadow-modal)] p-6 border border-[var(--color-hairline-soft)]"
                 >
                   <div className="flex items-center gap-3 mb-5">
-                    <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-brand-blue)] flex items-center justify-center text-white"><CheckCircle2 size={20} /></div>
+                    <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-brand-blue)] flex items-center justify-center text-white"><CheckCircle size={24} weight="fill" /></div>
                     <div className="flex-1">
                       <div className="text-[14px] font-medium text-[var(--color-ink-deep)] leading-none mb-1">Brand Assets</div>
                       <div className="text-[12px] text-[var(--color-slate)]">Attached 3 files</div>

@@ -1,0 +1,11 @@
+{
+  "name": "@repo/ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Python AI Service for Freelance OS",
+  "scripts": {
+    "dev": "uvicorn app.main:app --reload --port 8000",
+    "test": "pytest",
+    "lint": "echo No linter configured"
+  }
+}

@@ -12,6 +12,7 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 ### Monorepo Structure
 - **`apps/web`**: Next.js 16 App Router (`http://localhost:5000`). Tech Stack: React 19, Tailwind CSS v4, `@clerk/nextjs`, TanStack Query v5, React Hook Form, Zod, Google Fonts `Plus Jakarta Sans` & `Pacifico`. Target Deployment: **Vercel**.
 - **`apps/api`**: Express.js REST API (`http://localhost:5001/api/v1`). Dual Node.js and Cloudflare Workers (V8 Isolate) execution bridge. Security architecture: `@clerk/express` JWT verification → JIT User Resolution (`usersTable`) → Workspace Membership → RBAC Policy Layer → Domain Service → Express Controller. Target Deployment: **Cloudflare Workers**.
+- **`apps/ai`**: FastAPI Python Microservice (`http://localhost:8000`). Tech Stack: Python 3.13, FastAPI, Pydantic v2, `pydantic-settings`, Uvicorn, Pytest. Service-to-service Bearer token auth via constant-time comparison (`secrets.compare_digest`), unified error envelope matching Cloudflare Workers API, health probes. Target Deployment: **Cloud Run / Container / VPS**.
 - **`packages/database`**: Drizzle ORM schemas (`users`, `workspaces`, `workspace_members`, `clients`, `projects`, `invoices`, `invoice_items`, `invoice_history`, `activity_events`) targeting **Neon PostgreSQL**, featuring an automated `migrate.ts` migration runner and `seed.ts` demo data seeder.
 
 ---
@@ -29,6 +30,7 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 | **Activity & Audit Trail** | COMPLETE ✅ | Automated domain event tracking (`workspace.*`, `client.*`, `project.*`, `invoice.*`), deterministic server-side message formatting, cursor pagination, feed UI with date grouping and Phosphor icons. Non-blocking asynchronous event emission bus. | `apps/api/src/domains/activity/`, `apps/web/src/features/activity/` |
 | **Observability & SRE** | COMPLETE ✅ | Structured JSON logger with credential sanitization, `x-request-id` correlation tracing, request latency logging, rate limiters, health/readiness/version probes, frontend error boundaries. | `apps/api/src/utils/logger.ts`, `apps/api/src/middleware/`, `apps/web/app/error.tsx` |
 | **Cloudflare Workers API** | COMPLETE ✅ | Decoupled Express app (`src/app.ts`), Node `http` stream bridge (`src/worker.ts`), stateless `@neondatabase/serverless` HTTP transport, Wrangler config (`wrangler.jsonc`). | `apps/api/src/worker.ts`, `apps/api/src/db/client.ts`, `apps/api/wrangler.jsonc` |
+| **AI Service Skeleton** | COMPLETE ✅ | FastAPI Python microservice foundation (`apps/ai`), Bearer service API key validation (`secrets.compare_digest`), matching error envelope format (`success: false`, `error`, `message`, `requestId`), unauthenticated `/health` probe, `/api/v1/*` protected routing, unit test suite. | `apps/ai/app/`, `apps/ai/tests/` |
 | **Database Migrations & Seed** | COMPLETE ✅ | Automated Node/ESM migration runner applying pending Drizzle SQL migrations safely against Neon PostgreSQL; Comprehensive demo data seeding script (`db:seed`). | `packages/database/src/migrate.ts`, `packages/database/src/seed.ts` |
 | **CI/CD Automation** | COMPLETE ✅ | Multi-stage GitHub Actions workflow enforcing quality gates (`lint`, `typecheck`, `test`, `build`), automated release, post-deployment live API health check, concurrency handling, timeouts. | `.github/workflows/ci-cd.yml` |
 | **Vercel Web Deployment** | COMPLETE ✅ | Direct CLI deployment in CI/CD (`vercel deploy --prod --yes`), pre-configured monorepo root directory, and zero-downtime releases. Content Security Policy (CSP) hardened for Clerk Web Workers. | `.github/workflows/ci-cd.yml`, `apps/web/next.config.ts` |
@@ -65,6 +67,12 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 - **PostgreSQL Parameter Type Coercion Hardening**: Injected explicit `::date` SQL casting (`${todayStr}::date`) to prevent `operator does not exist: date < text` errors on strict PostgreSQL drivers and serverless connection pooling proxies. Added deterministic secondary sort `.orderBy(asc(dueDate), desc(createdAt))` on overdue alerts.
 - **Non-Blocking Asynchronous Activity Event Bus (`activity.consumer.ts`)**: Decoupled domain event emission from primary database transactions. Event adapters (`ClientEventEmitterAdapter`, `ProjectEventEmitterAdapter`, `InvoiceEventEmitterAdapter`) now dispatch events in a non-blocking, fail-safe manner, shaving ~50–100ms off mutation latency across all entity mutations. Wrapped in defensive `try/catch` handlers to guarantee audit log errors never interrupt business logic.
 
+### G. AI Service Skeleton & Microservice Foundation (Phase 1)
+- **FastAPI Microservice Bootstrap (`apps/ai`)**: Created standalone Python service with `pydantic-settings` environment validation (`ENVIRONMENT`, `AI_SERVICE_API_KEY`, `LOG_LEVEL`, `PORT`).
+- **Standardized Error Envelope**: Custom exception handlers in `app/core/errors.py` map 401, 404, 422 (`RequestValidationError`), and unhandled 500s into the uniform Freelance OS API response envelope (`{"success": false, "error": ..., "message": ..., "details": ..., "requestId": ...}`).
+- **Internal Service Auth Boundary**: `service_auth.py` dependency validates incoming `Authorization: Bearer <token>` against configured secret key using constant-time comparison (`secrets.compare_digest`) to prevent timing side-channels.
+- **Monorepo & Turbo Integration**: Added `package.json` to `@repo/ai` with `dev` and `test` scripts, allowing orchestration alongside TypeScript apps.
+
 ---
 
 ## 4. Operational Commands
@@ -85,6 +93,18 @@ cd apps/api
 npx wrangler deploy
 cd ../..
 
-# Local Development (Web on :5000, API on :5001)
+# AI Service (apps/ai)
+cd apps/ai
+# Activate venv:
+.\.venv\Scripts\Activate.ps1
+# Install deps:
+pip install -e .[dev]
+# Run tests:
+pytest
+# Run dev server (:8000):
+uvicorn app.main:app --reload --port 8000
+cd ../..
+
+# Local Development (Web :5000, API :5001, AI :8000)
 pnpm dev
 ```

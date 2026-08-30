@@ -1,6 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { Pacifico } from 'next/font/google';
-import { ChevronDown } from 'lucide-react';
+import { CaretDown } from '@phosphor-icons/react';
 
 const pacifico = Pacifico({
   weight: '400',
@@ -21,10 +23,10 @@ export function MarketingNav() {
         {/* Links (Desktop) */}
         <div className="hidden md:flex items-center gap-8">
           <Link href="#product" className="group flex items-center gap-1 text-[15px] font-medium text-[var(--color-slate)] hover:text-[var(--color-ink)] transition-colors">
-            Product <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
+            Product <CaretDown size={14} weight="bold" className="group-hover:rotate-180 transition-transform duration-300" />
           </Link>
           <Link href="#solutions" className="group flex items-center gap-1 text-[15px] font-medium text-[var(--color-slate)] hover:text-[var(--color-ink)] transition-colors">
-            Solutions <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
+            Solutions <CaretDown size={14} weight="bold" className="group-hover:rotate-180 transition-transform duration-300" />
           </Link>
           <Link href="#pricing" className="text-[15px] font-medium text-[var(--color-slate)] hover:text-[var(--color-ink)] transition-colors">
             Pricing
