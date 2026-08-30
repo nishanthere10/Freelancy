@@ -70,7 +70,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
         aria-modal="true"
       >
         {/* Backdrop */}
-        <div className="absolute inset-0 bg-[var(--color-primary)]/40 backdrop-blur-sm pointer-events-none" />
+        <div className="absolute inset-0 bg-[var(--color-primary)]/25 backdrop-blur-sm pointer-events-none" />
 
         {/* Panel */}
         <div
@@ -82,9 +82,9 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
           className={cn(
             'relative z-50 w-full max-w-md block',
             'bg-[var(--color-canvas)] rounded-[var(--radius-feature)]',
-            'border border-[var(--color-hairline-soft)]',
+            'border border-[var(--color-hairline)]',
             'shadow-[var(--shadow-modal)]',
-            'p-7 animate-in fade-in-0 zoom-in-95 duration-200',
+            'p-7 dialog-spring',
             className,
           )}
         >
@@ -110,9 +110,10 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
               <button
                 onClick={() => onOpenChange(false)}
                 className={cn(
-                  'flex-shrink-0 p-1.5 rounded-[var(--radius-md)]',
+                  'flex-shrink-0 h-7 w-7 flex items-center justify-center rounded-[var(--radius-md)]',
                   'text-[var(--color-steel)] hover:text-[var(--color-ink)] hover:bg-[var(--color-surface)]',
-                  'transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-blue)]',
+                  'transition-all duration-150 focus:outline-none',
+                  'active:scale-95',
                 )}
                 aria-label="Close dialog"
               >

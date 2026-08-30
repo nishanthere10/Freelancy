@@ -11,20 +11,20 @@ interface ProjectDeadlinesProps {
 
 export function ProjectDeadlines({ workspaceId, deadlines }: ProjectDeadlinesProps) {
   return (
-    <div className="p-6 rounded-2xl border border-[var(--color-hairline,#e2e8f0)] bg-white shadow-sm space-y-4">
+    <div className="section-card space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
+          <div className="p-1.5 rounded-[var(--radius-md)] bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)]">
             <Calendar className="h-4 w-4" />
           </div>
-          <h3 className="font-bold text-base text-[var(--color-ink-deep,#0f172a)]">
+          <h3 className="font-bold text-base text-[var(--color-ink-deep)]">
             Upcoming Deliverables
           </h3>
         </div>
 
         <Link
           href={`/workspaces/${workspaceId}/projects`}
-          className="text-xs font-semibold text-amber-600 hover:underline flex items-center gap-1"
+          className="text-xs font-semibold text-[var(--color-brand-blue)] hover:text-[var(--color-blue-pressed)] hover:underline flex items-center gap-1 transition-colors"
         >
           <span>All projects</span>
           <ArrowUpRight className="h-3 w-3" />
@@ -32,9 +32,9 @@ export function ProjectDeadlines({ workspaceId, deadlines }: ProjectDeadlinesPro
       </div>
 
       {!deadlines || deadlines.length === 0 ? (
-        <div className="text-center py-8 px-4 border border-dashed border-gray-200 rounded-xl space-y-2 bg-gray-50/50">
-          <FolderSimple className="h-8 w-8 text-gray-400 mx-auto" />
-          <p className="text-xs font-medium text-gray-500">No active project target dates</p>
+        <div className="text-center py-8 px-4 border-2 border-dashed border-[var(--color-hairline)] rounded-[var(--radius-xl)] space-y-2 bg-[var(--color-surface-soft)]">
+          <FolderSimple className="h-8 w-8 text-[var(--color-stone)] mx-auto" />
+          <p className="text-xs font-medium text-[var(--color-steel)]">No active project target dates</p>
         </div>
       ) : (
         <div className="space-y-2.5">
@@ -42,20 +42,20 @@ export function ProjectDeadlines({ workspaceId, deadlines }: ProjectDeadlinesPro
             <Link
               key={proj.id}
               href={`/workspaces/${workspaceId}/projects`}
-              className="p-3.5 rounded-xl border border-gray-100 bg-gray-50/60 hover:bg-gray-100/80 transition-colors flex items-center justify-between gap-3 group"
+              className="deadline-item group"
             >
               <div className="space-y-0.5 min-w-0">
-                <h4 className="font-semibold text-sm text-gray-900 truncate group-hover:text-amber-600 transition-colors">
+                <h4 className="font-semibold text-sm text-[var(--color-ink-deep)] truncate group-hover:text-[var(--color-brand-blue)] transition-colors">
                   {proj.name}
                 </h4>
-                <p className="text-xs text-gray-500 flex items-center gap-1 truncate">
-                  <UserCheck className="h-3.5 w-3.5 text-gray-400" />
+                <p className="text-xs text-[var(--color-steel)] flex items-center gap-1 truncate">
+                  <UserCheck className="h-3.5 w-3.5 text-[var(--color-stone)]" />
                   <span>{proj.clientName}</span>
                 </p>
               </div>
 
               {proj.targetDate && (
-                <span className="flex-shrink-0 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-semibold text-xs border border-blue-100 flex items-center gap-1">
+                <span className="flex-shrink-0 px-2.5 py-1 rounded-full bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] font-semibold text-xs border border-[var(--color-hairline)] flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
                   {new Date(proj.targetDate).toLocaleDateString(undefined, {
                     month: 'short',

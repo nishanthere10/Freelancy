@@ -20,27 +20,31 @@ export function DashboardPage({ workspaceId }: DashboardPageProps) {
 
   if (isLoading) {
     return (
-      <div className="p-6 sm:p-10 max-w-[1400px] w-full mx-auto bg-[var(--color-canvas,#f8fafc)] min-h-screen">
-        <DashboardSkeleton />
+      <div className="w-full min-h-screen bg-[var(--color-surface-soft)]">
+        <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-10 sm:py-14 lg:py-16 pb-24">
+          <DashboardSkeleton />
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6 sm:p-10 max-w-[1400px] w-full mx-auto bg-[var(--color-canvas,#f8fafc)] min-h-screen">
-        <div className="p-8 text-center bg-red-50 text-red-700 rounded-2xl border border-red-200 max-w-lg mx-auto space-y-3">
-          <p className="text-sm font-semibold">Failed to load dashboard</p>
-          <p className="text-xs text-red-600">
-            {error instanceof Error ? error.message : 'Unknown error occurred'}
-          </p>
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="px-4 py-1.5 text-xs font-semibold bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
-          >
-            Retry
-          </button>
+      <div className="w-full min-h-screen bg-[var(--color-surface-soft)]">
+        <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-10 sm:py-14 lg:py-16 pb-24">
+          <div className="p-8 text-center bg-[var(--color-error-bg)] text-[var(--color-error)] rounded-[var(--radius-xl)] border border-[var(--color-error-border)] max-w-lg mx-auto space-y-3">
+            <p className="text-sm font-semibold">Failed to load dashboard</p>
+            <p className="text-xs text-[var(--color-error)] opacity-90">
+              {error instanceof Error ? error.message : 'Unknown error occurred'}
+            </p>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="px-4 py-1.5 text-xs font-semibold bg-[var(--color-error)] text-white rounded-full hover:opacity-90 transition-opacity"
+            >
+              Retry
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -53,17 +57,20 @@ export function DashboardPage({ workspaceId }: DashboardPageProps) {
 
   if (isBrandNewWorkspace) {
     return (
-      <div className="p-6 sm:p-10 max-w-[1400px] w-full mx-auto bg-[var(--color-canvas,#f8fafc)] min-h-screen space-y-8">
-        <DashboardHeader workspaceId={workspaceId} />
-        <DashboardEmptyState workspaceId={workspaceId} />
+      <div className="w-full min-h-screen bg-[var(--color-surface-soft)]">
+        <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-10 sm:py-14 lg:py-16 pb-24 space-y-10">
+          <DashboardHeader workspaceId={workspaceId} />
+          <DashboardEmptyState workspaceId={workspaceId} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 sm:p-10 max-w-[1400px] w-full mx-auto space-y-8 bg-[var(--color-canvas,#f8fafc)] min-h-screen">
-      {/* Header */}
-      <DashboardHeader workspaceId={workspaceId} />
+    <div className="w-full min-h-screen bg-[var(--color-surface-soft)]">
+      <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-10 sm:py-14 lg:py-16 pb-24 space-y-10">
+        {/* Header */}
+        <DashboardHeader workspaceId={workspaceId} />
 
       {/* Overdue Alert Banner */}
       {dashboard?.overdueAlerts && (
@@ -110,6 +117,7 @@ export function DashboardPage({ workspaceId }: DashboardPageProps) {
           <ActivityFeed workspaceId={workspaceId} maxItems={6} />
         </div>
       </div>
+    </div>
     </div>
   );
 }

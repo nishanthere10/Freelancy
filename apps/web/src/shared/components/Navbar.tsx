@@ -51,11 +51,11 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-[var(--color-hairline-soft)] shadow-[var(--shadow-subtle)] transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+    <header className="sticky top-0 z-40 bg-[var(--glass-bg)] backdrop-blur-xl border-b border-[var(--color-hairline-soft)] shadow-[var(--shadow-nav)] transition-all duration-200">
+      <div className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-12 flex items-center justify-between h-16">
         {/* Brand */}
         <Link href="/workspaces" className="flex items-center gap-2 group">
-          <span className={`${pacifico.className} text-[24px] text-[var(--color-ink-deep)] group-hover:text-[var(--color-brand-blue)] transition-colors mt-0.5`}>
+          <span className={`${pacifico.className} text-[22px] text-[var(--color-primary)] transition-colors duration-150 mt-0.5`}>
             Freelancy
           </span>
         </Link>
@@ -70,9 +70,9 @@ export function Navbar() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 text-sm font-medium rounded-[var(--radius-full)] transition-all duration-150 ${
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium rounded-full transition-all duration-150 ${
                     item.active
-                      ? 'bg-[var(--color-brand-yellow)] text-[var(--color-primary)] font-semibold shadow-xs'
+                      ? 'bg-[var(--color-brand-yellow)] text-[var(--color-primary)] font-bold shadow-sm'
                       : 'text-[var(--color-slate-text)] hover:text-[var(--color-ink-deep)] hover:bg-[var(--color-surface-soft)]'
                   }`}
                 >

@@ -11,7 +11,7 @@ export function Skeleton({ className, ...props }: SkeletonProps) {
   return (
     <div
       className={cn(
-        'animate-pulse rounded-[var(--radius-xl)] bg-[var(--color-hairline-soft)]',
+        'skeleton-shimmer',
         className
       )}
       {...props}

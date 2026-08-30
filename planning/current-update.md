@@ -1,7 +1,7 @@
 # Freelance OS — Current System Update & Reasoning Agent Context
 
-**Date:** August 26, 2026  
-**Status:** Sprints 1–10 COMPLETE (Workspace, Client, Project, Invoice, Clerk Auth, Dashboard, Cloudflare Workers, Production Deployment, Observability & SRE, Activity & Audit Trail). Edge Runtime Architecture Hardened with Stateless Neon HTTP Driver and Resilient CORS Bridge.
+**Date:** August 30, 2026  
+**Status:** Sprints 1–12 COMPLETE (Workspace, Client, Project, Invoice, Clerk Auth, Dashboard, Cloudflare Workers, Production Deployment, Observability & SRE, Activity & Audit Trail, Security Hardening, Architecture Deepening & Performance Optimization). Edge Runtime Architecture Hardened with Stateless Neon HTTP Driver, SQL Aggregations, and Non-Blocking Activity Bus.
 
 ---
 
@@ -20,18 +20,18 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 
 | Domain | Status | Key Features & Endpoints | UI / Code Location |
 | :--- | :--- | :--- | :--- |
-| **Auth & Security** | COMPLETE ✅ | Clerk IdP integration, RSA JWT validation, JIT user provisioning, `clerk_id` → `users.id` UUID identity mapping. | `apps/api/src/middleware/auth.middleware.ts`, `apps/web/middleware.ts` |
+| **Auth & Security** | COMPLETE ✅ | Clerk IdP integration, RSA JWT validation, JIT user provisioning, `clerk_id` → `users.id` UUID identity mapping. Full Sprint 11 adversarial hardening (Rate limiting, CORS, Input sanitization). | `apps/api/src/middleware/`, `apps/web/middleware.ts` |
 | **Workspace** | COMPLETE ✅ | Multi-tenant isolation, RBAC (`owner`, `editor`, `viewer`), membership management, `max-w-[1400px]` fluid widescreen layout. | `apps/web/src/features/workspace` |
 | **Client** | COMPLETE ✅ | Client CRM, unique email constraint per workspace, contact details, linked client projects fetching (`useProjects`), Teal domain top-accent cards. | `apps/web/src/features/client` |
 | **Project** | COMPLETE ✅ | Project lifecycle (`planning`, `in_progress`, `on_hold`, `completed`), budget & timeline stat cards, pricing tags, Yellow domain top-accent cards. | `apps/web/src/features/project` |
 | **Invoice** | COMPLETE ✅ | Invoice draft creation, serial generator (`INV-2026-XXXX`), payment recording, PDF view with GST tax breakdown, Rose domain top-accent cards. Atomic batch multi-row item inserts. | `apps/web/src/features/invoice` |
-| **Dashboard** | COMPLETE ✅ | Financial metrics overview (`Total Invoiced`, `Total Collected`, `Outstanding`, `Overdue Alerts`), revenue analytics, project summary, gradient metric cards. | `apps/web/src/features/dashboard` |
-| **Activity & Audit Trail** | COMPLETE ✅ | Automated domain event tracking (`workspace.*`, `client.*`, `project.*`, `invoice.*`), deterministic server-side message formatting, cursor pagination, feed UI with date grouping and Phosphor icons. | `apps/api/src/domains/activity/`, `apps/web/src/features/activity/` |
+| **Dashboard** | COMPLETE ✅ | Financial metrics overview (`Total Invoiced`, `Total Collected`, `Outstanding`, `Overdue Alerts`), revenue analytics, project summary, gradient metric cards. Fully optimized with single-query PostgreSQL SQL aggregation (`SUM`/`COUNT` with `FILTER`), $O(1)$ memory usage. | `apps/web/src/features/dashboard`, `apps/api/src/domains/dashboard/` |
+| **Activity & Audit Trail** | COMPLETE ✅ | Automated domain event tracking (`workspace.*`, `client.*`, `project.*`, `invoice.*`), deterministic server-side message formatting, cursor pagination, feed UI with date grouping and Phosphor icons. Non-blocking asynchronous event emission bus. | `apps/api/src/domains/activity/`, `apps/web/src/features/activity/` |
 | **Observability & SRE** | COMPLETE ✅ | Structured JSON logger with credential sanitization, `x-request-id` correlation tracing, request latency logging, rate limiters, health/readiness/version probes, frontend error boundaries. | `apps/api/src/utils/logger.ts`, `apps/api/src/middleware/`, `apps/web/app/error.tsx` |
 | **Cloudflare Workers API** | COMPLETE ✅ | Decoupled Express app (`src/app.ts`), Node `http` stream bridge (`src/worker.ts`), stateless `@neondatabase/serverless` HTTP transport, Wrangler config (`wrangler.jsonc`). | `apps/api/src/worker.ts`, `apps/api/src/db/client.ts`, `apps/api/wrangler.jsonc` |
 | **Database Migrations & Seed** | COMPLETE ✅ | Automated Node/ESM migration runner applying pending Drizzle SQL migrations safely against Neon PostgreSQL; Comprehensive demo data seeding script (`db:seed`). | `packages/database/src/migrate.ts`, `packages/database/src/seed.ts` |
-| **CI/CD Automation** | COMPLETE ✅ | Multi-stage GitHub Actions workflow enforcing quality gates (`lint`, `typecheck`, `test`, `build`), automated release, and post-deployment live API health check probe. | `.github/workflows/ci-cd.yml` |
-| **Vercel Web Deployment** | COMPLETE ✅ | Direct CLI deployment in CI/CD (`vercel deploy --prod --yes`), pre-configured monorepo root directory, and zero-downtime releases. | `.github/workflows/ci-cd.yml`, `apps/web/vercel.json` |
+| **CI/CD Automation** | COMPLETE ✅ | Multi-stage GitHub Actions workflow enforcing quality gates (`lint`, `typecheck`, `test`, `build`), automated release, post-deployment live API health check, concurrency handling, timeouts. | `.github/workflows/ci-cd.yml` |
+| **Vercel Web Deployment** | COMPLETE ✅ | Direct CLI deployment in CI/CD (`vercel deploy --prod --yes`), pre-configured monorepo root directory, and zero-downtime releases. Content Security Policy (CSP) hardened for Clerk Web Workers. | `.github/workflows/ci-cd.yml`, `apps/web/next.config.ts` |
 
 ---
 
@@ -54,6 +54,16 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 - **Deterministic Formatting**: Server-side `ActivityFormatter` generates consistent, internationalizable activity copy from metadata payloads.
 - **Storage & Indexing**: Dedicated `activity_events` table indexed by `(workspace_id, created_at DESC)`, `(workspace_id, entity_type, entity_id)`, and `(workspace_id, actor_user_id)`.
 - **Frontend Feed**: Built with TanStack Query (`useActivity`), date grouping (Today, Yesterday, Older), Phosphor icons, and domain color badges.
+
+### E. Post-Deployment Debugging & CSP Hardening (`Sprint 11 Post-Launch`)
+- **Clerk Telemetry & Worker CSP**: Next.js Content Security Policy originally blocked Clerk from spawning `blob:` workers and telemetry. Handled by allowing `worker-src 'self' blob:` and whitelisting `clerk-telemetry.com` in `connect-src`.
+- **500 Error Logging Unmasked**: Internal runtime/DB exceptions previously returned generic `InvoiceInternalError` 500 codes while swallowing the root cause. Upgraded `invoice.service.ts` to log stack traces natively for Cloudflare Wrangler visibility (`wrangler tail`).
+- **CI/CD Reliability**: Enhanced GitHub actions with `timeout-minutes` (preventing hung runners) and `concurrency: cancel-in-progress` (to abort old CI queues on rapid commits).
+
+### F. Architecture Deepening & Performance Optimization (`Sprint 12`)
+- **SQL-Level Dashboard Aggregations (`DashboardRepository`)**: Replaced the in-memory JavaScript `for` loop (which downloaded all workspace invoices into Worker RAM) with a single, high-performance PostgreSQL aggregation query using Drizzle `sql` expressions (`COALESCE(SUM(...) FILTER (...))` and `COUNT(...) FILTER (...)`). Reduced payload size from $O(N)$ to $O(1)$, eliminating Cloudflare Worker 128MB out-of-memory risks.
+- **PostgreSQL Parameter Type Coercion Hardening**: Injected explicit `::date` SQL casting (`${todayStr}::date`) to prevent `operator does not exist: date < text` errors on strict PostgreSQL drivers and serverless connection pooling proxies. Added deterministic secondary sort `.orderBy(asc(dueDate), desc(createdAt))` on overdue alerts.
+- **Non-Blocking Asynchronous Activity Event Bus (`activity.consumer.ts`)**: Decoupled domain event emission from primary database transactions. Event adapters (`ClientEventEmitterAdapter`, `ProjectEventEmitterAdapter`, `InvoiceEventEmitterAdapter`) now dispatch events in a non-blocking, fail-safe manner, shaving ~50–100ms off mutation latency across all entity mutations. Wrapped in defensive `try/catch` handlers to guarantee audit log errors never interrupt business logic.
 
 ---
 

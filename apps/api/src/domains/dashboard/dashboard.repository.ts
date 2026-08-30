@@ -32,18 +32,19 @@ export class DashboardRepository {
   }> {
     const todayStr = new Date().toISOString().split("T")[0];
 
-    // Query active workspace invoices
-    const invoices = await db
+    // 1. Single database aggregation query for all financial sums and status counts
+    const [metricsResult] = await db
       .select({
-        id: invoicesTable.id,
-        invoiceNumber: invoicesTable.invoiceNumber,
-        status: invoicesTable.status,
-        currency: invoicesTable.currency,
-        totalAmount: invoicesTable.totalAmount,
-        amountPaid: invoicesTable.amountPaid,
-        amountDue: invoicesTable.amountDue,
-        dueDate: invoicesTable.dueDate,
-        clientId: invoicesTable.clientId,
+        totalInvoiced: sql<string>`COALESCE(SUM(CASE WHEN ${invoicesTable.status} != 'cancelled' THEN ${invoicesTable.totalAmount} ELSE 0 END), 0)::text`,
+        totalCollected: sql<string>`COALESCE(SUM(CASE WHEN ${invoicesTable.status} != 'cancelled' THEN ${invoicesTable.amountPaid} ELSE 0 END), 0)::text`,
+        totalOutstanding: sql<string>`COALESCE(SUM(CASE WHEN ${invoicesTable.status} IN ('sent', 'overdue') THEN ${invoicesTable.amountDue} ELSE 0 END), 0)::text`,
+        totalOverdue: sql<string>`COALESCE(SUM(CASE WHEN ${invoicesTable.status} = 'overdue' OR (${invoicesTable.status} = 'sent' AND ${invoicesTable.dueDate} IS NOT NULL AND ${invoicesTable.dueDate} < ${todayStr}::date) THEN ${invoicesTable.amountDue} ELSE 0 END), 0)::text`,
+        draftCount: sql<number>`COUNT(CASE WHEN ${invoicesTable.status} = 'draft' THEN 1 END)::int`,
+        paidCount: sql<number>`COUNT(CASE WHEN ${invoicesTable.status} = 'paid' THEN 1 END)::int`,
+        cancelledCount: sql<number>`COUNT(CASE WHEN ${invoicesTable.status} = 'cancelled' THEN 1 END)::int`,
+        overdueCount: sql<number>`COUNT(CASE WHEN ${invoicesTable.status} = 'overdue' OR (${invoicesTable.status} = 'sent' AND ${invoicesTable.dueDate} IS NOT NULL AND ${invoicesTable.dueDate} < ${todayStr}::date) THEN 1 END)::int`,
+        sentCount: sql<number>`COUNT(CASE WHEN ${invoicesTable.status} = 'sent' AND (${invoicesTable.dueDate} IS NULL OR ${invoicesTable.dueDate} >= ${todayStr}::date) THEN 1 END)::int`,
+        currency: sql<string>`COALESCE(MAX(${invoicesTable.currency}), 'INR')`,
       })
       .from(invoicesTable)
       .where(
@@ -53,87 +54,64 @@ export class DashboardRepository {
         ),
       );
 
-    // Get client names for overdue invoices lookup
-    const clientIds = [
-      ...new Set(invoices.map((inv) => inv.clientId).filter(Boolean)),
-    ];
-    const clientMap = new Map<string, string>();
-    if (clientIds.length > 0) {
-      const clients = await db
-        .select({ id: clientsTable.id, name: clientsTable.name })
-        .from(clientsTable)
-        .where(inArray(clientsTable.id, clientIds));
-      for (const c of clients) {
-        clientMap.set(c.id, c.name);
-      }
-    }
+    // 2. Optimized query for top 5 overdue invoice alerts with joined client name
+    const overdueInvoices = await db
+      .select({
+        id: invoicesTable.id,
+        invoiceNumber: invoicesTable.invoiceNumber,
+        amountDue: invoicesTable.amountDue,
+        dueDate: invoicesTable.dueDate,
+        clientName: clientsTable.name,
+      })
+      .from(invoicesTable)
+      .leftJoin(clientsTable, eq(invoicesTable.clientId, clientsTable.id))
+      .where(
+        and(
+          eq(invoicesTable.workspaceId, workspaceId),
+          isNull(invoicesTable.deletedAt),
+          sql`(${invoicesTable.status} = 'overdue' OR (${invoicesTable.status} = 'sent' AND ${invoicesTable.dueDate} IS NOT NULL AND ${invoicesTable.dueDate} < ${todayStr}::date))`,
+        ),
+      )
+      .orderBy(asc(invoicesTable.dueDate), desc(invoicesTable.createdAt))
+      .limit(5);
 
-    let totalInvoicedSum = 0;
-    let totalCollectedSum = 0;
-    let totalOutstandingSum = 0;
-    let totalOverdueSum = 0;
-    let currency = "INR";
+    const overdueAlerts: OverdueAlertDto[] = overdueInvoices.map((inv) => ({
+      id: inv.id,
+      invoiceNumber: inv.invoiceNumber,
+      clientName: inv.clientName || "Client",
+      amountDue: Number(inv.amountDue || 0),
+      dueDate: inv.dueDate,
+    }));
 
-    let draftCount = 0;
-    let sentCount = 0;
-    let paidCount = 0;
-    let overdueCount = 0;
-    let cancelledCount = 0;
-
-    const overdueAlerts: OverdueAlertDto[] = [];
-
-    for (const inv of invoices) {
-      if (inv.currency) currency = inv.currency;
-      const total = Number(inv.totalAmount || 0);
-      const paid = Number(inv.amountPaid || 0);
-      const due = Number(inv.amountDue || 0);
-      const isOverdue =
-        inv.status === "overdue" ||
-        (inv.status === "sent" && inv.dueDate && inv.dueDate < todayStr);
-
-      if (inv.status !== "cancelled") {
-        totalInvoicedSum += total;
-        totalCollectedSum += paid;
-
-        if (inv.status === "sent" || inv.status === "overdue" || isOverdue) {
-          totalOutstandingSum += due;
-        }
-      }
-
-      // Invoice status counts
-      if (inv.status === "draft") draftCount++;
-      else if (inv.status === "paid") paidCount++;
-      else if (inv.status === "cancelled") cancelledCount++;
-      else if (isOverdue) {
-        overdueCount++;
-        totalOverdueSum += due;
-        overdueAlerts.push({
-          id: inv.id,
-          invoiceNumber: inv.invoiceNumber,
-          clientName: clientMap.get(inv.clientId) || "Client",
-          amountDue: due,
-          dueDate: inv.dueDate,
-        });
-      } else if (inv.status === "sent") {
-        sentCount++;
-      }
-    }
+    const currency = metricsResult?.currency || "INR";
 
     return {
       overview: {
-        totalInvoiced: { amount: totalInvoicedSum, currency },
-        totalCollected: { amount: totalCollectedSum, currency },
-        totalOutstanding: { amount: totalOutstandingSum, currency },
-        totalOverdue: { amount: totalOverdueSum, currency },
+        totalInvoiced: {
+          amount: Number(metricsResult?.totalInvoiced || 0),
+          currency,
+        },
+        totalCollected: {
+          amount: Number(metricsResult?.totalCollected || 0),
+          currency,
+        },
+        totalOutstanding: {
+          amount: Number(metricsResult?.totalOutstanding || 0),
+          currency,
+        },
+        totalOverdue: {
+          amount: Number(metricsResult?.totalOverdue || 0),
+          currency,
+        },
       },
       summary: {
-        draftCount,
-        sentCount,
-        paidCount,
-        overdueCount,
-        cancelledCount,
+        draftCount: Number(metricsResult?.draftCount || 0),
+        sentCount: Number(metricsResult?.sentCount || 0),
+        paidCount: Number(metricsResult?.paidCount || 0),
+        overdueCount: Number(metricsResult?.overdueCount || 0),
+        cancelledCount: Number(metricsResult?.cancelledCount || 0),
       },
-      overdueAlerts: overdueAlerts.slice(0, 5),
+      overdueAlerts,
     };
   }
 

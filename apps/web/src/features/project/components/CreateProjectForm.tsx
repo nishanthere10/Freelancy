@@ -85,7 +85,7 @@ export function CreateProjectForm({
             id="project-client-select"
             {...form.register('clientId')}
             disabled={isSubmitting}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--color-hairline)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-yellow)]"
+            className="w-full px-3.5 py-2.5 text-sm rounded-[var(--radius-lg)] border border-[var(--color-hairline-strong)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-blue)] transition-all"
           >
             <option value="none">None (Internal Project)</option>
             {clients?.map((client) => (
@@ -105,7 +105,7 @@ export function CreateProjectForm({
               id="project-pricing-model-select"
               {...form.register('pricingModel')}
               disabled={isSubmitting}
-              className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--color-hairline)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-yellow)]"
+              className="w-full px-3.5 py-2.5 text-sm rounded-[var(--radius-lg)] border border-[var(--color-hairline-strong)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-blue)] transition-all"
             >
               <option value="fixed">Fixed Price</option>
               <option value="hourly">Hourly Rate</option>
@@ -150,7 +150,7 @@ export function CreateProjectForm({
             disabled={isSubmitting}
             aria-invalid={Boolean(form.formState.errors.description)}
             aria-describedby={form.formState.errors.description ? 'project-description-error' : undefined}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--color-hairline)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-yellow)]"
+            className="w-full px-3.5 py-2.5 text-sm rounded-[var(--radius-lg)] border border-[var(--color-hairline-strong)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-blue)] transition-all"
           />
           {form.formState.errors.description?.message && (
             <p id="project-description-error" className="text-xs text-[var(--color-error)]">

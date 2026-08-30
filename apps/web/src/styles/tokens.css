@@ -96,10 +96,15 @@
     --glass-border: rgba(229, 231, 235, 0.7);
 
     /* Shadows (Miro elevation scale — refined depth) */
+    --shadow-nav: 0px 1px 0px 0px rgba(5, 0, 56, 0.06);
     --shadow-subtle: 0px 1px 3px 0px rgba(5, 0, 56, 0.04), 0px 1px 2px -1px rgba(5, 0, 56, 0.04);
     --shadow-card: 0px 4px 16px -2px rgba(5, 0, 56, 0.06), 0px 2px 4px -2px rgba(5, 0, 56, 0.04);
     --shadow-card-hover: 0px 12px 28px -4px rgba(5, 0, 56, 0.1), 0px 4px 12px -2px rgba(5, 0, 56, 0.06);
     --shadow-mockup: 0px 16px 40px -6px rgba(5, 0, 56, 0.1);
     --shadow-modal: 0px 24px 60px -12px rgba(5, 0, 56, 0.16);
+
+    /* Transition presets */
+    --transition-fast: all 0.15s ease;
+    --transition-spring: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }

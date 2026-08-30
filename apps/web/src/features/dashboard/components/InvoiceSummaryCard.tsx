@@ -11,27 +11,27 @@ interface InvoiceSummaryCardProps {
 
 export function InvoiceSummaryCard({ workspaceId, summary }: InvoiceSummaryCardProps) {
   const items = [
-    { label: 'Paid', count: summary.paidCount, badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    { label: 'Sent', count: summary.sentCount, badgeClass: 'bg-blue-50 text-blue-700 border-blue-200' },
-    { label: 'Draft', count: summary.draftCount, badgeClass: 'bg-gray-100 text-gray-700 border-gray-200' },
-    { label: 'Overdue', count: summary.overdueCount, badgeClass: 'bg-amber-50 text-amber-700 border-amber-200' },
+    { label: 'Paid', count: summary.paidCount, badgeClass: 'bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border-[var(--color-brand-teal)]/30' },
+    { label: 'Sent', count: summary.sentCount, badgeClass: 'bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20' },
+    { label: 'Draft', count: summary.draftCount, badgeClass: 'bg-[var(--color-surface-soft)] text-[var(--color-charcoal)] border-[var(--color-hairline-strong)]' },
+    { label: 'Overdue', count: summary.overdueCount, badgeClass: 'bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/40' },
   ];
 
   return (
-    <div className="p-6 rounded-2xl border border-[var(--color-hairline,#e2e8f0)] bg-white shadow-sm space-y-4">
+    <div className="section-card space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-purple-50 text-purple-600">
+          <div className="p-1.5 rounded-[var(--radius-md)] bg-[var(--color-rose-light)] text-[var(--color-brand-rose)]">
             <Receipt className="h-4 w-4" />
           </div>
-          <h3 className="font-bold text-base text-[var(--color-ink-deep,#0f172a)]">
+          <h3 className="font-bold text-base text-[var(--color-ink-deep)]">
             Invoice Breakdown
           </h3>
         </div>
 
         <Link
           href={`/workspaces/${workspaceId}/invoices`}
-          className="text-xs font-semibold text-amber-600 hover:underline flex items-center gap-1"
+          className="text-xs font-semibold text-[var(--color-brand-blue)] hover:text-[var(--color-blue-pressed)] hover:underline flex items-center gap-1 transition-colors"
         >
           <span>All invoices</span>
           <ArrowUpRight className="h-3 w-3" />
@@ -42,9 +42,9 @@ export function InvoiceSummaryCard({ workspaceId, summary }: InvoiceSummaryCardP
         {items.map((it) => (
           <div
             key={it.label}
-            className="p-3.5 rounded-xl border border-gray-100 bg-gray-50/60 flex items-center justify-between"
+            className="p-3.5 rounded-[var(--radius-lg)] border border-[var(--color-hairline-soft)] bg-[var(--color-surface-soft)] flex items-center justify-between hover:border-[var(--color-hairline-strong)] hover:bg-[var(--color-canvas)] transition-all duration-150"
           >
-            <span className="text-xs font-semibold text-gray-600">{it.label}</span>
+            <span className="text-xs font-semibold text-[var(--color-charcoal)]">{it.label}</span>
             <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${it.badgeClass}`}>
               {it.count}
             </span>

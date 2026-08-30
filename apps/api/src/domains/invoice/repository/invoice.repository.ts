@@ -29,87 +29,85 @@ export class InvoiceRepository {
     }
 
     try {
-      return await db.transaction(async (tx) => {
-        const [invoice] = await tx
-          .insert(invoicesTable)
-          .values({
+      const [invoice] = await db
+        .insert(invoicesTable)
+        .values({
+          workspaceId: data.workspaceId,
+          clientId: data.clientId,
+          projectId: data.projectId || null,
+          issueDate: data.issueDate || null,
+          dueDate: data.dueDate || null,
+          currency: data.currency?.toUpperCase().trim() || "INR",
+          subtotal: data.subtotal || "0.00",
+          discountRate: data.discountRate || "0.00",
+          discountAmount: data.discountAmount || "0.00",
+          taxableAmount: data.taxableAmount || "0.00",
+          taxRate: data.taxRate || "18.00",
+          taxAmount: data.taxAmount || "0.00",
+          totalAmount: data.totalAmount || "0.00",
+          amountPaid: data.amountPaid || "0.00",
+          amountDue: data.amountDue || data.totalAmount || "0.00",
+          status: "draft",
+          notes: data.notes?.trim() || null,
+          terms: data.terms?.trim() || null,
+          createdBy: data.createdBy,
+          updatedBy: data.updatedBy,
+        })
+        .returning();
+
+      if (!invoice) {
+        throw new Error("Failed to create invoice header");
+      }
+
+      const insertedItems = await db
+        .insert(invoiceItemsTable)
+        .values(
+          data.items.map((item, i) => ({
             workspaceId: data.workspaceId,
-            clientId: data.clientId,
-            projectId: data.projectId || null,
-            issueDate: data.issueDate || null,
-            dueDate: data.dueDate || null,
-            currency: data.currency?.toUpperCase().trim() || "INR",
-            subtotal: data.subtotal || "0.00",
-            discountRate: data.discountRate || "0.00",
-            discountAmount: data.discountAmount || "0.00",
-            taxableAmount: data.taxableAmount || "0.00",
-            taxRate: data.taxRate || "18.00",
-            taxAmount: data.taxAmount || "0.00",
-            totalAmount: data.totalAmount || "0.00",
-            amountPaid: data.amountPaid || "0.00",
-            amountDue: data.amountDue || data.totalAmount || "0.00",
-            status: "draft",
-            notes: data.notes?.trim() || null,
-            terms: data.terms?.trim() || null,
-            createdBy: data.createdBy,
-            updatedBy: data.updatedBy,
-          })
-          .returning();
+            invoiceId: invoice.id,
+            description: item.description.trim(),
+            quantity: item.quantity || "1.00",
+            unitPrice: item.unitPrice || "0.00",
+            amount: item.amount || "0.00",
+            sortOrder: item.sortOrder ?? i,
+          })),
+        )
+        .returning();
 
-        if (!invoice) {
-          throw new Error("Failed to create invoice header");
-        }
+      // Fetch client and project names if available
+      let clientName: string | null = null;
+      let projectName: string | null = null;
 
-        const insertedItems = await tx
-          .insert(invoiceItemsTable)
-          .values(
-            data.items.map((item, i) => ({
-              workspaceId: data.workspaceId,
-              invoiceId: invoice.id,
-              description: item.description.trim(),
-              quantity: item.quantity || "1.00",
-              unitPrice: item.unitPrice || "0.00",
-              amount: item.amount || "0.00",
-              sortOrder: item.sortOrder ?? i,
-            })),
-          )
-          .returning();
+      const [client] = await db
+        .select({ name: clientsTable.name })
+        .from(clientsTable)
+        .where(
+          and(
+            eq(clientsTable.id, data.clientId),
+            eq(clientsTable.workspaceId, data.workspaceId),
+          ),
+        );
+      if (client) clientName = client.name;
 
-        // Fetch client and project names if available
-        let clientName: string | null = null;
-        let projectName: string | null = null;
-
-        const [client] = await tx
-          .select({ name: clientsTable.name })
-          .from(clientsTable)
+      if (data.projectId) {
+        const [project] = await db
+          .select({ name: projectsTable.name })
+          .from(projectsTable)
           .where(
             and(
-              eq(clientsTable.id, data.clientId),
-              eq(clientsTable.workspaceId, data.workspaceId),
+              eq(projectsTable.id, data.projectId),
+              eq(projectsTable.workspaceId, data.workspaceId),
             ),
           );
-        if (client) clientName = client.name;
+        if (project) projectName = project.name;
+      }
 
-        if (data.projectId) {
-          const [project] = await tx
-            .select({ name: projectsTable.name })
-            .from(projectsTable)
-            .where(
-              and(
-                eq(projectsTable.id, data.projectId),
-                eq(projectsTable.workspaceId, data.workspaceId),
-              ),
-            );
-          if (project) projectName = project.name;
-        }
-
-        return {
-          ...invoice,
-          items: insertedItems,
-          clientName,
-          projectName,
-        };
-      });
+      return {
+        ...invoice,
+        items: insertedItems,
+        clientName,
+        projectName,
+      };
     } catch (error: unknown) {
       const pgError = error as { code?: string; constraint?: string };
       if (pgError.code === "23503") {
@@ -365,64 +363,62 @@ export class InvoiceRepository {
     if (data.status !== undefined) updateData.status = data.status;
 
     try {
-      return await db.transaction(async (tx) => {
-        const [updatedHeader] = await tx
-          .update(invoicesTable)
-          .set(updateData)
+      const [updatedHeader] = await db
+        .update(invoicesTable)
+        .set(updateData)
+        .where(
+          and(
+            eq(invoicesTable.id, id),
+            eq(invoicesTable.workspaceId, workspaceId),
+            isNull(invoicesTable.deletedAt),
+          ),
+        )
+        .returning();
+
+      if (!updatedHeader) {
+        throw new Error(`Invoice with ID ${id} not found or deleted`);
+      }
+
+      let items = existing.items;
+      if (data.items) {
+        await db
+          .delete(invoiceItemsTable)
           .where(
             and(
-              eq(invoicesTable.id, id),
-              eq(invoicesTable.workspaceId, workspaceId),
-              isNull(invoicesTable.deletedAt),
+              eq(invoiceItemsTable.invoiceId, id),
+              eq(invoiceItemsTable.workspaceId, workspaceId),
             ),
-          )
-          .returning();
+          );
 
-        if (!updatedHeader) {
-          throw new Error(`Invoice with ID ${id} not found or deleted`);
-        }
+        const insertedItems: InvoiceItem[] = [];
+        for (let i = 0; i < data.items.length; i++) {
+          const item = data.items[i];
+          const [insertedItem] = await db
+            .insert(invoiceItemsTable)
+            .values({
+              workspaceId,
+              invoiceId: id,
+              description: item.description.trim(),
+              quantity: item.quantity || "1.00",
+              unitPrice: item.unitPrice || "0.00",
+              amount: item.amount || "0.00",
+              sortOrder: item.sortOrder ?? i,
+            })
+            .returning();
 
-        let items = existing.items;
-        if (data.items) {
-          await tx
-            .delete(invoiceItemsTable)
-            .where(
-              and(
-                eq(invoiceItemsTable.invoiceId, id),
-                eq(invoiceItemsTable.workspaceId, workspaceId),
-              ),
-            );
-
-          const insertedItems: InvoiceItem[] = [];
-          for (let i = 0; i < data.items.length; i++) {
-            const item = data.items[i];
-            const [insertedItem] = await tx
-              .insert(invoiceItemsTable)
-              .values({
-                workspaceId,
-                invoiceId: id,
-                description: item.description.trim(),
-                quantity: item.quantity || "1.00",
-                unitPrice: item.unitPrice || "0.00",
-                amount: item.amount || "0.00",
-                sortOrder: item.sortOrder ?? i,
-              })
-              .returning();
-
-            if (insertedItem) {
-              insertedItems.push(insertedItem);
-            }
+          if (insertedItem) {
+            insertedItems.push(insertedItem);
           }
-          items = insertedItems;
         }
+        items = insertedItems;
+      }
 
-        return {
-          ...updatedHeader,
-          items,
-          clientName: existing.clientName,
-          projectName: existing.projectName,
-        };
-      });
+      return {
+        ...updatedHeader,
+        items,
+        clientName: existing.clientName,
+        projectName: existing.projectName,
+      };
     } catch (error: unknown) {
       const pgError = error as { code?: string; constraint?: string };
       if (pgError.code === "23503") {

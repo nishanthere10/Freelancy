@@ -11,7 +11,7 @@ export function InvoiceCard({ invoice, onSelect }: InvoiceCardProps) {
   return (
     <div
       onClick={() => onSelect(invoice)}
-      className="group relative bg-white p-5 rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] border-t-4 border-t-[var(--color-brand-rose)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1 transition-all duration-200 cursor-pointer flex flex-col justify-between"
+      className="group relative bg-white p-5 rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] border-t-[3px] border-t-[var(--color-brand-rose)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1 transition-all duration-200 cursor-pointer flex flex-col justify-between"
     >
       <div className="space-y-3">
         <div className="flex items-center justify-between">
@@ -23,32 +23,32 @@ export function InvoiceCard({ invoice, onSelect }: InvoiceCardProps) {
 
         <div>
           <div className="flex items-center text-sm font-semibold text-[var(--color-ink-deep)] group-hover:text-[var(--color-brand-blue)] transition-colors">
-            <User className="h-4 w-4 mr-1.5 text-gray-400 shrink-0" />
+            <User className="h-4 w-4 mr-1.5 text-[var(--color-stone)] shrink-0" />
             <span className="truncate">{invoice.clientName || 'Unassigned Client'}</span>
           </div>
 
           {invoice.projectName && (
             <div className="flex items-center text-xs text-[var(--color-slate-text)] mt-1">
-              <Folder className="h-3.5 w-3.5 mr-1.5 text-gray-400 shrink-0" />
+              <Folder className="h-3.5 w-3.5 mr-1.5 text-[var(--color-stone)] shrink-0" />
               <span className="truncate">{invoice.projectName}</span>
             </div>
           )}
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+      <div className="mt-4 pt-4 border-t border-[var(--color-hairline-soft)] flex items-center justify-between">
         <div>
-          <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Total Amount</div>
+          <div className="text-[10px] uppercase font-bold text-[var(--color-steel)] tracking-wider">Total Amount</div>
           <div className="text-lg font-bold text-[var(--color-ink-deep)] flex items-center">
-            <CurrencyInr className="h-4 w-4 mr-0.5" />
+            <CurrencyInr className="h-4 w-4 mr-0.5 text-[var(--color-brand-rose)]" />
             {Number(invoice.totalAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
           </div>
         </div>
 
         <div className="text-right">
-          <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Due Date</div>
-          <div className="text-xs font-medium text-slate-600 flex items-center justify-end mt-0.5">
-            <Calendar className="h-3.5 w-3.5 mr-1 text-gray-400" />
+          <div className="text-[10px] uppercase font-bold text-[var(--color-steel)] tracking-wider">Due Date</div>
+          <div className="text-xs font-medium text-[var(--color-charcoal)] flex items-center justify-end mt-0.5">
+            <Calendar className="h-3.5 w-3.5 mr-1 text-[var(--color-stone)]" />
             {invoice.dueDate || 'Not set'}
           </div>
         </div>

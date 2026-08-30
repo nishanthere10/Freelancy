@@ -81,7 +81,7 @@ html {
 }
 
 body {
-  background-color: var(--color-canvas);
+  background-color: var(--color-surface-soft);
   color: var(--color-ink);
   font-family: var(--font-family-sans);
   -webkit-font-smoothing: antialiased;
@@ -97,14 +97,16 @@ body {
 }
 
 .hover-lift {
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .hover-lift:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: var(--shadow-card-hover);
 }
 
+/* ─── Domain accent top-border ribbons ──────────────────────────────────────── */
 .domain-accent-teal {
   border-top: 3px solid var(--color-brand-teal);
 }
@@ -117,7 +119,501 @@ body {
   border-top: 3px solid var(--color-brand-rose);
 }
 
-/* Hide scrollbar utility */
+/* ─── Pill filter tab active states (system-wide) ───────────────────────── */
+.pill-tab {
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  border: 1px solid var(--color-hairline);
+  color: var(--color-slate-text);
+  background: var(--color-canvas);
+}
+
+.pill-tab:hover {
+  background: var(--color-surface-soft);
+  color: var(--color-ink-deep);
+  border-color: var(--color-hairline-strong);
+}
+
+.pill-tab-active {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 1px 4px rgba(5, 0, 56, 0.18);
+}
+
+/* ─── Page section wrapper ───────────────────────────────────────────────── */
+.page-wrapper {
+  padding: 1.5rem;
+  max-width: 1400px;
+  width: 100%;
+  margin-inline: auto;
+  background: var(--color-surface-soft);
+  min-height: 100vh;
+}
+
+@media (min-width: 640px) {
+  .page-wrapper {
+    padding: 2.5rem;
+  }
+}
+
+/* ─── Page header icon container ─────────────────────────────────────────── */
+.page-icon {
+  height: 2.75rem;
+  width: 2.75rem;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ─── Domain-color icon backgrounds ─────────────────────────────────────── */
+.icon-bg-invoice {
+  background-color: var(--color-rose-light);
+  color: var(--color-brand-rose);
+}
+
+.icon-bg-project {
+  background-color: var(--color-yellow-light);
+  color: var(--color-yellow-dark);
+}
+
+.icon-bg-client {
+  background-color: var(--color-teal-light);
+  color: var(--color-brand-teal);
+}
+
+.icon-bg-dashboard {
+  background-color: var(--color-surface-pricing-featured);
+  color: var(--color-brand-blue);
+}
+
+/* ─── Filter / search toolbar ────────────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-hairline);
+  box-shadow: var(--shadow-subtle);
+}
+
+@media (min-width: 640px) {
+  .filter-bar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+  }
+}
+
+/* ─── Metric stat card ───────────────────────────────────────────────────── */
+.stat-card {
+  background: var(--color-canvas);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-hairline-soft);
+  box-shadow: var(--shadow-card);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+/* ─── Domain cards ───────────────────────────────────────────────────────── */
+.domain-card {
+  background: var(--color-canvas);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-hairline-soft);
+  border-top-width: 3px;
+  box-shadow: var(--shadow-card);
+  padding: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.domain-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-3px);
+}
+
+.domain-card-teal {
+  border-top-color: var(--color-brand-teal);
+}
+
+.domain-card-yellow {
+  border-top-color: var(--color-brand-yellow);
+}
+
+.domain-card-rose {
+  border-top-color: var(--color-brand-rose);
+}
+
+/* ─── Card footer divider ────────────────────────────────────────────────── */
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--color-hairline-soft);
+}
+
+/* ─── Section card (ProjectDeadlines, InvoiceSummary, etc.) ──────────────── */
+.section-card {
+  background: var(--color-canvas);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-hairline-soft);
+  box-shadow: var(--shadow-card);
+  padding: 1.5rem;
+}
+
+/* ─── Section card header ────────────────────────────────────────────────── */
+.section-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.section-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--color-ink-deep);
+}
+
+.section-card-icon {
+  padding: 0.375rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-card-link {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-brand-blue);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color 0.15s ease, text-decoration 0.15s ease;
+}
+
+.section-card-link:hover {
+  color: var(--color-blue-pressed);
+  text-decoration: underline;
+}
+
+/* ─── Empty state dashed zone ────────────────────────────────────────────── */
+.empty-dashed {
+  border: 2px dashed var(--color-hairline);
+  border-radius: var(--radius-xl);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background: var(--color-surface-soft);
+}
+
+/* ─── Status badge pill ──────────────────────────────────────────────────── */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.1875rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-width: 1px;
+  border-style: solid;
+}
+
+/* ─── Overdue alert banner ───────────────────────────────────────────────── */
+.overdue-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-xl);
+  background-color: #FEF3C7;
+  border: 1px solid #FCD34D;
+  box-shadow: var(--shadow-subtle);
+}
+
+@media (min-width: 640px) {
+  .overdue-banner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+  }
+}
+
+/* ─── Table styles (RecentInvoicesList) ──────────────────────────────────── */
+.data-table {
+  width: 100%;
+  text-align: left;
+  font-size: 0.8125rem;
+  border-collapse: collapse;
+}
+
+.data-table thead th {
+  padding-bottom: 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-steel);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid var(--color-hairline-soft);
+  transition: background-color 0.1s ease;
+}
+
+.data-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+  background-color: var(--color-surface-soft);
+}
+
+.data-table tbody td {
+  padding: 0.875rem 0.25rem;
+  vertical-align: middle;
+}
+
+/* ─── Deadline list item ──────────────────────────────────────────────────── */
+.deadline-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-hairline-soft);
+  background: var(--color-surface-soft);
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  text-decoration: none;
+}
+
+.deadline-item:hover {
+  background: var(--color-canvas);
+  border-color: var(--color-brand-yellow);
+  box-shadow: var(--shadow-subtle);
+}
+
+/* ─── Skeleton pulse ──────────────────────────────────────────────────────── */
+.skeleton-pulse {
+  background: linear-gradient(
+    90deg,
+    var(--color-hairline-soft) 25%,
+    var(--color-surface) 50%,
+    var(--color-hairline-soft) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-lg);
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── WorkspaceCard overlay actions ──────────────────────────────────────── */
+.workspace-card-actions {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.group:hover .workspace-card-actions {
+  opacity: 1;
+}
+
+/* ─── Dashboard empty state ──────────────────────────────────────────────── */
+.onboarding-card {
+  border: 2px dashed var(--color-hairline);
+  border-radius: var(--radius-xxxl);
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--color-canvas);
+  max-width: 540px;
+  margin-inline: auto;
+  margin-block: 2rem;
+}
+
+/* ─── Context link arrow ──────────────────────────────────────────────────── */
+.cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-brand-teal);
+  transition: color 0.15s ease;
+}
+
+.cta-link-yellow {
+  color: var(--color-yellow-dark);
+}
+
+.cta-link-rose {
+  color: var(--color-brand-rose);
+}
+
+.cta-link:hover {
+  text-decoration: underline;
+}
+
+/* ─── ProjectStatusControl dropdown ──────────────────────────────────────── */
+.status-dropdown {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 0.375rem);
+  min-width: 10rem;
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+  z-index: 30;
+  padding: 0.375rem;
+  animation: dropdown-in 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.status-dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  color: var(--color-charcoal);
+  transition: background-color 0.1s ease, color 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-transform: capitalize;
+}
+
+.status-dropdown-item:hover {
+  background: var(--color-surface-soft);
+  color: var(--color-ink-deep);
+}
+
+.status-dropdown-item-active {
+  background: var(--color-surface-yellow);
+  color: var(--color-yellow-dark);
+  font-weight: 700;
+}
+
+/* ─── Invoice summary grid cells ─────────────────────────────────────────── */
+.invoice-summary-cell {
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-hairline-soft);
+  background: var(--color-surface-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.invoice-summary-cell:hover {
+  border-color: var(--color-hairline-strong);
+  box-shadow: var(--shadow-subtle);
+}
+
+/* ─── Navbar active pill ──────────────────────────────────────────────────── */
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  transition: all 0.15s ease;
+  color: var(--color-slate-text);
+}
+
+.nav-link:hover {
+  background: var(--color-surface-soft);
+  color: var(--color-ink-deep);
+}
+
+.nav-link-active {
+  background: var(--color-brand-yellow);
+  color: var(--color-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(5, 0, 56, 0.12);
+}
+
+/* ─── Dialog spring animation ─────────────────────────────────────────────── */
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.dialog-panel {
+  animation: dialog-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Hide scrollbar utility ──────────────────────────────────────────────── */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -126,3 +622,8 @@ body {
   scrollbar-width: none;
 }
 
+/* ─── Focus ring override (brand blue) ───────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--color-brand-blue);
+  outline-offset: 2px;
+}

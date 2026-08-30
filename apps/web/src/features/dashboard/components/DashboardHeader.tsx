@@ -13,14 +13,14 @@ export function DashboardHeader({ workspaceId }: DashboardHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div className="flex items-center gap-3.5">
-        <div className="h-11 w-11 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-semibold">
+        <div className="h-11 w-11 rounded-[var(--radius-xl)] bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] flex items-center justify-center font-semibold">
           <ChartPie className="h-6 w-6" />
         </div>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink-deep,#0f172a)] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink-deep)] tracking-tight">
             Dashboard
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--color-slate-text,#64748b)]">
+          <p className="text-xs sm:text-sm text-[var(--color-slate-text)]">
             Business overview, cash flow metrics, active deliverables, and invoice status.
           </p>
         </div>

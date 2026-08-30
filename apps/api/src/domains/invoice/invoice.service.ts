@@ -1,3 +1,4 @@
+import { logger } from "../../utils/logger";
 import type { ClientRepository } from "../client/repository/client.repository";
 import type { ProjectRepository } from "../project/repository/project.repository";
 import type { WorkspaceMemberRepository } from "../workspace/repository";
@@ -197,6 +198,12 @@ export class InvoiceService {
       return ok(invoice);
     } catch (error: unknown) {
       if (error instanceof InvoiceDomainError) return err(error);
+      logger.error("createInvoice failed", {
+        workspaceId,
+        actorId,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       return err(new InvoiceInternalError("createInvoice", error));
     }
   }

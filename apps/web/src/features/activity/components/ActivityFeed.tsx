@@ -29,11 +29,11 @@ export function ActivityFeed({
     <>
       {title && (
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-foreground tracking-tight">
+          <h3 className="text-base font-bold text-[var(--color-ink-deep)] tracking-tight">
             {title}
           </h3>
           {data?.items && data.items.length > 0 && (
-            <span className="text-xs text-muted-foreground font-medium">
+            <span className="text-xs text-[var(--color-steel)] font-medium">
               {data.items.length} {data.items.length === 1 ? 'event' : 'events'}
             </span>
           )}
@@ -43,12 +43,12 @@ export function ActivityFeed({
       {isLoading && <ActivitySkeleton />}
 
       {error && (
-        <div className="p-4 text-center rounded-xl bg-destructive/10 text-destructive border border-destructive/20 space-y-2">
+        <div className="p-4 text-center rounded-[var(--radius-xl)] bg-[var(--color-error-bg)] text-[var(--color-error)] border border-[var(--color-error-border)] space-y-2">
           <p className="text-xs font-semibold">Failed to load activity</p>
           <button
             type="button"
             onClick={() => refetch()}
-            className="px-3 py-1 text-[11px] font-semibold bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
+            className="px-3 py-1 text-[11px] font-semibold bg-[var(--color-error)] text-white rounded-full hover:opacity-90 transition-opacity"
           >
             Retry
           </button>
@@ -75,7 +75,7 @@ export function ActivityFeed({
 
   if (showCardWrapper) {
     return (
-      <div className="p-5 sm:p-6 rounded-2xl border border-border/60 bg-card/40 backdrop-blur-xs shadow-xs">
+      <div className="section-card">
         {content}
       </div>
     );

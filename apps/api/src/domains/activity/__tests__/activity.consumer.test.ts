@@ -148,4 +148,44 @@ describe("ActivityEventConsumer", () => {
       }),
     ).resolves.not.toThrow();
   });
+
+  it("fires asynchronously without blocking the caller on slow database queries", async () => {
+    let repoResolved = false;
+    const mockRepo = {
+      create: vi.fn().mockImplementation(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        repoResolved = true;
+        return { id: "evt-slow" };
+      }),
+    } as unknown as ActivityRepository;
+
+    const consumer = new ActivityEventConsumer(mockRepo);
+    const adapter = new InvoiceEventEmitterAdapter(consumer);
+
+    const startTime = Date.now();
+    await adapter.emit({
+      type: "invoice.sent",
+      invoiceId: "inv-2",
+      workspaceId: mockWorkspaceId,
+      actorId: mockActorId,
+      occurredAt: "2026-08-19T12:00:00.000Z",
+      invoice: {
+        id: "inv-2",
+        invoiceNumber: "INV-2026-0100",
+        totalAmount: "50000.00",
+        currency: "INR",
+        status: "sent",
+        items: [],
+      } as any,
+    });
+
+    const elapsed = Date.now() - startTime;
+    // The adapter emit must return almost immediately (< 50ms) rather than waiting 150ms for the DB
+    expect(elapsed).toBeLessThan(50);
+    expect(repoResolved).toBe(false);
+
+    // Allow background task to settle
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    expect(repoResolved).toBe(true);
+  });
 });

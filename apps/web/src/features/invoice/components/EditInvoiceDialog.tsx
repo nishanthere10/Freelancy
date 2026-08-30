@@ -1,6 +1,7 @@
 'use client';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@shared/components';
+import { toast } from 'sonner';
 import { useUpdateInvoice } from '../hooks';
 import type { CreateInvoiceInput, InvoiceResponse } from '../api';
 import { CreateInvoiceForm } from './CreateInvoiceForm';
@@ -40,18 +41,24 @@ export function EditInvoiceDialog({
   };
 
   const handleSubmit = async (data: CreateInvoiceInput) => {
-    await updateInvoiceMutation.mutateAsync({ id: invoice.id, data });
-    onOpenChange(false);
+    try {
+      await updateInvoiceMutation.mutateAsync({ id: invoice.id, data });
+      toast.success('Invoice updated successfully');
+      onOpenChange(false);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to update invoice';
+      toast.error(message);
+    }
   };
 
   return (
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      className="max-w-4xl max-h-[90vh] overflow-y-auto no-scrollbar p-6 sm:p-8 rounded-2xl shadow-2xl"
+      className="max-w-4xl max-h-[90vh] overflow-y-auto no-scrollbar p-6 sm:p-8 rounded-[var(--radius-xxl)] shadow-[var(--shadow-modal)]"
     >
       <DialogContent className="space-y-6">
-        <DialogHeader className="pb-4 border-b border-gray-100">
+        <DialogHeader className="pb-4 border-b border-[var(--color-hairline-soft)]">
           <DialogTitle className="text-xl font-bold text-[var(--color-ink-deep)]">Edit Draft Invoice</DialogTitle>
           <p className="text-xs text-[var(--color-slate-text)]">
             Update invoice details, line items, or payment terms. Only draft invoices can be edited.

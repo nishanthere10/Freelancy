@@ -3,7 +3,8 @@ import type { NextConfig } from "next";
 const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.com https://*.clerk.accounts.dev https://va.vercel-scripts.com;
-  connect-src 'self' https://*.clerk.com https://*.clerk.accounts.dev https://*.workers.dev http://localhost:* https://*.vercel.app https://vitals.vercel-insights.com;
+  worker-src 'self' blob:;
+  connect-src 'self' https://*.clerk.com https://*.clerk.accounts.dev https://clerk-telemetry.com https://*.workers.dev http://localhost:* https://*.vercel.app https://vitals.vercel-insights.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com data:;
   img-src 'self' data: blob: https://*.clerk.com https://images.clerk.dev https://img.clerk.com https://*.unsplash.com;

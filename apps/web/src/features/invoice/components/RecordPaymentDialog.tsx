@@ -45,34 +45,34 @@ export function RecordPaymentDialog({
     <Dialog 
       open={open} 
       onOpenChange={onOpenChange}
-      className="max-w-lg overflow-y-auto no-scrollbar p-6 sm:p-8 rounded-2xl shadow-2xl"
+      className="max-w-lg overflow-y-auto no-scrollbar p-6 sm:p-8 rounded-[var(--radius-xxl)] shadow-[var(--shadow-modal)]"
     >
       <DialogContent className="space-y-5">
-        <DialogHeader className="pb-3 border-b border-gray-100">
+        <DialogHeader className="pb-3 border-b border-[var(--color-hairline-soft)]">
           <DialogTitle className="text-lg font-bold text-[var(--color-ink-deep)]">
             Record Payment ({invoice.invoiceNumber || 'Draft Invoice'})
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-1">
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs space-y-2">
-            <div className="flex justify-between text-slate-600">
+          <div className="bg-[var(--color-surface-soft)] p-4 rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] text-xs space-y-2">
+            <div className="flex justify-between text-[var(--color-slate-text)]">
               <span>Invoice Total:</span>
-              <span className="font-semibold text-slate-800">₹{invoice.totalAmount}</span>
+              <span className="font-semibold text-[var(--color-ink-deep)]">₹{invoice.totalAmount}</span>
             </div>
-            <div className="flex justify-between text-slate-600">
+            <div className="flex justify-between text-[var(--color-slate-text)]">
               <span>Already Paid:</span>
-              <span className="font-semibold text-emerald-600">₹{invoice.amountPaid}</span>
+              <span className="font-semibold text-[var(--color-success-accent)]">₹{invoice.amountPaid}</span>
             </div>
-            <div className="flex justify-between text-slate-900 font-bold border-t border-slate-200 pt-2 text-sm">
+            <div className="flex justify-between text-[var(--color-ink-deep)] font-bold border-t border-[var(--color-hairline)] pt-2 text-sm">
               <span>Outstanding Due:</span>
-              <span className="text-amber-600">₹{invoice.amountDue}</span>
+              <span className="text-[var(--color-yellow-dark)]">₹{invoice.amountDue}</span>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Payment Amount (₹) <span className="text-red-500">*</span>
+            <label className="block text-xs font-semibold text-[var(--color-ink-deep)] mb-1.5">
+              Payment Amount (₹) <span className="text-[var(--color-error)]">*</span>
             </label>
             <Input
               type="number"
@@ -80,16 +80,16 @@ export function RecordPaymentDialog({
               value={amountPaid}
               onChange={(e) => setAmountPaid(e.target.value)}
               required
-              className="h-11 rounded-xl"
+              className="h-11 rounded-[var(--radius-lg)] border-[var(--color-hairline-strong)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Payment Method</label>
+            <label className="block text-xs font-semibold text-[var(--color-ink-deep)] mb-1.5">Payment Method</label>
             <select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
-              className="w-full h-11 px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none"
+              className="w-full h-11 px-3.5 py-2.5 text-sm bg-white border border-[var(--color-hairline-strong)] rounded-[var(--radius-lg)] focus:ring-2 focus:ring-[var(--color-brand-blue)] outline-none transition-all"
             >
               <option value="bank_transfer">Bank Transfer (NEFT / RTGS / IMPS)</option>
               <option value="upi">UPI / GPay / PhonePe</option>
@@ -98,24 +98,24 @@ export function RecordPaymentDialog({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Reference / UTR Number <span className="text-slate-400 font-normal">(Optional)</span>
+            <label className="block text-xs font-semibold text-[var(--color-ink-deep)] mb-1.5">
+              Reference / UTR Number <span className="text-[var(--color-steel)] font-normal">(Optional)</span>
             </label>
             <Input
               placeholder="e.g. UTR-9876543210"
               value={paymentReference}
               onChange={(e) => setPaymentReference(e.target.value)}
-              className="h-11 rounded-xl"
+              className="h-11 rounded-[var(--radius-lg)] border-[var(--color-hairline-strong)]"
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold text-slate-700">Payment Date</label>
+              <label className="block text-xs font-semibold text-[var(--color-ink-deep)]">Payment Date</label>
               <button
                 type="button"
                 onClick={() => setPaidAt(new Date().toISOString().split('T')[0])}
-                className="px-2 py-0.5 text-[11px] font-medium bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-md transition"
+                className="px-2.5 py-0.5 text-[11px] font-medium bg-[var(--color-surface-soft)] hover:bg-[var(--color-surface)] text-[var(--color-charcoal)] rounded-full border border-[var(--color-hairline-strong)] transition"
               >
                 Today
               </button>
@@ -124,24 +124,24 @@ export function RecordPaymentDialog({
               type="date" 
               value={paidAt} 
               onChange={(e) => setPaidAt(e.target.value)} 
-              className="h-11 rounded-xl cursor-pointer"
+              className="h-11 rounded-[var(--radius-lg)] border-[var(--color-hairline-strong)] cursor-pointer"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+          <div className="flex justify-end gap-3 pt-4 border-t border-[var(--color-hairline-soft)]">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={recordPaymentMutation.isPending}
-              className="rounded-xl px-5"
+              className="rounded-full px-5"
             >
               Cancel
             </Button>
             <Button 
               type="submit" 
               disabled={recordPaymentMutation.isPending || !amountPaid}
-              className="rounded-xl px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+              className="rounded-full px-6 bg-[var(--color-brand-teal)] hover:opacity-90 text-white font-semibold"
             >
               {recordPaymentMutation.isPending ? 'Saving...' : 'Record Payment'}
             </Button>

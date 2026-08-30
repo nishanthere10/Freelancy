@@ -18,8 +18,8 @@ export function DashboardOverview({ overview }: DashboardOverviewProps) {
         value={`${symbol}${overview.totalInvoiced.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
         subtext="Gross billed value"
         icon={<Receipt className="w-6 h-6" />}
-        valueColorClass="text-purple-700"
-        iconBgClass="bg-purple-50 text-purple-600"
+        valueColorClass="text-[var(--color-brand-blue)]"
+        iconBgClass="bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)]"
       />
 
       <MetricCard
@@ -27,8 +27,8 @@ export function DashboardOverview({ overview }: DashboardOverviewProps) {
         value={`${symbol}${overview.totalCollected.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
         subtext="Cleared client payments"
         icon={<CheckCircle className="w-6 h-6" />}
-        valueColorClass="text-emerald-600"
-        iconBgClass="bg-emerald-50 text-emerald-600"
+        valueColorClass="text-[var(--color-success-accent)]"
+        iconBgClass="bg-[var(--color-teal-light)] text-[var(--color-brand-teal)]"
       />
 
       <MetricCard
@@ -36,8 +36,8 @@ export function DashboardOverview({ overview }: DashboardOverviewProps) {
         value={`${symbol}${overview.totalOutstanding.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
         subtext="Awaiting collection"
         icon={<Clock className="w-6 h-6" />}
-        valueColorClass="text-amber-600"
-        iconBgClass="bg-amber-50 text-amber-600"
+        valueColorClass="text-[var(--color-yellow-dark)]"
+        iconBgClass="bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)]"
       />
 
       <MetricCard
@@ -45,8 +45,8 @@ export function DashboardOverview({ overview }: DashboardOverviewProps) {
         value={`${overview.activeProjectsCount} Active`}
         subtext={`${overview.totalClientsCount} Total Clients`}
         icon={<Briefcase className="w-6 h-6" />}
-        valueColorClass="text-blue-600"
-        iconBgClass="bg-blue-50 text-blue-600"
+        valueColorClass="text-[var(--color-primary)]"
+        iconBgClass="bg-[var(--color-rose-light)] text-[var(--color-brand-rose)]"
       />
     </div>
   );

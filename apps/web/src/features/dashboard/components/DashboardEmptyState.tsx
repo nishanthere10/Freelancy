@@ -10,16 +10,16 @@ interface DashboardEmptyStateProps {
 
 export function DashboardEmptyState({ workspaceId }: DashboardEmptyStateProps) {
   return (
-    <div className="text-center py-16 px-6 border-2 border-dashed border-gray-200 rounded-3xl bg-white space-y-4 max-w-xl mx-auto my-8">
-      <div className="mx-auto h-16 w-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+    <div className="text-center py-16 px-8 border-2 border-dashed border-[var(--color-hairline)] rounded-[var(--radius-xxxl)] bg-[var(--color-canvas)] shadow-[var(--shadow-subtle)] space-y-5 max-w-xl mx-auto my-8">
+      <div className="mx-auto h-16 w-16 rounded-[var(--radius-xl)] bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] flex items-center justify-center">
         <ChartPie className="h-8 w-8" />
       </div>
 
-      <div className="space-y-1">
-        <h3 className="text-lg font-bold text-[var(--color-ink-deep,#0f172a)]">
+      <div className="space-y-1.5">
+        <h3 className="text-xl font-bold text-[var(--color-ink-deep)] tracking-tight">
           Welcome to your workspace dashboard!
         </h3>
-        <p className="text-xs text-[var(--color-slate-text,#64748b)] max-w-md mx-auto leading-relaxed">
+        <p className="text-sm text-[var(--color-slate-text)] max-w-md mx-auto leading-relaxed">
           Create your first client record, deliverable project, or GST invoice to view real-time financial metrics and operational insights here.
         </p>
       </div>

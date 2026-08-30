@@ -44,9 +44,9 @@ export function WorkspacePage() {
   const isEmpty = !isLoading && (!workspaces || workspaces.length === 0);
 
   return (
-    <div className="min-h-screen bg-[var(--color-canvas)]">
+    <div className="min-h-screen bg-[var(--color-surface-soft)]">
       {/* Page body */}
-      <main className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-10">
+      <main className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-10 sm:py-14 lg:py-16 pb-24 space-y-10">
 
 
         <WorkspaceHeader onCreateClick={() => setCreateDialogOpen(true)} />

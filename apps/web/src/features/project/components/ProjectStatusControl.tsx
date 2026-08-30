@@ -22,10 +22,10 @@ export function ProjectStatusControl({
   const { mutate: updateStatus, isPending } = useUpdateProjectStatus(workspaceId, projectId);
 
   const statusStyles: Record<ProjectStatus, string> = {
-    draft: 'bg-amber-50 text-amber-700 border-amber-200',
-    active: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    completed: 'bg-blue-50 text-blue-700 border-blue-200',
-    archived: 'bg-gray-100 text-gray-600 border-gray-200',
+    draft: 'bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/40',
+    active: 'bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border-[var(--color-brand-teal)]/30',
+    completed: 'bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20',
+    archived: 'bg-[var(--color-surface-soft)] text-[var(--color-steel)] border-[var(--color-hairline-strong)]',
   };
 
   useEffect(() => {
@@ -84,7 +84,7 @@ export function ProjectStatusControl({
         <div
           role="listbox"
           aria-label="Select project status"
-          className="absolute right-0 mt-1 w-36 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-20 py-1"
+          className="status-dropdown"
           onClick={(e) => e.stopPropagation()}
         >
           {(['draft', 'active', 'completed', 'archived'] as const).map((st) => (
@@ -94,8 +94,8 @@ export function ProjectStatusControl({
               role="option"
               aria-selected={st === currentStatus}
               onClick={() => handleSelect(st)}
-              className={`w-full text-left px-3 py-1.5 text-xs capitalize hover:bg-gray-100 flex items-center justify-between ${
-                st === currentStatus ? 'font-bold text-black' : 'text-gray-700'
+              className={`status-dropdown-item ${
+                st === currentStatus ? 'status-dropdown-item-selected' : ''
               }`}
             >
               <span>{st}</span>

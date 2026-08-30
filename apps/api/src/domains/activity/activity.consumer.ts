@@ -132,7 +132,11 @@ export class ActivityEventConsumer implements IWorkspaceEventEmitter {
   async emitClient(event: ClientDomainEvent): Promise<void> {
     const input = this.mapClientEvent(event);
     if (input) {
-      await this.ingest(input);
+      void this.ingest(input).catch((err) => {
+        logger.error("Async client activity ingestion error", {
+          error: err,
+        });
+      });
     }
   }
 
@@ -142,7 +146,11 @@ export class ActivityEventConsumer implements IWorkspaceEventEmitter {
   async emitProject(event: ProjectDomainEvent): Promise<void> {
     const input = this.mapProjectEvent(event);
     if (input) {
-      await this.ingest(input);
+      void this.ingest(input).catch((err) => {
+        logger.error("Async project activity ingestion error", {
+          error: err,
+        });
+      });
     }
   }
 
@@ -152,7 +160,11 @@ export class ActivityEventConsumer implements IWorkspaceEventEmitter {
   async emitInvoice(event: InvoiceDomainEvent): Promise<void> {
     const input = this.mapInvoiceEvent(event);
     if (input) {
-      await this.ingest(input);
+      void this.ingest(input).catch((err) => {
+        logger.error("Async invoice activity ingestion error", {
+          error: err,
+        });
+      });
     }
   }
 
@@ -317,20 +329,38 @@ export class ActivityEventConsumer implements IWorkspaceEventEmitter {
 export class ClientEventEmitterAdapter implements IClientEventEmitter {
   constructor(private readonly consumer: ActivityEventConsumer) {}
   async emit(event: ClientDomainEvent): Promise<void> {
-    await this.consumer.emitClient(event);
+    try {
+      void this.consumer.emitClient(event).catch((err) => {
+        logger.error("Async client activity adapter error", { error: err });
+      });
+    } catch (err) {
+      logger.error("Sync client activity adapter error", { error: err });
+    }
   }
 }
 
 export class ProjectEventEmitterAdapter implements IProjectEventEmitter {
   constructor(private readonly consumer: ActivityEventConsumer) {}
   async emit(event: ProjectDomainEvent): Promise<void> {
-    await this.consumer.emitProject(event);
+    try {
+      void this.consumer.emitProject(event).catch((err) => {
+        logger.error("Async project activity adapter error", { error: err });
+      });
+    } catch (err) {
+      logger.error("Sync project activity adapter error", { error: err });
+    }
   }
 }
 
 export class InvoiceEventEmitterAdapter implements IInvoiceEventEmitter {
   constructor(private readonly consumer: ActivityEventConsumer) {}
   async emit(event: InvoiceDomainEvent): Promise<void> {
-    await this.consumer.emitInvoice(event);
+    try {
+      void this.consumer.emitInvoice(event).catch((err) => {
+        logger.error("Async invoice activity adapter error", { error: err });
+      });
+    } catch (err) {
+      logger.error("Sync invoice activity adapter error", { error: err });
+    }
   }
 }

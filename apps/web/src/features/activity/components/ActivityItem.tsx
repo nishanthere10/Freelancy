@@ -48,24 +48,24 @@ function getEventStyling(eventType: string, entityType: string): {
     case 'client':
       return {
         icon: eventType === 'client.created' ? UserPlus : Buildings,
-        badgeClass: 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20',
+        badgeClass: 'bg-[var(--color-teal-light)] text-[var(--color-brand-teal)] border-[var(--color-brand-teal)]/20',
       };
     case 'project':
       return {
         icon: eventType === 'project.created' ? FolderPlus : Briefcase,
-        badgeClass: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+        badgeClass: 'bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/30',
       };
     case 'invoice':
       return {
         icon: eventType === 'invoice.paid' ? CreditCard : eventType === 'invoice.created' ? FileText : Receipt,
-        badgeClass: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
+        badgeClass: 'bg-[var(--color-rose-light)] text-[var(--color-brand-rose)] border-[var(--color-brand-rose)]/20',
       };
     case 'member':
     case 'workspace':
     default:
       return {
         icon: Users,
-        badgeClass: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
+        badgeClass: 'bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20',
       };
   }
 }
@@ -81,7 +81,7 @@ function getEntityHref(
     case 'client':
       return `/workspaces/${workspaceId}/clients`;
     case 'project':
-      return `/workspaces/${workspaceId}/projects/${entityId}`;
+      return `/workspaces/${workspaceId}/projects`;
     case 'invoice':
       return `/workspaces/${workspaceId}/invoices`;
     default:
@@ -98,22 +98,22 @@ export function ActivityItem({ activity, workspaceId }: ActivityItemProps) {
   const relativeTime = formatRelativeTime(activity.createdAt);
 
   const content = (
-    <div className="flex items-start gap-3.5 p-3.5 rounded-xl border border-border/40 bg-card/60 hover:bg-card/90 transition-all duration-150 group">
+    <div className="flex items-start gap-3.5 p-3.5 rounded-[var(--radius-lg)] border border-[var(--color-hairline-soft)] bg-white hover:bg-[var(--color-surface-soft)] transition-all duration-150 group">
       {/* Icon Badge */}
       <div
-        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border shadow-xs ${badgeClass}`}
+        className={`w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center shrink-0 border shadow-xs ${badgeClass}`}
       >
         <Icon size={16} weight="duotone" />
       </div>
 
       {/* Details */}
       <div className="flex-1 min-w-0">
-        <p className="text-xs sm:text-sm font-medium text-foreground leading-snug group-hover:text-primary transition-colors">
+        <p className="text-xs sm:text-sm font-medium text-[var(--color-ink-deep)] leading-snug group-hover:text-[var(--color-brand-blue)] transition-colors">
           {activity.message}
         </p>
-        <div className="flex items-center gap-2 mt-1 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-2 mt-1 text-[11px] text-[var(--color-steel)]">
           {activity.actor && (
-            <span className="font-medium text-foreground/80">
+            <span className="font-medium text-[var(--color-charcoal)]">
               {activity.actor.name}
             </span>
           )}
@@ -126,7 +126,7 @@ export function ActivityItem({ activity, workspaceId }: ActivityItemProps) {
 
   if (href) {
     return (
-      <Link href={href} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl">
+      <Link href={href} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] rounded-[var(--radius-lg)]">
         {content}
       </Link>
     );

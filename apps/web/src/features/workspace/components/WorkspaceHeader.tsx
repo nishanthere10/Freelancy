@@ -17,12 +17,12 @@ export function WorkspaceHeader({ onCreateClick }: WorkspaceHeaderProps) {
     <div className="mb-10 flex items-end justify-between">
       <div>
         <h1
-          className="text-4xl font-medium leading-tight"
-          style={{ color: 'var(--color-ink-deep)', letterSpacing: '-1px' }}
+          className="text-3xl font-bold leading-tight text-[var(--color-ink-deep)]"
+          style={{ letterSpacing: '-0.5px' }}
         >
           Workspaces
         </h1>
-        <p className="mt-1 text-base" style={{ color: 'var(--color-slate-text)' }}>
+        <p className="mt-1 text-sm text-[var(--color-slate-text)]">
           Manage your workspaces and projects
         </p>
       </div>

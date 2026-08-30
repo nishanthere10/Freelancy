@@ -69,7 +69,7 @@ export function ProjectCard({
 
   return (
     <Card
-      className="p-6 rounded-[var(--radius-xl)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-200 cursor-pointer relative flex flex-col justify-between border border-[var(--color-hairline-soft)] border-t-4 border-t-[var(--color-brand-yellow)] bg-white group hover:-translate-y-1 space-y-4"
+      className="p-6 rounded-[var(--radius-xl)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-200 cursor-pointer relative flex flex-col justify-between border border-[var(--color-hairline-soft)] border-t-[3px] border-t-[var(--color-brand-yellow)] bg-white group hover:-translate-y-1 space-y-4"
       onClick={() => onSelect?.(project)}
     >
       <div className="space-y-3.5">
@@ -92,35 +92,35 @@ export function ProjectCard({
             {project.name}
           </h3>
 
-          <p className="text-xs font-medium text-[var(--color-slate-text,#64748b)] flex items-center gap-1.5 mt-1">
-            <UserCheck className="h-3.5 w-3.5 text-amber-500" />
+          <p className="text-xs font-medium text-[var(--color-slate-text)] flex items-center gap-1.5 mt-1">
+            <UserCheck className="h-3.5 w-3.5 text-[var(--color-yellow-dark)]" />
             <span>{project.clientName ? project.clientName : 'Internal Project'}</span>
           </p>
         </div>
 
         {/* Financial & Timeline Metrics */}
-        <div className="space-y-2 text-xs text-[var(--color-slate-text,#64748b)] pt-3 border-t border-gray-100">
+        <div className="space-y-2 text-xs text-[var(--color-slate-text)] pt-3 border-t border-[var(--color-hairline-soft)]">
           <div className="flex items-center justify-between">
-            <span className="flex items-center gap-1.5 text-gray-500 font-medium">
-              <CurrencyDollar className="h-4 w-4 text-emerald-600" /> Budget
+            <span className="flex items-center gap-1.5 text-[var(--color-steel)] font-medium">
+              <CurrencyDollar className="h-4 w-4 text-[var(--color-success-accent)]" /> Budget
             </span>
-            <span className="font-semibold text-gray-900">{formattedBudget}</span>
+            <span className="font-semibold text-[var(--color-ink-deep)]">{formattedBudget}</span>
           </div>
 
           {project.targetDate && (
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-gray-500 font-medium">
-                <CalendarBlank className="h-4 w-4 text-blue-500" /> Target Date
+              <span className="flex items-center gap-1.5 text-[var(--color-steel)] font-medium">
+                <CalendarBlank className="h-4 w-4 text-[var(--color-brand-blue)]" /> Target Date
               </span>
-              <span className="font-medium text-gray-800">{project.targetDate}</span>
+              <span className="font-medium text-[var(--color-charcoal)]">{project.targetDate}</span>
             </div>
           )}
         </div>
       </div>
 
       {/* Action Footer */}
-      <div className="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-gray-100">
-        <span className="text-[11px] font-semibold text-amber-600 group-hover:underline">
+      <div className="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-[var(--color-hairline-soft)]">
+        <span className="text-[11px] font-semibold text-[var(--color-yellow-dark)] group-hover:underline transition-colors">
           View scope &rarr;
         </span>
 
@@ -131,7 +131,7 @@ export function ProjectCard({
                 className="flex items-center gap-1.5"
                 onClick={(e) => e.stopPropagation()}
               >
-                <span className="text-xs font-medium text-red-600 mr-1">
+                <span className="text-xs font-medium text-[var(--color-error)] mr-1">
                   Archive?
                 </span>
                 <Button
@@ -139,7 +139,7 @@ export function ProjectCard({
                   size="sm"
                   onClick={handleConfirmArchive}
                   disabled={isDeleting}
-                  className="h-7 px-2 text-xs bg-red-600 text-white hover:bg-red-700 border-none"
+                  className="h-7 px-2 text-xs bg-[var(--color-error)] text-white hover:opacity-90 border-none rounded-full"
                 >
                   <Check className="h-3 w-3 mr-0.5" /> Yes
                 </Button>
@@ -148,7 +148,7 @@ export function ProjectCard({
                   size="sm"
                   onClick={handleCancelArchive}
                   disabled={isDeleting}
-                  className="h-7 px-2 text-xs"
+                  className="h-7 px-2 text-xs rounded-full"
                 >
                   <X className="h-3 w-3 mr-0.5" /> No
                 </Button>
@@ -159,7 +159,7 @@ export function ProjectCard({
                   variant="secondary"
                   size="sm"
                   onClick={handleEdit}
-                  className="h-7 px-2.5 text-xs rounded-xl"
+                  className="h-7 px-2.5 text-xs rounded-full"
                 >
                   <PencilSimple className="h-3.5 w-3.5 mr-1" /> Edit
                 </Button>
@@ -168,7 +168,7 @@ export function ProjectCard({
                   size="sm"
                   onClick={handleArchiveClick}
                   disabled={isDeleting}
-                  className="h-7 px-2.5 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl"
+                  className="h-7 px-2.5 text-xs text-[var(--color-error)] hover:text-white hover:bg-[var(--color-error)] rounded-full"
                 >
                   <Archive className="h-3.5 w-3.5 mr-1" /> Archive
                 </Button>
@@ -180,7 +180,7 @@ export function ProjectCard({
               size="sm"
               onClick={handleRestore}
               disabled={isRestoring}
-              className="h-7 px-2.5 text-xs rounded-xl"
+              className="h-7 px-2.5 text-xs rounded-full"
             >
               <ArrowClockwise className="h-3.5 w-3.5 mr-1" /> Restore
             </Button>

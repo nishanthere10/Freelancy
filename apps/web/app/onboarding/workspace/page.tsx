@@ -45,8 +45,8 @@ export default function WorkspaceOnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-canvas,#f8fafc)] p-4 sm:p-8">
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-[var(--color-hairline,#e2e8f0)] space-y-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-surface-soft)] px-6 sm:px-10 lg:px-12 py-12 sm:py-16">
+      <div className="w-full max-w-md bg-white p-8 sm:p-10 rounded-[var(--radius-xxl)] shadow-[var(--shadow-modal)] border border-[var(--color-hairline-soft)] space-y-6">
         <div>
           <span className="text-xs font-semibold uppercase tracking-wider text-amber-600">
             Step 1 of 1
