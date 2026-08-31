@@ -37,4 +37,10 @@ export const config = {
   get debugDb() {
     return process.env.DEBUG_DB === "true";
   },
+  get aiServiceUrl() {
+    return process.env.AI_SERVICE_URL || "http://localhost:8000";
+  },
+  get aiServiceApiKey() {
+    return process.env.AI_SERVICE_API_KEY || "";
+  },
 };

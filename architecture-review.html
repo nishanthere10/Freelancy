@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Architecture Review & Deepening Opportunities — Freelance OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose" });
+    </script>
+    <style>
+      .seam { stroke-dasharray: 4 4; }
+      .leak { stroke: #dc2626; }
+      .deep-card { background: linear-gradient(135deg, #0f172a, #1e293b); }
+    </style>
+  </head>
+  <body class="bg-stone-50 text-slate-900 font-sans antialiased selection:bg-indigo-100 selection:text-indigo-900">
+    <main class="max-w-5xl mx-auto px-6 py-12 space-y-12">
+      
+      <!-- Header -->
+      <header class="border-b border-stone-200 pb-8 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-indigo-600">Architecture Review</span>
+            <h1 class="text-3xl font-serif font-bold text-slate-900 mt-1">Freelance OS Monorepo</h1>
+          </div>
+          <div class="text-right text-xs text-slate-500 font-mono">
+            <div>2026-08-31</div>
+            <div>Monorepo Architecture Scan</div>
+          </div>
+        </div>
+        
+        <!-- Legend -->
+        <div class="flex flex-wrap items-center gap-6 pt-2 text-xs text-slate-600 bg-white p-3 rounded-lg border border-stone-200">
+          <span class="font-semibold text-slate-800">Legend:</span>
+          <span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-white border border-slate-400"></span> Solid Box = Module</span>
+          <span class="inline-flex items-center gap-1.5"><span class="w-4 border-t-2 border-dashed border-slate-500"></span> Dashed Line = Seam</span>
+          <span class="inline-flex items-center gap-1.5"><span class="w-3 h-0.5 bg-red-600"></span> Red Arrow = Leakage</span>
+          <span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-900"></span> Dark Box = Deep Module</span>
+        </div>
+      </header>
+
+      <!-- Candidates Section -->
+      <section id="candidates" class="space-y-12">
+
+        <!-- Candidate 1 -->
+        <article class="bg-white rounded-xl border border-stone-200 p-6 space-y-6 shadow-sm">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h2 class="text-xl font-bold text-slate-900">1. Deepen RAG Memory Pipeline in AI Subsystem</h2>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Strong</span>
+              <span class="px-2.5 py-1 text-xs font-mono rounded bg-slate-100 text-slate-700">in-process</span>
+            </div>
+          </div>
+
+          <div class="text-xs font-mono text-slate-500 bg-stone-50 p-2.5 rounded border border-stone-200">
+            apps/ai/app/services/llm_service.py · apps/ai/app/services/vector_store.py · apps/ai/app/core/reranker.py
+          </div>
+
+          <!-- Side-by-Side Diagram -->
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-red-100 bg-red-50/20 p-4">
+              <div class="text-xs uppercase tracking-wider font-bold text-red-700 mb-2">Before: Shallow Orchestration Leaks Across Seams</div>
+              <pre class="mermaid">
+                flowchart TD
+                  A[LlmScopeEngine] -->|calls| B[vector_store_service]
+                  A -->|calls| C[rerank_documents]
+                  A -->|manually formats| D[Markdown Context Block]
+                  A -->|interpolates| E[Groq Prompt Template]
+                  classDef leak stroke:#dc2626,stroke-width:1.5px;
+                  class A,D leak
+              </pre>
+            </div>
+
+            <div class="rounded-lg border border-emerald-200 bg-emerald-50/20 p-4">
+              <div class="text-xs uppercase tracking-wider font-bold text-emerald-800 mb-2">After: Deep RAG Memory Module (One Interface)</div>
+              <pre class="mermaid">
+                flowchart TD
+                  A[LlmScopeEngine] -->|retrieve_benchmarks| M["Deep RagMemoryPipeline"]
+                  subgraph M ["Deep RagMemoryPipeline"]
+                    B[Vector Retrieval] --> C[Jina Cross-Encoder]
+                    C --> D[Token-Budgeted Card Formatting]
+                  end
+                  M -->|Ready-to-Inject ContextCard| E[Groq Prompt Template]
+                  classDef deep stroke:#0f172a,stroke-width:2px;
+                  class M deep
+              </pre>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="font-semibold text-slate-800">Problem:</p>
+              <p class="text-slate-600 mt-1">LlmScopeEngine coordinates vector querying, reranking, and markdown token formatting directly, creating a shallow interface with high coupling.</p>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-800">Solution:</p>
+              <p class="text-slate-600 mt-1">Collapse vector search, cross-encoder scoring, and string formatting into a deep <code>RagMemoryPipeline</code> exposing a single <code>retrieve_benchmarks(ws, query)</code> method.</p>
+            </div>
+          </div>
+
+          <div class="border-t border-stone-100 pt-3">
+            <p class="text-xs font-semibold uppercase text-slate-500 mb-2">Wins:</p>
+            <ul class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs text-slate-700">
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> locality: context formatting stays internal</li>
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> leverage: one interface, multiple LLM callers</li>
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> tests: mock one deep interface</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Candidate 2 -->
+        <article class="bg-white rounded-xl border border-stone-200 p-6 space-y-6 shadow-sm">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h2 class="text-xl font-bold text-slate-900">2. Event-Driven Vector Ingestion via Activity Bus Adapter</h2>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Strong</span>
+              <span class="px-2.5 py-1 text-xs font-mono rounded bg-slate-100 text-slate-700">ports & adapters</span>
+            </div>
+          </div>
+
+          <div class="text-xs font-mono text-slate-500 bg-stone-50 p-2.5 rounded border border-stone-200">
+            apps/api/src/domains/activity/activity.consumer.ts · apps/api/src/ai/client.ts · apps/ai/app/api/routes/ingest.py
+          </div>
+
+          <!-- Side-by-Side Diagram -->
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-red-100 bg-red-50/20 p-4">
+              <div class="text-xs uppercase tracking-wider font-bold text-red-700 mb-2">Before: Manual Trigger or Standalone CLI Script</div>
+              <pre class="mermaid">
+                flowchart LR
+                  A[Project Updated] --> B[PostgreSQL]
+                  C[Manual CLI Run] -.->|isolated batch| D[ChromaDB]
+                  classDef leak stroke:#dc2626,stroke-width:1.5px;
+                  class C,D leak
+              </pre>
+            </div>
+
+            <div class="rounded-lg border border-emerald-200 bg-emerald-50/20 p-4">
+              <div class="text-xs uppercase tracking-wider font-bold text-emerald-800 mb-2">After: Non-Blocking Activity Bus Ingestion Adapter</div>
+              <pre class="mermaid">
+                flowchart LR
+                  A[Project Completed] --> B[ActivityEventBus]
+                  B --> C[Audit Logger Adapter]
+                  B --> D[AI Vector Sync Adapter]
+                  D -->|async event| E[ChromaDB]
+                  classDef deep stroke:#0f172a,stroke-width:2px;
+                  class D deep
+              </pre>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="font-semibold text-slate-800">Problem:</p>
+              <p class="text-slate-600 mt-1">New projects and invoices require manual CLI script execution to appear in vector search memory.</p>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-800">Solution:</p>
+              <p class="text-slate-600 mt-1">Plug an AI vector sync consumer into the non-blocking Activity Bus, updating embeddings automatically on project lifecycle events.</p>
+            </div>
+          </div>
+
+          <div class="border-t border-stone-100 pt-3">
+            <p class="text-xs font-semibold uppercase text-slate-500 mb-2">Wins:</p>
+            <ul class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs text-slate-700">
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> locality: domain controllers stay untouched</li>
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> leverage: reuse existing async event bus</li>
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> zero idle compute: no database polling</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Candidate 3 -->
+        <article class="bg-white rounded-xl border border-stone-200 p-6 space-y-6 shadow-sm">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h2 class="text-xl font-bold text-slate-900">3. Consolidate Dashboard Metrics into Single Projection Seam</h2>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 border border-amber-200">Worth exploring</span>
+              <span class="px-2.5 py-1 text-xs font-mono rounded bg-slate-100 text-slate-700">in-process</span>
+            </div>
+          </div>
+
+          <div class="text-xs font-mono text-slate-500 bg-stone-50 p-2.5 rounded border border-stone-200">
+            apps/api/src/domains/dashboard/dashboard.service.ts · packages/database/src/schema/
+          </div>
+
+          <!-- Side-by-Side Diagram -->
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <div class="text-xs uppercase tracking-wider font-bold text-slate-700 mb-2">Before: Multiple Separate Service Queries</div>
+              <pre class="mermaid">
+                flowchart TD
+                  A[Dashboard Controller] --> B[Invoice Metrics Query]
+                  A --> C[Project Summary Query]
+                  A --> D[Recent Activity Query]
+              </pre>
+            </div>
+
+            <div class="rounded-lg border border-emerald-200 bg-emerald-50/20 p-4">
+              <div class="text-xs uppercase tracking-wider font-bold text-emerald-800 mb-2">After: Single Deep Projection Query</div>
+              <pre class="mermaid">
+                flowchart TD
+                  A[Dashboard Controller] --> M["Deep DashboardRepository"]
+                  M -->|1 SQL Query with CTEs| B[(Neon PostgreSQL)]
+                  classDef deep stroke:#0f172a,stroke-width:2px;
+                  class M deep
+              </pre>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="font-semibold text-slate-800">Problem:</p>
+              <p class="text-slate-600 mt-1">Dashboard overview requires multiple round-trips over the network between Cloudflare Workers and Neon DB.</p>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-800">Solution:</p>
+              <p class="text-slate-600 mt-1">Consolidate metrics, project counts, and recent activities into a single CTE SQL projection returning a unified JSON payload.</p>
+            </div>
+          </div>
+
+          <div class="border-t border-stone-100 pt-3">
+            <p class="text-xs font-semibold uppercase text-slate-500 mb-2">Wins:</p>
+            <ul class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs text-slate-700">
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> 1 round-trip: cut latency in edge worker</li>
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> leverage: one interface for dashboard data</li>
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600 font-bold">✓</span> locality: SQL aggregation in database</li>
+            </ul>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- Top Recommendation Section -->
+      <section id="top-recommendation" class="deep-card rounded-2xl p-8 text-white space-y-4 shadow-lg border border-slate-700">
+        <div class="flex items-center gap-3">
+          <span class="px-3 py-1 text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full">Top Recommendation</span>
+          <span class="text-xs text-slate-400 font-mono">Immediate ROI</span>
+        </div>
+
+        <h2 class="text-2xl font-serif font-bold text-white">
+          Deepen the RAG Memory Pipeline & Connect Event-Driven Ingestion
+        </h2>
+
+        <p class="text-slate-300 text-sm leading-relaxed max-w-3xl">
+          By collapsing vector search, Jina cross-encoder reranking, and token-budgeted prompt formatting into a deep <code>RagMemoryPipeline</code>, we eliminate coupling inside the LLM scope engine. Connecting this to the existing non-blocking Activity Event Bus ensures the vector database stays automatically updated whenever projects are created or completed.
+        </p>
+
+        <div class="pt-2 flex items-center gap-4">
+          <a href="#candidates" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-colors">
+            View Deepening Candidates ↑
+          </a>
+        </div>
+      </section>
+
+    </main>
+  </body>
+</html>

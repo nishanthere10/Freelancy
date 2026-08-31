@@ -58,6 +58,27 @@ def create_app() -> FastAPI:
     async def protected_check():
         return {"success": True, "message": "Authenticated successfully"}
 
+    @api_v1_router.post("/test")
+    async def test_echo(request: Request):
+        body = await request.json()
+        return {
+            "success": True,
+            "data": {
+                "status": "received",
+                "workspaceId": body.get("workspaceId"),
+                "actorId": body.get("actorId"),
+                "actorRole": body.get("actorRole"),
+                "requestId": body.get("requestId"),
+                "echoInput": body.get("input"),
+            },
+        }
+
+    # Mount dedicated Scope Analysis and Ingest routers
+    from app.api.routes.scope import scope_router
+    from app.api.routes.ingest import ingest_router
+
+    api_v1_router.include_router(scope_router)
+    api_v1_router.include_router(ingest_router)
     app.include_router(api_v1_router)
 
     return app

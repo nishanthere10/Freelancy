@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
 import { Pacifico } from 'next/font/google';
-import { ChartPie, SquaresFour, Users, Briefcase, Receipt } from '@phosphor-icons/react';
+import { ChartPie, SquaresFour, Users, Briefcase, Receipt, Sparkle } from '@phosphor-icons/react';
 import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/nextjs';
 
 const pacifico = Pacifico({
@@ -41,6 +41,12 @@ export function Navbar() {
       href: workspaceId ? `/workspaces/${workspaceId}/projects` : '/projects',
       active: pathname?.includes('/projects'),
       icon: Briefcase,
+    },
+    {
+      label: 'AI Scope',
+      href: workspaceId ? `/workspaces/${workspaceId}/ai/scope` : '/workspaces',
+      active: pathname?.includes('/ai'),
+      icon: Sparkle,
     },
     {
       label: 'Invoices',

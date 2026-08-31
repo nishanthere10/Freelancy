@@ -46,7 +46,23 @@ jobs:
       - name: Run typecheck
         run: pnpm typecheck
 
-      - name: Run unit & integration tests
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Run Python AI microservice test suite
+        run: |
+          cd apps/ai
+          uv pip install --system -e ".[dev]"
+          pytest tests
+
+      - name: Run unit & integration tests (TypeScript)
         run: pnpm test
 
       - name: Verify build compilation
@@ -63,6 +79,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Trigger Render AI Service Deployment
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_URL != '' }}
+        run: |
+          echo "Triggering Render AI microservice deployment..."
+          curl -X POST --fail --silent --show-error "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" || echo "Warning: Render deploy hook failed"
+
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3

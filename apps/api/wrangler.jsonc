@@ -10,6 +10,7 @@
   "vars": {
     "NODE_ENV": "production",
     "FRONTEND_URL": "https://freelancy-omega.vercel.app",
-    "CLERK_PUBLISHABLE_KEY": "pk_test_bW9kZXJuLWZhd24tNjUuY2xlcmsuYWNjb3VudHMuZGV2JA"
+    "CLERK_PUBLISHABLE_KEY": "pk_test_bW9kZXJuLWZhd24tNjUuY2xlcmsuYWNjb3VudHMuZGV2JA",
+    "AI_SERVICE_URL": "http://localhost:8000"
   }
 }

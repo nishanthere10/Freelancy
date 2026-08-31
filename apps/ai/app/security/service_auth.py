@@ -31,6 +31,7 @@ async def verify_service_api_key(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing Authorization header",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
     settings = get_settings()
@@ -41,6 +42,7 @@ async def verify_service_api_key(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid API key",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
     return token

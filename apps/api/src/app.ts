@@ -14,6 +14,7 @@ import express, {
 import { config } from "./config";
 import { db } from "./db/client";
 import activityRoutes from "./domains/activity/activity.routes";
+import aiRoutes from "./domains/ai/ai.routes";
 import clientRoutes from "./domains/client/client.routes";
 import dashboardRoutes from "./domains/dashboard/dashboard.routes";
 import invoiceRoutes from "./domains/invoice/invoice.routes";
@@ -212,6 +213,11 @@ app.use(
   invoiceRoutes,
 );
 app.use("/api/v1/workspaces/:workspaceId/activity", activityRoutes);
+app.use(
+  "/api/v1/workspaces/:workspaceId/ai",
+  strictMutationRateLimiter,
+  aiRoutes,
+);
 
 // Catch-all 404 handler
 app.use((req: Request, res: Response) => {
@@ -240,6 +246,7 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
     statusCode?: number;
     code?: string;
     message?: string;
+    details?: Record<string, unknown>;
   };
 
   // Handle Payload Too Large from body-parser
@@ -256,17 +263,20 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
       );
   }
 
+  const statusCode = errorObj?.statusCode || errorObj?.status || 500;
   const isProd = process.env.NODE_ENV === "production";
   const code = errorObj?.code || "INTERNAL_ERROR";
-  const message = isProd
-    ? "An unexpected internal error occurred"
-    : err instanceof Error
-      ? err.message
-      : "An unexpected error occurred";
+  const message =
+    statusCode >= 500 && isProd
+      ? "An unexpected internal error occurred"
+      : err instanceof Error
+        ? err.message
+        : "An unexpected error occurred";
 
   logger.error(`API Exception on ${req.method} ${req.path}`, {
     requestId,
     errorCode: code,
+    statusCode,
     error: err,
     path: req.path,
     method: req.method,
@@ -289,12 +299,9 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
     res.setHeader("x-request-id", requestId);
   }
 
-  res.status(500).json({
-    success: false,
-    error: code,
-    message,
-    requestId,
-  });
+  res
+    .status(statusCode)
+    .json(createError(code, message, errorObj?.details, requestId));
 });
 
 export default app;

@@ -1,3 +1,4 @@
+import { aiServiceClient } from "../../ai/client";
 import { logger } from "../../utils/logger";
 import type {
   ClientDomainEvent,
@@ -140,6 +141,25 @@ export class ActivityEventConsumer implements IWorkspaceEventEmitter {
     }
   }
 
+  private readonly aiSyncCooldowns = new Map<string, number>();
+
+  private scheduleAiVectorSync(workspaceId: string): void {
+    const now = Date.now();
+    const lastSync = this.aiSyncCooldowns.get(workspaceId) || 0;
+    if (now - lastSync < 1000) {
+      return; // Coalesce rapid duplicate burst events within 1s window
+    }
+    this.aiSyncCooldowns.set(workspaceId, now);
+
+    // Non-blocking background sync of AI vector memory
+    void aiServiceClient.triggerWorkspaceIngest(workspaceId).catch((err) => {
+      logger.debug("Background AI vector sync skipped/failed", {
+        workspaceId,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    });
+  }
+
   /**
    * Project event handler (Promise port interface)
    */
@@ -152,6 +172,8 @@ export class ActivityEventConsumer implements IWorkspaceEventEmitter {
         });
       });
     }
+
+    this.scheduleAiVectorSync(event.workspaceId);
   }
 
   /**
@@ -166,6 +188,8 @@ export class ActivityEventConsumer implements IWorkspaceEventEmitter {
         });
       });
     }
+
+    this.scheduleAiVectorSync(event.workspaceId);
   }
 
   // Domain Mapping Helpers

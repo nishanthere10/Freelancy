@@ -1,0 +1,46 @@
+# ==============================================================================
+# Render Blueprint Infrastructure-as-Code — Freelance OS AI Microservice
+# ==============================================================================
+
+services:
+  - type: web
+    name: freelance-os-ai
+    env: docker
+    rootDir: apps/ai
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: false # Controlled deployment triggered via GitHub Actions CI quality gate
+    plan: starter # Starter plan prevents sleep/cold-starts on production API
+    region: oregon
+
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: AI_SERVICE_API_KEY
+        sync: false # Set in Render Dashboard or via secret sync
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: JINA_API_KEY
+        sync: false
+      - key: JINA_RERANKER_MODEL
+        value: jina-reranker-v2-base-multilingual
+      - key: DATABASE_URL
+        sync: false
+      - key: CHROMA_URL
+        sync: false
+      - key: CHROMA_AUTH_TOKEN
+        sync: false
+      - key: CHROMA_COLLECTION_NAME
+        value: freelance_os_projects
+      - key: LOG_LEVEL
+        value: INFO
+      - key: LANGCHAIN_TRACING_V2
+        value: "true"
+      - key: LANGCHAIN_ENDPOINT
+        value: https://api.smith.langchain.com
+      - key: LANGCHAIN_PROJECT
+        value: freelance-os-ai-prod
+      - key: LANGCHAIN_API_KEY
+        sync: false

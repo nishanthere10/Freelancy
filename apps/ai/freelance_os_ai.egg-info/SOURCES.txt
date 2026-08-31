@@ -6,11 +6,16 @@ app/api/__init__.py
 app/api/dependencies.py
 app/api/routes/__init__.py
 app/api/routes/health.py
+app/api/routes/scope.py
 app/core/__init__.py
 app/core/config.py
+app/core/embeddings.py
 app/core/errors.py
+app/schemas/scope.py
 app/security/__init__.py
 app/security/service_auth.py
+app/services/llm_service.py
+app/services/vector_store.py
 freelance_os_ai.egg-info/PKG-INFO
 freelance_os_ai.egg-info/SOURCES.txt
 freelance_os_ai.egg-info/dependency_links.txt
@@ -18,4 +23,6 @@ freelance_os_ai.egg-info/requires.txt
 freelance_os_ai.egg-info/top_level.txt
 tests/test_errors.py
 tests/test_health.py
+tests/test_scope_engine.py
 tests/test_security.py
+tests/test_vector_store.py

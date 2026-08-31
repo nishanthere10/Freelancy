@@ -6,10 +6,24 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     ENVIRONMENT: Literal["development", "staging", "production", "test"] = "development"
     AI_SERVICE_API_KEY: str
+    GROQ_API_KEY: str = "gsk_dev_mock_key"
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    CHROMA_URL: str | None = None
+    CHROMA_AUTH_TOKEN: str | None = None
+    CHROMA_COLLECTION_NAME: str = "freelance_os_projects"
+    JINA_API_KEY: str = "jina_dev_mock_key"
+    JINA_RERANKER_MODEL: str = "jina-reranker-v2-base-multilingual"
+    DATABASE_URL: str | None = None
     LOG_LEVEL: str = "INFO"
     PORT: int = 8000
     HOST: str = "0.0.0.0"
     ALLOWED_ORIGINS: list[str] = ["*"]
+
+    # LangSmith Observability & Tracing
+    LANGCHAIN_TRACING_V2: str | None = "false"
+    LANGCHAIN_ENDPOINT: str | None = "https://api.smith.langchain.com"
+    LANGCHAIN_API_KEY: str | None = None
+    LANGCHAIN_PROJECT: str | None = "freelance-os-ai"
 
     model_config = SettingsConfigDict(
         env_file=".env",

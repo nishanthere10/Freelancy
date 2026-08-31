@@ -188,4 +188,52 @@ describe("ActivityEventConsumer", () => {
     await new Promise((resolve) => setTimeout(resolve, 200));
     expect(repoResolved).toBe(true);
   });
+
+  it("triggers background AI vector ingestion when project event occurs", async () => {
+    const mockRepo = {
+      create: vi.fn().mockResolvedValue({ id: "evt-proj" }),
+    } as unknown as ActivityRepository;
+
+    const consumer = new ActivityEventConsumer(mockRepo);
+    const adapter = new ProjectEventEmitterAdapter(consumer);
+
+    // Mock global fetch for AI microservice call
+    const originalFetch = globalThis.fetch;
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: { workspaceId: mockWorkspaceId, indexedCount: 3 },
+      }),
+    });
+    globalThis.fetch = mockFetch;
+
+    try {
+      await adapter.emit({
+        type: "project.created",
+        projectId: "proj-100",
+        workspaceId: mockWorkspaceId,
+        actorId: mockActorId,
+        occurredAt: "2026-08-19T10:00:00.000Z",
+        project: {
+          id: "proj-100",
+          name: "AI Ingestion Project",
+          status: "in_progress",
+        } as any,
+      });
+
+      // Allow background promise tick
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(mockRepo.create).toHaveBeenCalled();
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining(`/api/v1/ingest/workspace/${mockWorkspaceId}`),
+        expect.objectContaining({
+          method: "POST",
+        }),
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
 });

@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Button, Input, Skeleton } from '@shared/components';
-import { Plus, MagnifyingGlass, Briefcase } from '@phosphor-icons/react';
+import { Plus, MagnifyingGlass, Briefcase, Sparkle } from '@phosphor-icons/react';
+import { ScopeAnalysisModal } from '@features/ai';
 import { useProjects } from '../hooks';
 import type { ProjectResponse, ProjectStatus } from '../api';
 import { ProjectList } from './ProjectList';
@@ -21,6 +22,7 @@ export function ProjectPage({ workspaceId }: ProjectPageProps) {
   const [selectedProject, setSelectedProject] = useState<ProjectResponse | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectResponse | null>(null);
+  const [aiScopeModalOpen, setAiScopeModalOpen] = useState(false);
 
   const { data: projects, isLoading, error } = useProjects(workspaceId, {
     status: statusFilter,
@@ -67,9 +69,18 @@ export function ProjectPage({ workspaceId }: ProjectPageProps) {
             </div>
           </div>
 
-          <Button onClick={() => setCreateDialogOpen(true)} className="shadow-xs rounded-full">
-            <Plus className="h-4 w-4 mr-1.5" /> Add Project
-          </Button>
+          <div className="flex items-center gap-2.5">
+            <Button
+              variant="secondary"
+              onClick={() => setAiScopeModalOpen(true)}
+              className="shadow-xs rounded-full border-blue-200 bg-blue-50/60 text-blue-700 hover:bg-blue-100 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300"
+            >
+              <Sparkle className="h-4 w-4 mr-1.5 text-blue-500" weight="fill" /> AI Scope Studio
+            </Button>
+            <Button onClick={() => setCreateDialogOpen(true)} className="shadow-xs rounded-full">
+              <Plus className="h-4 w-4 mr-1.5" /> Add Project
+            </Button>
+          </div>
         </div>
 
         {/* Toolbar & Filter Controls */}
@@ -136,6 +147,12 @@ export function ProjectPage({ workspaceId }: ProjectPageProps) {
           project={editingProject}
           open={Boolean(editingProject)}
           onOpenChange={(open) => !open && setEditingProject(null)}
+        />
+
+        <ScopeAnalysisModal
+          workspaceId={workspaceId}
+          isOpen={aiScopeModalOpen}
+          onClose={() => setAiScopeModalOpen(false)}
         />
       </div>
     </div>

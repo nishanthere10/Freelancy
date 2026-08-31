@@ -1,6 +1,4 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { migrate } from 'drizzle-orm/postgres-js/migrator';
-import postgres from 'postgres';
+import { neon } from '@neondatabase/serverless';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -41,10 +39,95 @@ function loadEnv() {
 
 function sanitizeDbUrl(url: string): string {
   try {
-    return url.replace(/postgres(ql)?:\/\/([^:]+):([^@]+)@/gi, 'postgresql://[REDACTED]:[REDACTED]@');
+    return url.replace(
+      /postgres(ql)?:\/\/([^:]+):([^@]+)@/gi,
+      'postgresql://[REDACTED]:[REDACTED]@'
+    );
   } catch {
     return '[REDACTED_URL]';
   }
+}
+
+function splitSqlStatements(sqlContent: string): string[] {
+  const statements: string[] = [];
+  let current = '';
+  let inDollarQuote = false;
+  let inLineComment = false;
+  let inBlockComment = false;
+
+  const len = sqlContent.length;
+  let i = 0;
+
+  while (i < len) {
+    const char = sqlContent[i];
+    const nextChar = i + 1 < len ? sqlContent[i + 1] : '';
+
+    // Check for comments if not inside string / dollar quote
+    if (!inDollarQuote) {
+      if (!inLineComment && !inBlockComment) {
+        if (char === '-' && nextChar === '-') {
+          inLineComment = true;
+          i += 2;
+          continue;
+        }
+        if (char === '/' && nextChar === '*') {
+          inBlockComment = true;
+          i += 2;
+          continue;
+        }
+      } else if (inLineComment) {
+        if (char === '\n') {
+          inLineComment = false;
+        }
+        i++;
+        continue;
+      } else if (inBlockComment) {
+        if (char === '*' && nextChar === '/') {
+          inBlockComment = false;
+          i += 2;
+          continue;
+        }
+        i++;
+        continue;
+      }
+    }
+
+    // Check for dollar quotes $$ or $tag$
+    if (char === '$') {
+      const match = sqlContent.slice(i).match(/^\$[a-zA-Z0-9_]*\$/);
+      if (match) {
+        inDollarQuote = !inDollarQuote;
+        current += match[0];
+        i += match[0].length;
+        continue;
+      }
+    }
+
+    // Check for statement end (semicolon outside dollar quotes and comments)
+    if (char === ';' && !inDollarQuote && !inLineComment && !inBlockComment) {
+      const stmt = current.trim();
+      if (stmt && !stmt.startsWith('--> statement-breakpoint')) {
+        // Strip out any internal statement breakpoint annotations
+        const cleanStmt = stmt.replace(/--> statement-breakpoint/g, '').trim();
+        if (cleanStmt) {
+          statements.push(cleanStmt);
+        }
+      }
+      current = '';
+      i++;
+      continue;
+    }
+
+    current += char;
+    i++;
+  }
+
+  const remainder = current.replace(/--> statement-breakpoint/g, '').trim();
+  if (remainder) {
+    statements.push(remainder);
+  }
+
+  return statements;
 }
 
 async function runMigrations() {
@@ -53,71 +136,91 @@ async function runMigrations() {
   const connectionString = process.env.DATABASE_URL;
 
   if (!connectionString) {
-    console.error(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      level: 'error',
-      event: 'MIGRATION_FAILED',
-      message: 'DATABASE_URL environment variable is required for migrations',
-    }));
+    console.error(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'error',
+        event: 'MIGRATION_FAILED',
+        message: 'DATABASE_URL environment variable is required for migrations',
+      })
+    );
     process.exit(1);
   }
 
   const safeUrl = sanitizeDbUrl(connectionString);
-  console.log(JSON.stringify({
-    timestamp: new Date().toISOString(),
-    level: 'info',
-    event: 'MIGRATION_START',
-    target: safeUrl,
-    migrationsFolder: path.resolve(__dirname, '../migrations'),
-  }));
+  const migrationsFolder = path.resolve(__dirname, '../migrations');
 
-  // Max 1 connection for migration tasks is recommended to prevent locks
-  const sql = postgres(connectionString, { max: 1, ssl: 'require' });
-  const db = drizzle(sql);
+  console.log(
+    JSON.stringify({
+      timestamp: new Date().toISOString(),
+      level: 'info',
+      event: 'MIGRATION_START',
+      target: safeUrl,
+      migrationsFolder,
+    })
+  );
 
   try {
-    const migrationsFolder = path.resolve(__dirname, '../migrations');
+    const sql = neon(connectionString);
     const sqlFiles = fs
       .readdirSync(migrationsFolder)
       .filter((f) => f.endsWith('.sql'))
       .sort();
 
-    console.log(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      level: 'info',
-      event: 'MIGRATION_APPLYING',
-      message: `Executing ${sqlFiles.length} SQL migration files...`,
-      files: sqlFiles,
-    }));
+    console.log(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'info',
+        event: 'MIGRATION_APPLYING',
+        message: `Executing ${sqlFiles.length} SQL migration files over stateless HTTP transport...`,
+        files: sqlFiles,
+      })
+    );
 
     for (const file of sqlFiles) {
       const filePath = path.join(migrationsFolder, file);
       const sqlContent = fs.readFileSync(filePath, 'utf8');
-      if (sqlContent.trim()) {
-        await sql.unsafe(sqlContent);
+      const statements = splitSqlStatements(sqlContent);
+
+      for (const statement of statements) {
+        if (!statement) continue;
+        try {
+          await sql(statement);
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          // Safe idempotency: skip if already created/exists
+          if (
+            !msg.includes('already exists') &&
+            !msg.includes('duplicate') &&
+            !msg.includes('duplicate_object')
+          ) {
+            throw err;
+          }
+        }
       }
     }
 
     const durationMs = Date.now() - startTime;
-    console.log(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      level: 'info',
-      event: 'MIGRATION_SUCCESS',
-      message: 'All database migrations executed and verified successfully',
-      durationMs,
-    }));
-
-    await sql.end();
+    console.log(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'info',
+        event: 'MIGRATION_SUCCESS',
+        message: 'All database migrations executed and verified successfully',
+        durationMs,
+      })
+    );
   } catch (err) {
     const durationMs = Date.now() - startTime;
-    console.error(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      level: 'error',
-      event: 'MIGRATION_FAILED',
-      message: err instanceof Error ? err.message : 'Database migration execution failed',
-      durationMs,
-    }));
-    await sql.end();
+    console.error(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'error',
+        event: 'MIGRATION_FAILED',
+        message: err instanceof Error ? err.message : 'Database migration execution failed',
+        durationMs,
+      })
+    );
     process.exit(1);
   }
 }

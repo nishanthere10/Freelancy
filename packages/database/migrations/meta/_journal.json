@@ -43,6 +43,13 @@
       "when": 1786225743976,
       "tag": "0005_add_activity_events",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1788107797160,
+      "tag": "0006_amazing_ma_gnuci",
+      "breakpoints": true
     }
   ]
 }
