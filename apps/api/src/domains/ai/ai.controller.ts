@@ -3,7 +3,11 @@ import { aiServiceClient } from "../../ai/client";
 import type { AiRequestPayload } from "../../ai/types";
 import { createError, createSuccess } from "../../utils/response";
 import { WorkspaceMemberRepository } from "../workspace/repository";
-import type { GenerateScopeInput, ListScopesQuery } from "./ai.schema";
+import type {
+  AnalyzeDriftInput,
+  GenerateScopeInput,
+  ListScopesQuery,
+} from "./ai.schema";
 import { aiService } from "./ai.service";
 
 interface AuthRequest extends Request {
@@ -258,6 +262,117 @@ export async function testAiBridge(
     const aiResponse = await aiServiceClient.post("/api/v1/test", payload);
 
     return res.status(200).json(createSuccess(aiResponse));
+  } catch (err: unknown) {
+    return next(err);
+  }
+}
+
+/**
+ * Controller to analyze scope drift from a client change request.
+ */
+export async function analyzeScopeDrift(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { workspaceId } = req.params as { workspaceId: string };
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res
+        .status(401)
+        .json(createError("UNAUTHORIZED", "Authentication required"));
+    }
+
+    const membership = await workspaceMemberRepo.getByWorkspaceAndUser(
+      workspaceId,
+      userId,
+    );
+    if (!membership) {
+      return res
+        .status(403)
+        .json(
+          createError(
+            "FORBIDDEN",
+            "User is not a member of the specified workspace",
+          ),
+        );
+    }
+
+    if (membership.role !== "owner" && membership.role !== "editor") {
+      return res
+        .status(403)
+        .json(
+          createError(
+            "FORBIDDEN",
+            "Only workspace owner or editor can perform drift analysis",
+          ),
+        );
+    }
+
+    const { changeRequestText, scopeAnalysisId } =
+      req.body as AnalyzeDriftInput;
+    const requestId =
+      req.id || (req.headers["x-request-id"] as string) || `req_${Date.now()}`;
+
+    const driftRecord = await aiService.analyzeDrift({
+      workspaceId,
+      actorId: userId,
+      actorRole: membership.role,
+      changeRequestText,
+      scopeAnalysisId,
+      requestId,
+    });
+
+    return res.status(200).json(createSuccess(driftRecord));
+  } catch (err: unknown) {
+    return next(err);
+  }
+}
+
+/**
+ * Controller to list drift analyses for a confirmed scope analysis.
+ */
+export async function listScopeDriftAnalyses(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { workspaceId, scopeAnalysisId } = req.params as {
+      workspaceId: string;
+      scopeAnalysisId: string;
+    };
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res
+        .status(401)
+        .json(createError("UNAUTHORIZED", "Authentication required"));
+    }
+
+    const membership = await workspaceMemberRepo.getByWorkspaceAndUser(
+      workspaceId,
+      userId,
+    );
+    if (!membership) {
+      return res
+        .status(403)
+        .json(
+          createError(
+            "FORBIDDEN",
+            "User is not a member of the specified workspace",
+          ),
+        );
+    }
+
+    const records = await aiService.listDriftsByScope({
+      workspaceId,
+      scopeAnalysisId,
+    });
+
+    return res.status(200).json(createSuccess(records));
   } catch (err: unknown) {
     return next(err);
   }

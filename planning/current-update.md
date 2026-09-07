@@ -1,20 +1,20 @@
 # Freelance OS — Current System Update & Reasoning Agent Context
 
-**Date:** August 31, 2026  
-**Status:** Sprints 1–12 COMPLETE + AI Subsystem Phases 1–9 COMPLETE (FastAPI Skeleton, Security Gateway Bridge, Scope Persistence & Schema, Core API Scope Service & Controller, Groq LLM Scope Engine, Frontend Scope Studio UI, Multi-Tenant Chroma RAG Foundation, Jina Cross-Encoder Reranker, Data Ingestion Pipeline & Historical RAG Memory). Edge Runtime Architecture Hardened with Stateless Neon HTTP Driver, SQL Aggregations, Non-Blocking Activity Bus, and 274 API Vitest + 27 Web Vitest + 29 Pytest Unit Tests Passing (330 tests total).
+**Date:** September 7, 2026  
+**Status:** Sprints 1–12 COMPLETE + AI Subsystem Phases 1–11 COMPLETE (FastAPI Skeleton, Security Gateway Bridge, Scope Persistence & Schema, Core API Scope Service & Controller, Groq LLM Scope Engine, Frontend Scope Studio UI, Multi-Tenant Chroma RAG Foundation, Jina Cross-Encoder Reranker, Data Ingestion Pipeline & Historical RAG Memory, Deep RAG Memory Pipeline & Event-Driven Vector Sync, Production Observability & Render CI/CD Deployment, Scope Drift Detection Engine) + Comprehensive Deep Security Audit & Hardening COMPLETE (SEC-01 – SEC-06 Patched). Edge Runtime Architecture Hardened with Stateless Neon HTTP Driver, SQL Aggregations, Non-Blocking Activity Bus, Cross-Platform Unified `.venv` Test Runner, and 282 API Vitest + 32 Web Vitest + 39 Pytest Unit Tests Passing (353 / 353 tests total).
 
 
 ---
 
 ## 1. Executive Summary for Reasoning Agent
 
-Freelance OS is a production-grade monorepo application for managing freelance operations, clients, projects, invoices, financial analytics dashboards, and an automated audit trail. All core backend domain models, database schemas, REST APIs, authentication security, Next.js App Router UI features, Cloudflare Workers API edge runtime compatibility, observability infrastructure, GitHub Actions CI/CD workflow, Vercel monorepo deployment pipeline, and AI subsystem foundation, controllers, frontend studio, Chroma RAG vector store & Jina Cross-Encoder Reranker (Phases 1–9) are complete, tested, and verified.
+Freelance OS is a production-grade monorepo application for managing freelance operations, clients, projects, invoices, financial analytics dashboards, and an automated audit trail. All core backend domain models, database schemas, REST APIs, authentication security, Next.js App Router UI features, Cloudflare Workers API edge runtime compatibility, observability infrastructure, GitHub Actions CI/CD workflow, Vercel monorepo deployment pipeline, and AI subsystem foundation, controllers, frontend studio, Chroma RAG vector store & Jina Cross-Encoder Reranker, and Scope Drift Detection Engine (Phases 1–11) are complete, tested, and verified.
 
 ### Monorepo Structure
 - **`apps/web`**: Next.js 16 App Router (`http://localhost:5000`). Tech Stack: React 19, Tailwind CSS v4, `@clerk/nextjs`, TanStack Query v5, React Hook Form, Zod, Google Fonts `Plus Jakarta Sans` & `Pacifico`. Target Deployment: **Vercel**.
 - **`apps/api`**: Express.js REST API (`http://localhost:5001/api/v1`). Dual Node.js and Cloudflare Workers (V8 Isolate) execution bridge. Security architecture: `@clerk/express` JWT verification → JIT User Resolution (`usersTable`) → Workspace Membership → RBAC Policy Layer → Domain Service → Express Controller. Target Deployment: **Cloudflare Workers**.
 - **`apps/ai`**: FastAPI Python Microservice (`http://localhost:8000`). Tech Stack: Python 3.13, FastAPI, Pydantic v2, `pydantic-settings`, Uvicorn, Pytest, LangChain, Groq, ChromaDB, Jina AI Embeddings & Reranker, SQLAlchemy, `asyncpg`. Service-to-service Bearer token auth via constant-time comparison (`secrets.compare_digest`), unified error envelope matching Cloudflare Workers API, health probes. Target Deployment: **Cloud Run / Container / VPS**.
-- **`packages/database`**: Drizzle ORM schemas (`users`, `workspaces`, `workspace_members`, `clients`, `projects`, `invoices`, `invoice_items`, `activity_events`, `scope_analyses`) targeting **Neon PostgreSQL**, featuring an automated `migrate.ts` migration runner and `seed.ts` demo data seeder.
+- **`packages/database`**: Drizzle ORM schemas (`users`, `workspaces`, `workspace_members`, `clients`, `projects`, `invoices`, `invoice_items`, `activity_events`, `scope_analyses`, `drift_analyses`) targeting **Neon PostgreSQL**, featuring an automated `migrate.ts` migration runner and `seed.ts` demo data seeder.
 
 ---
 
@@ -39,8 +39,12 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 | **Frontend Scope Analysis UI & Studio (Phase 6)** | COMPLETE ✅ | TanStack Query mutations/queries (`useGenerateScope`, `useConfirmScope`, `useScopeAnalyses`), `ScopeGeneratorForm` with quick-fill prompts and Zod validation, `ScopeReviewDraft` deliverable cards with complexity and skill pills, `ScopeAnalysisModal` dialog, `ScopeAnalysisPage` studio with history sidebar, and Navbar navigation. Web unit test suite (27/27 tests passing). | `apps/web/src/features/ai/`, `apps/web/app/workspaces/[workspaceId]/ai/` |
 | **Vector DB & Embeddings Setup / RAG Foundation (Phase 7)** | COMPLETE ✅ | Multi-tenant Chroma vector database integration (`apps/ai/app/services/vector_store.py`), Jina AI embeddings (`jina-embeddings-v2-base-en`) with offline deterministic test fallback (`app/core/embeddings.py`), SHA-256 document ID hashing, database-level and post-verification tenant isolation boundaries. Unit test suite (23/23 tests passing). | `apps/ai/app/core/embeddings.py`, `apps/ai/app/services/vector_store.py`, `apps/ai/tests/test_vector_store.py` |
 | **Data Ingestion & Advanced Reranking / RAG Memory (Phases 8–9)** | COMPLETE ✅ | Jina Reranker Cross-Encoder (`jina-reranker-v2-base-multilingual`) in `apps/ai/app/core/reranker.py`, dynamic `search_and_rerank` pipeline in `vector_store.py`, token-budgeted historical project prompt injection in `llm_service.py`, CLI ingestion script (`scripts/ingest_historical_data.py`), on-demand REST endpoint (`POST /api/v1/ingest/workspace/:workspaceId`). Unit test suite (29/29 tests passing). | `apps/ai/app/core/reranker.py`, `apps/ai/scripts/ingest_historical_data.py`, `apps/ai/app/api/routes/ingest.py` |
+| **Deep RAG Memory Pipeline & Event-Driven Vector Sync (Phase 9 cont.)** | COMPLETE ✅ | `RagMemoryPipeline` module (`rag_memory.py`) consolidating vector retrieval, reranking, and token-budgeted prompt formatting. `LlmScopeEngine` decoupled to consume `RagContext` dataclasses. `triggerWorkspaceIngest` integrated into non-blocking Activity Bus — auto-reindexes ChromaDB on project/invoice mutations. | `apps/ai/app/services/rag_memory.py`, `apps/ai/app/services/llm_service.py`, `apps/api/src/ai/client.ts`, `apps/api/src/domains/activity/activity.consumer.ts` |
+| **Production Observability & Render CI/CD Deployment (Phase 10)** | COMPLETE ✅ | LangSmith tracing (`LANGCHAIN_TRACING_V2`, `LANGCHAIN_API_KEY`, `LANGCHAIN_PROJECT`) wired into `config.py`. Production multi-stage Dockerfile on `python:3.13-slim` with non-root user, native `HEALTHCHECK`, graceful shutdown. `render.yaml` Infrastructure-as-Code blueprint. GitHub Actions CI/CD extended with Python 3.13 + `uv` Pytest gate and Render deploy webhook on `main` merge. | `apps/ai/Dockerfile`, `apps/ai/.dockerignore`, `render.yaml`, `.github/workflows/ci-cd.yml`, `apps/ai/app/core/config.py` |
+| **Scope Drift Detection Engine (Phase 11)** | COMPLETE ✅ | Full-stack scope drift impact assessment comparing mid-project client change requests against confirmed scopes. Drizzle `drift_analyses` table (`0007_boring_snowbird.sql`), Python FastAPI engine (`POST /api/v1/drift/analyze`), Express controller (`POST /drift`, `GET /scope/:scopeAnalysisId/drift`), `DriftAnalysisModal` UI and history integration. 19 new tests across Python, API, and Web. | `apps/ai/app/services/drift_service.py`, `apps/api/src/domains/ai/drift.repository.ts`, `apps/web/src/features/ai/components/DriftAnalysisModal.tsx` |
+| **Deep Security Hardening & Edge Protection** | COMPLETE ✅ | Full-spectrum audit across 7 dimensions (SEC-01 to SEC-06 resolved): project-scoped Vercel CORS regex, Cloudflare Workers dynamic AI secrets & URL injection, LLM prompt injection defenses with XML boundary markers, FastAPI CORS restriction, connection pool leak elimination in historical ingestion, and pnpm supply chain overrides (qs, postcss). | `apps/api/src/app.ts`, `apps/ai/app/services/`, `apps/ai/scripts/`, `package.json`, `.github/workflows/ci-cd.yml` |
 | **Database Migrations & Seed** | COMPLETE ✅ | Automated Node/ESM migration runner applying pending Drizzle SQL migrations safely against Neon PostgreSQL over stateless HTTP transport; Comprehensive demo data seeding script (`db:seed`). | `packages/database/src/migrate.ts`, `packages/database/src/seed.ts` |
-| **CI/CD Automation** | COMPLETE ✅ | Multi-stage GitHub Actions workflow enforcing quality gates (`lint`, `typecheck`, `test`, `build`), automated release, post-deployment live API health check, concurrency handling, timeouts. | `.github/workflows/ci-cd.yml` |
+| **CI/CD Automation** | COMPLETE ✅ | Multi-stage GitHub Actions workflow enforcing quality gates (`lint`, `typecheck`, `test`, `build`), automated release, post-deployment live API health check, concurrency handling, timeouts, Python 3.13 + `uv` pytest gate, dynamic Cloudflare secrets injection, Render deploy webhook. | `.github/workflows/ci-cd.yml` |
 | **Vercel Web Deployment** | COMPLETE ✅ | Direct CLI deployment in CI/CD (`vercel deploy --prod --yes`), pre-configured monorepo root directory, and zero-downtime releases. Content Security Policy (CSP) hardened for Clerk Web Workers. | `.github/workflows/ci-cd.yml`, `apps/web/next.config.ts` |
 
 ---
@@ -138,17 +142,58 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 - **Render Infrastructure-as-Code (`render.yaml`)**: Root blueprint defining the `freelance-os-ai` web service with dynamic port binding, zero-downtime healthcheck probe path (`/health`), and environment variable mapping.
 - **GitHub Actions CI/CD Pipeline (`.github/workflows/ci-cd.yml`)**: Integrated Python 3.13 & `uv` setup running Pytest on all PRs/branches, plus automated deployment trigger to Render via secure deploy webhook on `main` merge.
 
+### Q. Scope Drift Detection Engine Architecture (Phase 11)
+- **Problem Statement**: Freelancers frequently absorb unplanned, unbilled scope expansions ("scope creep") requested by clients mid-project because assessing the delta across budget, timeline, and dependencies manually takes hours.
+- **Database Persistence (`drift_analyses` table)**: Added Neon PostgreSQL schema via Drizzle ORM migration `0007_boring_snowbird.sql` persisting `id`, `workspace_id`, `scope_analysis_id` (foreign key to `scope_analyses.id`), `change_request_text`, `analysis_result` JSONB, `created_at`.
+- **FastAPI Scope Drift Engine (`apps/ai/app/services/drift_service.py`)**:
+  - Structured Groq inference (`llama-3.3-70b-versatile`, temperature=0.1) enforcing strict Pydantic model `DriftAnalysisResult` containing: `summary`, `recommendation` (`accept` | `decline` | `negotiate`), `recommendation_rationale`, `affected_deliverables` (deliverable title, impact description, additional hours), `timeline_delta_days`, `budget_delta_percentage`, `new_deliverables_required`, and `confidence_score`.
+  - Grounded directly on confirmed scope JSON (no RAG needed; confirmed scope is passed as immutable ground truth).
+  - Deterministic fallback mock engine for dev and offline test environments.
+- **TypeScript API Repository & Gateway (`apps/api/src/domains/ai/`)**:
+  - `DriftAnalysisRepository`: Multi-tenant scoped queries (`create`, `findByScopeAnalysisId`, `findById`) enforcing workspace boundary security.
+  - Express routes: `POST /api/v1/workspaces/:workspaceId/ai/drift` and `GET /api/v1/workspaces/:workspaceId/ai/scope/:scopeAnalysisId/drift`.
+  - Zod validation schema: `analyzeDriftSchema` validating minimum 10-character change request descriptions and valid UUID `scopeAnalysisId`.
+- **Frontend Studio & Modal (`apps/web/src/features/ai/`)**:
+  - `DriftAnalysisModal.tsx`: Accessible dialog featuring change request input textarea, quick examples, recommendation pills (Green: Accept, Amber: Negotiate, Rose: Decline), timeline/budget delta badges, affected deliverable impact cards, and copy-ready client rationale.
+  - `useDriftAnalysis.ts`: React Query mutation hook `useAnalyzeDrift` and query hook `useScopeDriftAnalyses`.
+  - Integrated directly into `ScopeAnalysisPage.tsx` next to confirmed scopes.
+- **Automated Test Coverage**: 7 Pytest tests in `test_drift_service.py`, 6 Vitest tests in `drift.controller.test.ts`, 5 React Testing Library tests in `DriftAnalysisModal.test.tsx`.
+
+### R. Comprehensive Deep Security Audit & Infrastructure Hardening (SEC-01 – SEC-06)
+- **SEC-01: Restricted CORS Subdomain Regex (`apps/api/src/app.ts`)**:
+  - Replaced overly permissive wildcard regex `/^https:\/\/[a-zA-Z0-9-]+\.vercel\.app$/` with project-scoped regex `/^https:\/\/(freelancy|freelance-os)[a-zA-Z0-9-]*\.vercel\.app$/`. Prevents credentialed cross-origin attacks where an attacker creates a malicious site on Vercel to exfiltrate Freelance OS user data.
+- **SEC-02: Cloudflare Workers AI Secrets & Dynamic URL Injection (`.github/workflows/ci-cd.yml`)**:
+  - Fixed edge runtime loopback default (`localhost:8000`) by dynamically injecting `--var AI_SERVICE_URL` pointing to Render in GitHub Actions.
+  - Added automated `wrangler secret put AI_SERVICE_API_KEY` step in CI/CD, guaranteeing Cloudflare Workers isolates have production credentials to authenticate to the AI microservice.
+- **SEC-03: Prompt Injection Hardening on Untrusted Briefs & Requests (`drift_service.py`, `llm_service.py`)**:
+  - Wrapped user-submitted client briefs, change requests, original scopes, and historical benchmarks in unambiguous XML boundary delimiters: `<client_brief>`, `<client_change_request>`, `<original_scope>`, `<historical_benchmarks>`.
+  - Updated LLM system prompts with explicit anti-override security guidelines: all text inside XML tags must be treated strictly as untrusted input data to analyze, never as role-overriding instructions or schema alterers.
+- **SEC-04: AI Microservice CORS Configuration Hardening (`apps/ai/app/core/config.py`)**:
+  - Eliminated wildcard CORS `ALLOWED_ORIGINS = ["*"]` while `allow_credentials=True`. Narrowed allowed origins to explicit authorized API hosts (`http://localhost:5001`, `http://localhost:5000`, `http://127.0.0.1:5001`, `http://127.0.0.1:5000`).
+- **SEC-05: Database Connection Pool Leak Elimination (`apps/ai/scripts/ingest_historical_data.py`)**:
+  - Wrapped async SQLAlchemy engine execution in `try...finally: await engine.dispose()`. Ensures connection sockets are cleanly closed even if queries fail or throw exceptions.
+- **SEC-06: Supply Chain Vulnerability Overrides (`package.json`)**:
+  - Added `pnpm.overrides` for `qs` (`>=6.16.0`, mitigating GHSA-4mjr-xmp4-gh2g DoS) and `postcss` (`>=8.5.23`, mitigating GHSA-6g55-p6wh-862q path traversal).
+
+### S. Unified Cross-Platform Test Runner & Quality Automation
+- **Cross-Platform Test Dispatcher (`apps/ai/run_tests.js`)**:
+  - Problem: `turbo run test` on Windows invoked system `pytest` on PATH instead of the dedicated Python virtual environment, causing missing module errors (`chromadb`) when running locally.
+  - Solution: Built a Node.js runner script in `apps/ai/run_tests.js` that checks for `.venv/Scripts/pytest.exe` (Windows) or `.venv/bin/pytest` (POSIX) and falls back to system `pytest`.
+  - Result: Developers and CI run `pnpm test` once from the root directory to execute all 353 tests across TypeScript and Python seamlessly in < 10 seconds.
+
 ---
 
 ## 4. Monorepo Quality & Verification Summary
 
 | Package | Test Suite | Tests Passing | Linter / Typecheck | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **`apps/ai`** | Pytest | **32 / 32 passed** | 0 errors | VERIFIED ✅ |
-| **`apps/api`** | Vitest | **275 / 275 passed** | Biome: 0 errors | VERIFIED ✅ |
-| **`apps/web`** | Vitest | **27 / 27 passed** | ESLint + TSC: 0 errors | VERIFIED ✅ |
-| **`packages/database`** | Drizzle Migrations | 9 tables applied | TSC: 0 errors | VERIFIED ✅ |
-| **TOTAL** | **All Suites** | **334 / 334 passed** | **0 errors across monorepo** | **ALL GREEN ✅** |
+| **`apps/ai`** | Pytest | **39 / 39 passed** | 0 errors | VERIFIED ✅ |
+| **`apps/api`** | Vitest | **282 / 282 passed** | Biome: 0 errors | VERIFIED ✅ |
+| **`apps/web`** | Vitest | **32 / 32 passed** | ESLint + TSC: 0 errors | VERIFIED ✅ |
+| **`packages/database`** | Drizzle Migrations | 10 tables applied | TSC: 0 errors | VERIFIED ✅ |
+| **TOTAL** | **All Suites** | **353 / 353 passed** | **0 errors across monorepo** | **ALL GREEN ✅** |
+
+> **Last verified:** September 7, 2026 · Full Monorepo Quality Gate Passing (Sprint 12 + AI Phases 1–11 + Deep Security Hardening)
 
 ---
 

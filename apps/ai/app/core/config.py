@@ -16,8 +16,12 @@ class Settings(BaseSettings):
     DATABASE_URL: str | None = None
     LOG_LEVEL: str = "INFO"
     PORT: int = 8000
-    HOST: str = "0.0.0.0"
-    ALLOWED_ORIGINS: list[str] = ["*"]
+    ALLOWED_ORIGINS: list[str] = [
+        "http://localhost:5001",
+        "http://localhost:5000",
+        "http://127.0.0.1:5001",
+        "http://127.0.0.1:5000",
+    ]
 
     # LangSmith Observability & Tracing
     LANGCHAIN_TRACING_V2: str | None = "false"

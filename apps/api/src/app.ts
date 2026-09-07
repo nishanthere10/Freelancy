@@ -51,7 +51,13 @@ export function isAllowedOrigin(origin?: string | null): boolean {
   }
 
   if (allowedOrigins.includes(origin)) return true;
-  if (/^https:\/\/[a-zA-Z0-9-]+\.vercel\.app$/.test(origin)) return true;
+  if (
+    /^https:\/\/(freelancy|freelance-os)[a-zA-Z0-9-]*\.vercel\.app$/.test(
+      origin,
+    )
+  ) {
+    return true;
+  }
   if (/^http:\/\/localhost:\d+$/.test(origin)) return true;
 
   return false;

@@ -73,12 +73,14 @@ def create_app() -> FastAPI:
             },
         }
 
-    # Mount dedicated Scope Analysis and Ingest routers
+    # Mount dedicated Scope Analysis, Ingest, and Drift Detection routers
     from app.api.routes.scope import scope_router
     from app.api.routes.ingest import ingest_router
+    from app.api.routes.drift import drift_router
 
     api_v1_router.include_router(scope_router)
     api_v1_router.include_router(ingest_router)
+    api_v1_router.include_router(drift_router)
     app.include_router(api_v1_router)
 
     return app

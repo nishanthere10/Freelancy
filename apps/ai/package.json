@@ -5,7 +5,7 @@
   "description": "Python AI Service for Freelance OS",
   "scripts": {
     "dev": "uvicorn app.main:app --reload --port 8000",
-    "test": "pytest",
+    "test": "node run_tests.js",
     "lint": "echo No linter configured"
   }
 }

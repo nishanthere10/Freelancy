@@ -11,10 +11,12 @@ import {
   FileText,
   CaretRight,
   ArrowLeft,
+  Compass,
 } from '@phosphor-icons/react';
 import type { ScopeAnalysisRecord } from '@api/ai';
 import { Button } from '@shared/components/Button';
 import { useConfirmScope, useGenerateScope, useScopeAnalyses } from '../hooks/useScopeAnalysis';
+import { DriftAnalysisModal } from './DriftAnalysisModal';
 import { ScopeGeneratorForm } from './ScopeGeneratorForm';
 import { ScopeReviewDraft } from './ScopeReviewDraft';
 
@@ -25,6 +27,7 @@ interface ScopeAnalysisPageProps {
 export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceId }) => {
   const [activeScope, setActiveScope] = useState<ScopeAnalysisRecord | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(true);
+  const [driftTargetScope, setDriftTargetScope] = useState<ScopeAnalysisRecord | null>(null);
 
   const { data: scopes, isLoading: isHistoryLoading } = useScopeAnalyses(workspaceId);
   const generateMutation = useGenerateScope(workspaceId);
@@ -139,11 +142,10 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
                   const isSelected = activeScope?.id === scope.id && !isCreatingNew;
                   const isConfirmed = Boolean(scope.confirmedAt);
                   return (
-                    <button
+                    <div
                       key={scope.id}
-                      type="button"
                       onClick={() => handleSelectScope(scope)}
-                      className={`w-full text-left transition rounded-xl p-3 border ${
+                      className={`w-full text-left transition rounded-xl p-3 border cursor-pointer ${
                         isSelected
                           ? 'border-blue-500 bg-blue-50/60 dark:border-blue-500/80 dark:bg-blue-950/40'
                           : 'border-neutral-100 bg-neutral-50/60 hover:border-neutral-200 hover:bg-neutral-100/60 dark:border-neutral-800/80 dark:bg-neutral-950/40 dark:hover:border-neutral-700'
@@ -163,7 +165,23 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
                         <span>{new Date(scope.createdAt).toLocaleDateString()}</span>
                         <span>{scope.result?.timeline_weeks || 1}w duration</span>
                       </div>
-                    </button>
+
+                      {isConfirmed && (
+                        <div className="mt-2.5 flex items-center justify-end border-t border-neutral-200/50 pt-2 dark:border-neutral-800/60">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDriftTargetScope(scope);
+                            }}
+                            className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950/60 dark:hover:text-blue-300"
+                          >
+                            <Compass size={13} weight="bold" />
+                            Detect Drift
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
@@ -201,6 +219,18 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
           </div>
         </div>
       </div>
+
+      {/* Scope Drift Detection Modal */}
+      {driftTargetScope && (
+        <DriftAnalysisModal
+          isOpen={Boolean(driftTargetScope)}
+          onClose={() => setDriftTargetScope(null)}
+          workspaceId={workspaceId}
+          scopeAnalysisId={driftTargetScope.id}
+          scopeTitle={driftTargetScope.result?.summary}
+        />
+      )}
     </div>
   );
 };
+

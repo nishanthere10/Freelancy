@@ -50,6 +50,13 @@
       "when": 1788107797160,
       "tag": "0006_amazing_ma_gnuci",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1788799876130,
+      "tag": "0007_boring_snowbird",
+      "breakpoints": true
     }
   ]
 }

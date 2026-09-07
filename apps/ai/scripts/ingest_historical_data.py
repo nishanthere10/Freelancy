@@ -78,46 +78,47 @@ async def ingest_workspace_data(
 
     documents_by_workspace: dict[str, List[Document]] = {}
 
-    async with engine.connect() as conn:
-        result = await conn.execute(sql_query, params)
-        rows = result.mappings().all()
+    try:
+        async with engine.connect() as conn:
+            result = await conn.execute(sql_query, params)
+            rows = result.mappings().all()
 
-        logger.info(f"Retrieved {len(rows)} projects from database.")
+            logger.info(f"Retrieved {len(rows)} projects from database.")
 
-        for row in rows:
-            ws_id = str(row["workspace_id"])
-            proj_name = row["project_name"] or "Unnamed Project"
-            proj_desc = row["project_description"] or "No detailed description provided."
-            client_name = row["client_name"] or "Independent Client"
-            company = f" ({row['client_company']})" if row["client_company"] else ""
-            budget = f"{row['budget_amount']} {row['budget_currency']}" if row["budget_amount"] else "Variable / Hourly"
-            pricing = row["pricing_model"] or "fixed"
-            timeline = f"Target duration: {row['start_date']} to {row['target_date']}" if row["start_date"] and row["target_date"] else "Standard delivery cycle"
+            for row in rows:
+                ws_id = str(row["workspace_id"])
+                proj_name = row["project_name"] or "Unnamed Project"
+                proj_desc = row["project_description"] or "No detailed description provided."
+                client_name = row["client_name"] or "Independent Client"
+                company = f" ({row['client_company']})" if row["client_company"] else ""
+                budget = f"{row['budget_amount']} {row['budget_currency']}" if row["budget_amount"] else "Variable / Hourly"
+                pricing = row["pricing_model"] or "fixed"
+                timeline = f"Target duration: {row['start_date']} to {row['target_date']}" if row["start_date"] and row["target_date"] else "Standard delivery cycle"
 
-            page_content = (
-                f"Historical Project: {proj_name}\n"
-                f"Client: {client_name}{company}\n"
-                f"Pricing Model: {pricing} | Budget: {budget}\n"
-                f"Timeline: {timeline}\n"
-                f"Description & Scope: {proj_desc}"
-            )
+                page_content = (
+                    f"Historical Project: {proj_name}\n"
+                    f"Client: {client_name}{company}\n"
+                    f"Pricing Model: {pricing} | Budget: {budget}\n"
+                    f"Timeline: {timeline}\n"
+                    f"Description & Scope: {proj_desc}"
+                )
 
-            doc = Document(
-                page_content=page_content,
-                metadata={
-                    "workspace_id": ws_id,
-                    "projectId": str(row["project_id"]),
-                    "title": proj_name,
-                    "type": "project",
-                    "pricing_model": pricing,
-                },
-            )
+                doc = Document(
+                    page_content=page_content,
+                    metadata={
+                        "workspace_id": ws_id,
+                        "projectId": str(row["project_id"]),
+                        "title": proj_name,
+                        "type": "project",
+                        "pricing_model": pricing,
+                    },
+                )
 
-            if ws_id not in documents_by_workspace:
-                documents_by_workspace[ws_id] = []
-            documents_by_workspace[ws_id].append(doc)
-
-    await engine.dispose()
+                if ws_id not in documents_by_workspace:
+                    documents_by_workspace[ws_id] = []
+                documents_by_workspace[ws_id].append(doc)
+    finally:
+        await engine.dispose()
 
     total_indexed = 0
     for ws_id, docs in documents_by_workspace.items():

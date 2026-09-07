@@ -84,3 +84,58 @@ export async function listScopeAnalyses(
     `/workspaces/${workspaceId}/ai/scope${queryString}`
   );
 }
+
+export interface AffectedDeliverable {
+  title: string;
+  impact_description: string;
+  additional_hours: number;
+}
+
+export interface DriftAnalysisResult {
+  summary: string;
+  recommendation: 'accept' | 'decline' | 'negotiate';
+  recommendation_rationale: string;
+  affected_deliverables: AffectedDeliverable[];
+  timeline_delta_days: number;
+  budget_delta_percentage: number;
+  new_deliverables_required: string[];
+  confidence_score: number;
+}
+
+export interface DriftAnalysisRecord {
+  id: string;
+  workspaceId: string;
+  scopeAnalysisId: string;
+  actorUserId: string;
+  changeRequestText: string;
+  result: DriftAnalysisResult;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Detect scope drift from a client change request
+ */
+export async function analyzeScopeDrift(
+  workspaceId: string,
+  scopeAnalysisId: string,
+  changeRequestText: string
+): Promise<DriftAnalysisRecord> {
+  return apiPost<DriftAnalysisRecord>(`/workspaces/${workspaceId}/ai/drift`, {
+    scopeAnalysisId,
+    changeRequestText,
+  });
+}
+
+/**
+ * List drift analyses for a specific confirmed scope analysis
+ */
+export async function listScopeDriftAnalyses(
+  workspaceId: string,
+  scopeAnalysisId: string
+): Promise<DriftAnalysisRecord[]> {
+  return apiGet<DriftAnalysisRecord[]>(
+    `/workspaces/${workspaceId}/ai/scope/${scopeAnalysisId}/drift`
+  );
+}
+

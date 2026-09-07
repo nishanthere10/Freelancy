@@ -24,3 +24,21 @@ export const listScopesQuerySchema = z.object({
 
 export type GenerateScopeInput = z.infer<typeof generateScopeSchema>;
 export type ListScopesQuery = z.infer<typeof listScopesQuerySchema>;
+
+export const analyzeDriftSchema = z.object({
+  changeRequestText: z
+    .string({ required_error: "changeRequestText is required" })
+    .min(10, "changeRequestText must be at least 10 characters"),
+  scopeAnalysisId: z.string().uuid("scopeAnalysisId must be a valid UUID"),
+});
+
+export const driftParamsSchema = z.object({
+  workspaceId: z.string().uuid("workspaceId must be a valid UUID"),
+});
+
+export const scopeDriftParamsSchema = z.object({
+  workspaceId: z.string().uuid("workspaceId must be a valid UUID"),
+  scopeAnalysisId: z.string().uuid("scopeAnalysisId must be a valid UUID"),
+});
+
+export type AnalyzeDriftInput = z.infer<typeof analyzeDriftSchema>;
