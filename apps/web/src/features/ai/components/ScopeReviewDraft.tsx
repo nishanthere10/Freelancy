@@ -37,17 +37,17 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
   return (
     <div className="space-y-6">
       {/* Executive Summary Card */}
-      <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-100 pb-4 dark:border-neutral-800">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
+      <div className="rounded-[var(--radius-xxl)] border border-[var(--color-hairline-soft)] bg-white p-5 sm:p-6 shadow-[var(--shadow-card)] space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-hairline-soft)] pb-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border border-[var(--color-brand-yellow)]/30 shadow-xs">
               <Sparkle size={18} weight="fill" />
             </span>
             <div>
-              <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+              <h3 className="text-base font-bold text-[var(--color-ink-deep)] tracking-tight">
                 Scope Analysis Draft
               </h3>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="text-xs text-[var(--color-slate-text)]">
                 Generated {new Date(scopeRecord.createdAt).toLocaleDateString()}
               </p>
             </div>
@@ -55,54 +55,54 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
 
           <div className="flex items-center gap-2">
             {isConfirmed ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-teal-light)] px-3 py-1 text-xs font-semibold text-[var(--color-moss-dark)] border border-[var(--color-brand-teal)]/30">
                 <CheckCircle size={14} weight="fill" />
                 Confirmed & Active
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-yellow-light)] px-3 py-1 text-xs font-semibold text-[var(--color-yellow-dark)] border border-[var(--color-brand-yellow)]/40">
                 <Clock size={14} weight="fill" />
                 Unconfirmed Draft
               </span>
             )}
-            <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-surface-pricing-featured)] px-3 py-1 text-xs font-semibold text-[var(--color-brand-blue)] border border-[var(--color-brand-blue)]/20">
               {result?.confidence_score || 90}% Confidence
             </span>
           </div>
         </div>
 
-        <p className="mt-4 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <div className="rounded-[var(--radius-xl)] bg-[var(--color-surface-soft)] border border-[var(--color-hairline-soft)] p-4 text-sm leading-relaxed text-[var(--color-ink)]">
           {result?.summary}
-        </p>
+        </div>
 
         {/* High Level Metrics Grid */}
-        <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-neutral-100 bg-neutral-50/70 p-3.5 dark:border-neutral-800 dark:bg-neutral-950/60">
-            <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
-              <Clock size={16} />
-              <span className="text-xs font-medium">Estimated Work</span>
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3">
+          <div className="rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-white p-4 shadow-xs">
+            <div className="flex items-center gap-2 text-[var(--color-slate-text)]">
+              <Clock size={16} className="text-[var(--color-brand-blue)]" />
+              <span className="text-xs font-semibold uppercase tracking-wider">Estimated Work</span>
             </div>
-            <p className="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">
+            <p className="mt-1.5 text-2xl font-bold text-[var(--color-ink-deep)] tracking-tight">
               {totalHours} hrs
             </p>
           </div>
 
-          <div className="rounded-xl border border-neutral-100 bg-neutral-50/70 p-3.5 dark:border-neutral-800 dark:bg-neutral-950/60">
-            <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
-              <CalendarBlank size={16} />
-              <span className="text-xs font-medium">Duration</span>
+          <div className="rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-white p-4 shadow-xs">
+            <div className="flex items-center gap-2 text-[var(--color-slate-text)]">
+              <CalendarBlank size={16} className="text-[var(--color-yellow-dark)]" />
+              <span className="text-xs font-semibold uppercase tracking-wider">Duration</span>
             </div>
-            <p className="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">
+            <p className="mt-1.5 text-2xl font-bold text-[var(--color-ink-deep)] tracking-tight">
               {result?.timeline_weeks || 1} {(result?.timeline_weeks || 1) === 1 ? 'week' : 'weeks'}
             </p>
           </div>
 
-          <div className="col-span-2 rounded-xl border border-neutral-100 bg-neutral-50/70 p-3.5 sm:col-span-1 dark:border-neutral-800 dark:bg-neutral-950/60">
-            <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
-              <CheckCircle size={16} />
-              <span className="text-xs font-medium">Milestones</span>
+          <div className="col-span-2 rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-white p-4 sm:col-span-1 shadow-xs">
+            <div className="flex items-center gap-2 text-[var(--color-slate-text)]">
+              <CheckCircle size={16} className="text-[var(--color-moss-dark)]" />
+              <span className="text-xs font-semibold uppercase tracking-wider">Milestones</span>
             </div>
-            <p className="mt-1 text-xl font-bold text-neutral-900 dark:text-neutral-100">
+            <p className="mt-1.5 text-2xl font-bold text-[var(--color-ink-deep)] tracking-tight">
               {result?.deliverables?.length || 0} items
             </p>
           </div>
@@ -111,54 +111,54 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
 
       {/* Deliverable Milestones Breakdown */}
       <div className="space-y-3">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-slate-text)]">
           Scoped Deliverables & Milestones
         </h4>
         <div className="space-y-3">
           {result?.deliverables?.map((item: ScopeDeliverable, idx: number) => (
             <div
               key={item.title + idx}
-              className="rounded-xl border border-neutral-200/70 bg-white p-4 shadow-sm transition hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-900/90 dark:hover:border-neutral-700"
+              className="rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] border-t-[3px] border-t-[var(--color-brand-yellow)] bg-white p-4 sm:p-5 shadow-[var(--shadow-subtle)] space-y-3 transition-all hover:shadow-[var(--shadow-card)]"
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="flex items-center gap-2.5">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-xs font-bold text-white">
                     {idx + 1}
                   </span>
-                  <h5 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                  <h5 className="text-sm font-bold text-[var(--color-ink-deep)]">
                     {item.title}
                   </h5>
                 </div>
                 <div className="flex items-center gap-2">
                   {item.complexity && (
                     <span
-                      className={`rounded-md px-2 py-0.5 text-[11px] font-medium capitalize ${
+                      className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ${
                         item.complexity === 'high'
-                          ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300'
+                          ? 'bg-[var(--color-coral-light)] text-[var(--color-coral-dark)] border border-[var(--color-brand-coral)]/30'
                           : item.complexity === 'medium'
-                            ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
-                            : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                            ? 'bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border border-[var(--color-brand-yellow)]/40'
+                            : 'bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border border-[var(--color-brand-teal)]/30'
                       }`}
                     >
                       {item.complexity} Complexity
                     </span>
                   )}
-                  <span className="rounded-md bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200">
+                  <span className="rounded-full bg-[var(--color-surface)] border border-[var(--color-hairline)] px-2.5 py-0.5 text-xs font-bold text-[var(--color-ink-deep)]">
                     {item.estimated_hours} hrs
                   </span>
                 </div>
               </div>
 
-              <p className="mt-2.5 pl-8 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+              <p className="pl-8.5 text-xs leading-relaxed text-[var(--color-charcoal)]">
                 {item.description}
               </p>
 
               {item.skills_required && item.skills_required.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5 pl-8">
+                <div className="flex flex-wrap gap-1.5 pl-8.5">
                   {item.skills_required.map((skill: string) => (
                     <span
                       key={skill}
-                      className="rounded bg-neutral-100/80 px-2 py-0.5 text-[10px] font-medium text-neutral-600 dark:bg-neutral-800/80 dark:text-neutral-400"
+                      className="rounded-full bg-[var(--color-surface-soft)] border border-[var(--color-hairline)] px-2.5 py-0.5 text-[10px] font-medium text-[var(--color-slate-text)]"
                     >
                       {skill}
                     </span>
@@ -174,17 +174,15 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
       <div className="grid gap-4 md:grid-cols-2">
         {/* Risks & Dependencies */}
         {result?.risks_and_dependencies && result.risks_and_dependencies.length > 0 && (
-          <div className="rounded-xl border border-amber-200/60 bg-amber-50/40 p-4 dark:border-amber-900/40 dark:bg-amber-950/20">
-            <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
+          <div className="rounded-[var(--radius-xl)] border border-[var(--color-brand-coral)]/30 bg-[var(--color-coral-light)]/40 p-4 space-y-2.5">
+            <div className="flex items-center gap-2 text-[var(--color-coral-dark)] font-bold text-xs uppercase tracking-wider">
               <WarningCircle size={16} weight="bold" />
-              <h5 className="text-xs font-semibold uppercase tracking-wider">
-                Risks & Dependencies
-              </h5>
+              <h5>Risks & Dependencies</h5>
             </div>
-            <ul className="mt-2.5 space-y-1.5 text-xs text-amber-900/80 dark:text-amber-300/80">
+            <ul className="space-y-1.5 text-xs text-[var(--color-coral-dark)]/90">
               {result.risks_and_dependencies.map((risk: string, idx: number) => (
                 <li key={idx} className="flex items-start gap-1.5">
-                  <span className="mt-0.5 text-amber-500">•</span>
+                  <span className="mt-0.5 text-[var(--color-brand-coral)] font-bold">•</span>
                   <span>{risk}</span>
                 </li>
               ))}
@@ -194,18 +192,16 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
 
         {/* Tech Stack */}
         {result?.recommended_tech_stack && result.recommended_tech_stack.length > 0 && (
-          <div className="rounded-xl border border-blue-200/60 bg-blue-50/40 p-4 dark:border-blue-900/40 dark:bg-blue-950/20">
-            <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300">
+          <div className="rounded-[var(--radius-xl)] border border-[var(--color-brand-teal)]/30 bg-[var(--color-teal-light)]/40 p-4 space-y-2.5">
+            <div className="flex items-center gap-2 text-[var(--color-moss-dark)] font-bold text-xs uppercase tracking-wider">
               <Code size={16} weight="bold" />
-              <h5 className="text-xs font-semibold uppercase tracking-wider">
-                Recommended Tech Stack
-              </h5>
+              <h5>Recommended Tech Stack</h5>
             </div>
-            <div className="mt-2.5 flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5">
               {result.recommended_tech_stack.map((tech: string) => (
                 <span
                   key={tech}
-                  className="rounded-lg border border-blue-200/80 bg-white px-2.5 py-1 text-xs font-medium text-blue-900 shadow-xs dark:border-blue-800 dark:bg-neutral-900 dark:text-blue-200"
+                  className="rounded-full border border-[var(--color-brand-teal)]/30 bg-white px-3 py-1 text-xs font-semibold text-[var(--color-moss-dark)] shadow-xs"
                 >
                   {tech}
                 </span>
@@ -216,14 +212,14 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200/80 pt-4 dark:border-neutral-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-hairline-soft)] pt-5">
         <Button
           type="button"
           variant="secondary"
           size="md"
           onClick={onDiscard}
           disabled={isConfirming}
-          className="flex items-center gap-2"
+          className="rounded-full flex items-center gap-2 shadow-xs"
         >
           <ArrowCounterClockwise size={16} />
           Modify Brief / Start Over
@@ -236,16 +232,16 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
             size="lg"
             onClick={onConfirm}
             disabled={isConfirming}
-            className="flex items-center gap-2 shadow-md shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 text-white"
+            className="rounded-full flex items-center gap-2 shadow-[var(--shadow-subtle)]"
           >
             {isConfirming ? (
               <>
-                <SpinnerGap size={18} className="animate-spin" />
+                <SpinnerGap size={18} className="animate-spin text-[var(--color-brand-yellow)]" />
                 Confirming Scope...
               </>
             ) : (
               <>
-                <CheckCircle size={18} weight="bold" />
+                <CheckCircle size={18} weight="bold" className="text-[var(--color-brand-yellow)]" />
                 Approve & Confirm Scope
               </>
             )}

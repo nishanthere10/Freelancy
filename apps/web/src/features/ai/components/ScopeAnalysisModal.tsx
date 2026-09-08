@@ -76,9 +76,9 @@ export const ScopeAnalysisModal: React.FC<ScopeAnalysisModalProps> = ({
       onOpenChange={handleOpenChange}
       title="AI Scope Studio"
       description="Analyze raw briefs into structured deliverables and timeline estimates."
-      className="max-w-3xl"
+      className="max-w-3xl max-h-[88vh] overflow-y-auto no-scrollbar p-6 sm:p-8 rounded-[var(--radius-feature)] shadow-[var(--shadow-modal)]"
     >
-      <div className="py-2">
+      <div className="py-1">
         {draftScope ? (
           <ScopeReviewDraft
             scopeRecord={draftScope}

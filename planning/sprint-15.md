@@ -28,7 +28,7 @@ Sprint 15 delivers two critical business and engineering capabilities to Freelan
   - `DriftAnalysisResult`: `summary`, `recommendation` (`accept` | `decline` | `negotiate`), `recommendation_rationale`, `affected_deliverables`, `timeline_delta_days`, `budget_delta_percentage`, `new_deliverables_required`, `confidence_score`.
 - **Engine Service (`app/services/drift_service.py`)**:
   - `DriftDetectionEngine.analyze_drift`: Grounded evaluation comparing client change requests directly against the confirmed scope JSON.
-  - Low temperature (`0.1`) with Groq `llama-3.3-70b-versatile` structured outputs.
+  - Low temperature (`0.1`) with Groq `openai/gpt-oss-120b` structured outputs.
   - Deterministic fallback mock generator for offline/test environments.
 - **REST Endpoint (`app/api/routes/drift.py`)**:
   - `POST /api/v1/drift/analyze` secured with `verify_service_api_key`.

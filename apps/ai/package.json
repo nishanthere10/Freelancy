@@ -4,7 +4,7 @@
   "private": true,
   "description": "Python AI Service for Freelance OS",
   "scripts": {
-    "dev": "uvicorn app.main:app --reload --port 8000",
+    "dev": "node run_dev.js",
     "test": "node run_tests.js",
     "lint": "echo No linter configured"
   }

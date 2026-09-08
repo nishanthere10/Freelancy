@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal["development", "staging", "production", "test"] = "development"
     AI_SERVICE_API_KEY: str
     GROQ_API_KEY: str = "gsk_dev_mock_key"
-    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    GROQ_MODEL: str = "openai/gpt-oss-120b"
     CHROMA_URL: str | None = None
     CHROMA_AUTH_TOKEN: str | None = None
     CHROMA_COLLECTION_NAME: str = "freelance_os_projects"

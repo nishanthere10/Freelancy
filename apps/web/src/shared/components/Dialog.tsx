@@ -94,14 +94,14 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
               <div className="flex-1 pr-4 block">
                 <h2
                   id="dialog-title"
-                  className="text-lg font-medium text-[var(--color-ink-deep)] leading-snug block"
+                  className="text-xl font-bold text-[var(--color-ink-deep)] tracking-tight block"
                 >
                   {title}
                 </h2>
                 {description && (
                   <p
                     id="dialog-description"
-                    className="mt-1 text-sm text-[var(--color-slate-text)] leading-relaxed block"
+                    className="mt-1 text-xs sm:text-sm text-[var(--color-slate-text)] leading-relaxed block"
                   >
                     {description}
                   </p>
@@ -110,8 +110,8 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
               <button
                 onClick={() => onOpenChange(false)}
                 className={cn(
-                  'flex-shrink-0 h-7 w-7 flex items-center justify-center rounded-[var(--radius-md)]',
-                  'text-[var(--color-steel)] hover:text-[var(--color-ink)] hover:bg-[var(--color-surface)]',
+                  'flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-full',
+                  'text-[var(--color-steel)] hover:text-[var(--color-ink)] hover:bg-[var(--color-surface)] border border-transparent hover:border-[var(--color-hairline)]',
                   'transition-all duration-150 focus:outline-none',
                   'active:scale-95',
                 )}

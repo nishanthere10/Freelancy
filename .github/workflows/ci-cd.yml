@@ -81,11 +81,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Trigger Render AI Service Deployment
-        if: ${{ secrets.RENDER_DEPLOY_HOOK_URL != '' }}
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          echo "Triggering Render AI microservice deployment..."
-          curl -X POST --fail --silent --show-error "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" || echo "Warning: Render deploy hook failed"
-
+          if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "Triggering Render AI microservice deployment..."
+            curl -X POST --fail --silent --show-error "$RENDER_DEPLOY_HOOK_URL" || echo "Warning: Render deploy hook failed"
+          else
+            echo "RENDER_DEPLOY_HOOK_URL secret not set; skipping Render deploy trigger."
+          fi
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -107,18 +111,22 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Configure Cloudflare Worker AI Secrets
-        if: ${{ secrets.AI_SERVICE_API_KEY != '' }}
-        run: |
-          echo "${{ secrets.AI_SERVICE_API_KEY }}" | pnpm --filter @repo/api exec wrangler secret put AI_SERVICE_API_KEY || echo "Warning: Failed to update AI_SERVICE_API_KEY secret"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          AI_SERVICE_API_KEY: ${{ secrets.AI_SERVICE_API_KEY }}
+        run: |
+          if [ -n "$AI_SERVICE_API_KEY" ]; then
+            echo "$AI_SERVICE_API_KEY" | pnpm --filter @repo/api exec wrangler secret put AI_SERVICE_API_KEY || echo "Warning: Failed to update AI_SERVICE_API_KEY secret"
+          else
+            echo "AI_SERVICE_API_KEY secret not set; skipping wrangler secret put."
+          fi
 
       - name: Deploy API to Cloudflare Workers
         run: |
           DEPLOY_ARGS="--var GIT_COMMIT_SHA:${{ github.sha }}"
-          if [ -n "${{ secrets.AI_SERVICE_URL }}" ]; then
-            DEPLOY_ARGS="$DEPLOY_ARGS --var AI_SERVICE_URL:${{ secrets.AI_SERVICE_URL }}"
+          if [ -n "$AI_SERVICE_URL" ]; then
+            DEPLOY_ARGS="$DEPLOY_ARGS --var AI_SERVICE_URL:$AI_SERVICE_URL"
           fi
           pnpm --filter @repo/api exec wrangler deploy $DEPLOY_ARGS
         env:

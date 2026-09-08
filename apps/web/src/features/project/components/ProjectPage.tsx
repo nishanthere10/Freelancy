@@ -73,9 +73,9 @@ export function ProjectPage({ workspaceId }: ProjectPageProps) {
             <Button
               variant="secondary"
               onClick={() => setAiScopeModalOpen(true)}
-              className="shadow-xs rounded-full border-blue-200 bg-blue-50/60 text-blue-700 hover:bg-blue-100 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300"
+              className="shadow-xs rounded-full"
             >
-              <Sparkle className="h-4 w-4 mr-1.5 text-blue-500" weight="fill" /> AI Scope Studio
+              <Sparkle className="h-4 w-4 mr-1.5 text-[var(--color-brand-yellow-deep)]" weight="fill" /> AI Scope Studio
             </Button>
             <Button onClick={() => setCreateDialogOpen(true)} className="shadow-xs rounded-full">
               <Plus className="h-4 w-4 mr-1.5" /> Add Project

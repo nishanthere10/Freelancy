@@ -80,9 +80,9 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
           ? `Evaluating change request against: ${scopeTitle}`
           : 'Compare a client change request against the confirmed scope.'
       }
-      className="max-w-2xl"
+      className="max-w-2xl max-h-[88vh] overflow-y-auto no-scrollbar p-6 sm:p-8 rounded-[var(--radius-feature)] shadow-[var(--shadow-modal)]"
     >
-      <div className="py-2">
+      <div className="py-1">
         {analyzeMutation.isPending ? (
           <div
             data-testid="drift-loading"

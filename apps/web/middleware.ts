@@ -28,8 +28,10 @@ export default clerkMiddleware(async (auth, request) => {
     return NextResponse.redirect(new URL('/workspaces', request.url));
   }
 
-  if (!isPublicRoute(request)) {
-    await auth.protect();
+  if (!isPublicRoute(request) && !userId) {
+    const signInUrl = new URL('/sign-in', request.url);
+    signInUrl.searchParams.set('redirect_url', request.url);
+    return NextResponse.redirect(signInUrl);
   }
 });
 

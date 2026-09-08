@@ -40,7 +40,7 @@ Sprint 13 establishes the enterprise AI subsystem architecture for Freelance OS,
    - Vitest test suite: 274/274 tests passing (30 test files).
 
 5. **Phase 5: Groq LLM Integration & Scope Generation Engine (`apps/ai`)**
-   - Integrated LangChain Groq (`ChatGroq(model="llama-3.3-70b-versatile")`) with `.with_structured_output(ScopeAnalysisResult)`.
+   - Integrated LangChain Groq (`ChatGroq(model="openai/gpt-oss-120b")`) with `.with_structured_output(ScopeAnalysisResult)`.
    - Strict Pydantic models (`Deliverable`, `ScopeAnalysisResult` with complexity, tech stack, timeline, risks, and confidence score).
    - Dedicated router (`apps/ai/app/api/routes/scope.py`) mounted on `/api/v1/scope` with `verify_service_api_key` protection.
    - Pytest unit test suite: 19/19 tests passing.
