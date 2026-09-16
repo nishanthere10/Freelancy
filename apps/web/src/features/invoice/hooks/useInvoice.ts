@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { getInvoice, invoiceKeys } from '../api';
+import { useQuery } from "@tanstack/react-query";
+import { getInvoice, invoiceKeys } from "../api";
 
 export function useInvoice(workspaceId: string, id: string) {
   return useQuery({

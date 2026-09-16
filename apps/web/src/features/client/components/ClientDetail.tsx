@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Button } from '@shared/components';
+import { useProjects } from "@features/project/hooks/useProjects";
 import {
   ArrowLeft,
-  EnvelopeSimple,
-  Phone,
-  Globe,
-  MapPin,
-  Buildings,
-  PencilSimple,
   Briefcase,
-  Plus,
-  FolderSimple,
+  Buildings,
   Calendar,
   CurrencyDollar,
-} from '@phosphor-icons/react';
-import type { ClientResponse } from '../api';
-import { useProjects } from '@features/project/hooks/useProjects';
+  EnvelopeSimple,
+  FolderSimple,
+  Globe,
+  MapPin,
+  PencilSimple,
+  Phone,
+  Plus,
+} from "@phosphor-icons/react";
+import { Button } from "@shared/components";
+import Link from "next/link";
+import type { ClientResponse } from "../api";
 
 interface ClientDetailProps {
   workspaceId: string;
@@ -32,23 +32,26 @@ export function ClientDetail({
   onBack,
   onEdit,
 }: ClientDetailProps) {
-  const { data: projects, isLoading: projectsLoading } = useProjects(workspaceId, {
-    clientId: client.id,
-  });
+  const { data: projects, isLoading: projectsLoading } = useProjects(
+    workspaceId,
+    {
+      clientId: client.id,
+    },
+  );
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'in_progress':
-      case 'active':
-        return 'bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border-[var(--color-brand-teal)]/30';
-      case 'completed':
-        return 'bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20';
-      case 'on_hold':
-        return 'bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/40';
-      case 'archived':
-      case 'cancelled':
+      case "in_progress":
+      case "active":
+        return "bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border-[var(--color-brand-teal)]/30";
+      case "completed":
+        return "bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20";
+      case "on_hold":
+        return "bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/40";
+      case "archived":
+      case "cancelled":
       default:
-        return 'bg-[var(--color-surface-soft)] text-[var(--color-steel)] border-[var(--color-hairline-strong)]';
+        return "bg-[var(--color-surface-soft)] text-[var(--color-steel)] border-[var(--color-hairline-strong)]";
     }
   };
 
@@ -65,7 +68,11 @@ export function ClientDetail({
           <span>Back to Clients</span>
         </button>
 
-        <Button onClick={() => onEdit(client)} size="sm" className="rounded-full">
+        <Button
+          onClick={() => onEdit(client)}
+          size="sm"
+          className="rounded-full"
+        >
           <PencilSimple className="h-4 w-4 mr-1.5" /> Edit Client
         </Button>
       </div>
@@ -83,7 +90,8 @@ export function ClientDetail({
               </h1>
               {client.companyName && (
                 <p className="text-sm text-[var(--color-slate-text)] flex items-center gap-1.5 mt-0.5 font-medium">
-                  <Buildings className="h-4 w-4 text-[var(--color-brand-teal)]" /> {client.companyName}
+                  <Buildings className="h-4 w-4 text-[var(--color-brand-teal)]" />{" "}
+                  {client.companyName}
                 </p>
               )}
             </div>
@@ -91,11 +99,11 @@ export function ClientDetail({
 
           <span
             className={`self-start sm:self-center px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full border ${
-              client.status === 'active'
-                ? 'bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border-[var(--color-brand-teal)]/30'
-                : client.status === 'inactive'
-                ? 'bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/40'
-                : 'bg-[var(--color-surface-soft)] text-[var(--color-steel)] border-[var(--color-hairline-strong)]'
+              client.status === "active"
+                ? "bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border-[var(--color-brand-teal)]/30"
+                : client.status === "inactive"
+                  ? "bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/40"
+                  : "bg-[var(--color-surface-soft)] text-[var(--color-steel)] border-[var(--color-hairline-strong)]"
             }`}
           >
             {client.status}
@@ -135,7 +143,7 @@ export function ClientDetail({
                   </div>
                   <a
                     href={
-                      client.website.startsWith('http')
+                      client.website.startsWith("http")
                         ? client.website
                         : `https://${client.website}`
                     }
@@ -157,15 +165,20 @@ export function ClientDetail({
             <div className="text-sm space-y-2.5">
               {client.contactPerson && (
                 <div>
-                  <span className="text-xs text-[var(--color-steel)] block font-medium">Primary Contact</span>
+                  <span className="text-xs text-[var(--color-steel)] block font-medium">
+                    Primary Contact
+                  </span>
                   <span className="font-semibold text-[var(--color-charcoal)]">
-                    {client.contactPerson} {client.department ? `(${client.department})` : ''}
+                    {client.contactPerson}{" "}
+                    {client.department ? `(${client.department})` : ""}
                   </span>
                 </div>
               )}
               {client.gstNumber && (
                 <div>
-                  <span className="text-xs text-[var(--color-steel)] block font-medium">GST / Tax Number</span>
+                  <span className="text-xs text-[var(--color-steel)] block font-medium">
+                    GST / Tax Number
+                  </span>
                   <span className="font-mono text-sm font-semibold text-[var(--color-ink-deep)]">
                     {client.gstNumber}
                   </span>
@@ -186,11 +199,18 @@ export function ClientDetail({
                 <MapPin className="h-4 w-4" />
               </div>
               <div>
-                {client.address && <div className="font-medium">{client.address}</div>}
+                {client.address && (
+                  <div className="font-medium">{client.address}</div>
+                )}
                 <div className="text-[var(--color-steel)]">
-                  {[client.city, client.state, client.postalCode, client.country]
+                  {[
+                    client.city,
+                    client.state,
+                    client.postalCode,
+                    client.country,
+                  ]
                     .filter(Boolean)
-                    .join(', ')}
+                    .join(", ")}
                 </div>
               </div>
             </div>
@@ -235,9 +255,12 @@ export function ClientDetail({
               <FolderSimple className="h-5 w-5" />
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[var(--color-ink-deep)]">No projects yet</h4>
+              <h4 className="text-sm font-semibold text-[var(--color-ink-deep)]">
+                No projects yet
+              </h4>
               <p className="text-xs text-[var(--color-slate-text)] mt-1 max-w-sm mx-auto">
-                No projects are linked to {client.name} in this workspace. Create a project to start tracking deliverables.
+                No projects are linked to {client.name} in this workspace.
+                Create a project to start tracking deliverables.
               </p>
             </div>
           </div>
@@ -256,10 +279,10 @@ export function ClientDetail({
                     </h3>
                     <span
                       className={`text-[10px] px-2 py-0.5 font-bold uppercase rounded-full border ${getStatusBadge(
-                        project.status
+                        project.status,
                       )}`}
                     >
-                      {project.status.replace('_', ' ')}
+                      {project.status.replace("_", " ")}
                     </span>
                   </div>
 
@@ -271,23 +294,32 @@ export function ClientDetail({
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-[var(--color-steel)] pt-2.5 border-t border-[var(--color-hairline-soft)]">
-                  {project.budgetAmount !== undefined && project.budgetAmount !== null ? (
+                  {project.budgetAmount !== undefined &&
+                  project.budgetAmount !== null ? (
                     <div className="flex items-center gap-1 font-semibold text-[var(--color-ink-deep)]">
                       <CurrencyDollar className="h-3.5 w-3.5 text-[var(--color-success-accent)]" />
-                      <span>{project.budgetCurrency || 'INR'} {Number(project.budgetAmount).toLocaleString()}</span>
+                      <span>
+                        {project.budgetCurrency || "INR"}{" "}
+                        {Number(project.budgetAmount).toLocaleString()}
+                      </span>
                     </div>
                   ) : (
-                    <span className="text-[var(--color-steel)]">No budget set</span>
+                    <span className="text-[var(--color-steel)]">
+                      No budget set
+                    </span>
                   )}
 
                   {project.targetDate && (
                     <div className="flex items-center gap-1 text-[var(--color-charcoal)]">
                       <Calendar className="h-3.5 w-3.5 text-[var(--color-brand-blue)]" />
                       <span>
-                        {new Date(project.targetDate).toLocaleDateString(undefined, {
-                          month: 'short',
-                          day: 'numeric',
-                        })}
+                        {new Date(project.targetDate).toLocaleDateString(
+                          undefined,
+                          {
+                            month: "short",
+                            day: "numeric",
+                          },
+                        )}
                       </span>
                     </div>
                   )}

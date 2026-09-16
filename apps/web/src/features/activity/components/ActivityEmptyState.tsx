@@ -1,4 +1,4 @@
-import { Clock } from '@phosphor-icons/react';
+import { Clock } from "@phosphor-icons/react";
 
 interface ActivityEmptyStateProps {
   title?: string;
@@ -6,8 +6,8 @@ interface ActivityEmptyStateProps {
 }
 
 export function ActivityEmptyState({
-  title = 'No activity yet',
-  description = 'Business actions like creating clients, updating projects, and issuing invoices will appear here.',
+  title = "No activity yet",
+  description = "Business actions like creating clients, updating projects, and issuing invoices will appear here.",
 }: ActivityEmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center p-8 text-center rounded-[var(--radius-xl)] border-2 border-dashed border-[var(--color-hairline)] bg-[var(--color-surface-soft)]">

@@ -3,7 +3,7 @@
  * Returns true after component mounts (handles hydration mismatch)
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export function useMounted() {
   const [isMounted, setIsMounted] = useState(false);

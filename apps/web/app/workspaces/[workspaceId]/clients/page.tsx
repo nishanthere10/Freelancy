@@ -1,13 +1,12 @@
-'use client';
-
-import { use } from 'react';
-import { ClientPage } from '@features/client';
+import { ClientPage } from "@features/client";
 
 interface WorkspaceClientsRouteProps {
-  params: Promise<{ workspaceId: string }> | { workspaceId: string };
+  params: Promise<{ workspaceId: string }>;
 }
 
-export default function WorkspaceClientsRoute({ params }: WorkspaceClientsRouteProps) {
-  const resolvedParams = 'then' in params ? use(params) : params;
-  return <ClientPage workspaceId={resolvedParams.workspaceId} />;
+export default async function WorkspaceClientsRoute({
+  params,
+}: WorkspaceClientsRouteProps) {
+  const { workspaceId } = await params;
+  return <ClientPage workspaceId={workspaceId} />;
 }

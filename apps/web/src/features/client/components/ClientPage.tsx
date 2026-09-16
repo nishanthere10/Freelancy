@@ -1,28 +1,38 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button, Input, Skeleton } from '@shared/components';
-import { Plus, MagnifyingGlass, Users } from '@phosphor-icons/react';
-import { useClients } from '../hooks';
-import type { ClientResponse, ClientStatus } from '../api';
-import { ClientList } from './ClientList';
-import { ClientDetail } from './ClientDetail';
-import { ClientEmptyState } from './ClientEmptyState';
-import { CreateClientDialog } from './CreateClientDialog';
-import { EditClientDialog } from './EditClientDialog';
+import { MagnifyingGlass, Plus, Users } from "@phosphor-icons/react";
+import { Button, Input, Skeleton } from "@shared/components";
+import { useState } from "react";
+import type { ClientResponse, ClientStatus } from "../api";
+import { useClients } from "../hooks";
+import { ClientDetail } from "./ClientDetail";
+import { ClientEmptyState } from "./ClientEmptyState";
+import { ClientList } from "./ClientList";
+import { CreateClientDialog } from "./CreateClientDialog";
+import { EditClientDialog } from "./EditClientDialog";
 
 interface ClientPageProps {
   workspaceId: string;
 }
 
 export function ClientPage({ workspaceId }: ClientPageProps) {
-  const [statusFilter, setStatusFilter] = useState<ClientStatus | 'all'>('active');
-  const [search, setSearch] = useState('');
-  const [selectedClient, setSelectedClient] = useState<ClientResponse | null>(null);
+  const [statusFilter, setStatusFilter] = useState<ClientStatus | "all">(
+    "active",
+  );
+  const [search, setSearch] = useState("");
+  const [selectedClient, setSelectedClient] = useState<ClientResponse | null>(
+    null,
+  );
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<ClientResponse | null>(null);
+  const [editingClient, setEditingClient] = useState<ClientResponse | null>(
+    null,
+  );
 
-  const { data: clients, isLoading, error } = useClients(workspaceId, {
+  const {
+    data: clients,
+    isLoading,
+    error,
+  } = useClients(workspaceId, {
     status: statusFilter,
     search,
   });
@@ -89,13 +99,13 @@ export function ClientPage({ workspaceId }: ClientPageProps) {
           </div>
 
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-            {(['all', 'active', 'archived'] as const).map((st) => (
+            {(["all", "active", "archived"] as const).map((st) => (
               <button
                 key={st}
                 type="button"
                 onClick={() => setStatusFilter(st)}
                 className={`pill-tab capitalize ${
-                  statusFilter === st ? 'pill-tab-active' : ''
+                  statusFilter === st ? "pill-tab-active" : ""
                 }`}
               >
                 {st}
@@ -115,7 +125,9 @@ export function ClientPage({ workspaceId }: ClientPageProps) {
           <div className="p-8 text-center text-[var(--color-error)] bg-[var(--color-error-bg)] rounded-[var(--radius-xl)] border border-[var(--color-error-border)] max-w-lg mx-auto">
             <p className="text-sm font-semibold">Failed to load clients</p>
             <p className="text-xs text-[var(--color-error)] opacity-90 mt-1">
-              {error instanceof Error ? error.message : 'Unknown error occurred'}
+              {error instanceof Error
+                ? error.message
+                : "Unknown error occurred"}
             </p>
           </div>
         ) : !clients || clients.length === 0 ? (

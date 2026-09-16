@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { getClients, clientKeys, type ListClientsFilters } from '../api';
+import { useQuery } from "@tanstack/react-query";
+import { type ListClientsFilters, clientKeys, getClients } from "../api";
 
 export function useClients(workspaceId: string, filters?: ListClientsFilters) {
   return useQuery({

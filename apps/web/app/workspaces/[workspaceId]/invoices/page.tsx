@@ -1,13 +1,12 @@
-'use client';
-
-import { use } from 'react';
-import { InvoicePage } from '@features/invoice';
+import { InvoicePage } from "@features/invoice";
 
 interface WorkspaceInvoicesRouteProps {
-  params: Promise<{ workspaceId: string }> | { workspaceId: string };
+  params: Promise<{ workspaceId: string }>;
 }
 
-export default function WorkspaceInvoicesRoute({ params }: WorkspaceInvoicesRouteProps) {
-  const resolvedParams = 'then' in params ? use(params) : params;
-  return <InvoicePage workspaceId={resolvedParams.workspaceId} />;
+export default async function WorkspaceInvoicesRoute({
+  params,
+}: WorkspaceInvoicesRouteProps) {
+  const { workspaceId } = await params;
+  return <InvoicePage workspaceId={workspaceId} />;
 }

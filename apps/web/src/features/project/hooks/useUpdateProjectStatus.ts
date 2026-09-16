@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { updateProjectStatus, projectKeys, type ProjectStatus } from '../api';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { type ProjectStatus, projectKeys, updateProjectStatus } from "../api";
 
 export function useUpdateProjectStatus(workspaceId: string, projectId: string) {
   const queryClient = useQueryClient();
@@ -14,12 +14,15 @@ export function useUpdateProjectStatus(workspaceId: string, projectId: string) {
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
       queryClient.setQueryData(
         projectKeys.detail(workspaceId, project.id),
-        project
+        project,
       );
       toast.success(`Project status updated to ${project.status}`);
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : 'Failed to update project status';
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to update project status";
       toast.error(message);
     },
   });

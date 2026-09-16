@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
 import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-  type UseMutationResult,
-  type UseQueryResult,
-} from '@tanstack/react-query';
-import {
+  type ScopeAnalysisRecord,
   confirmScopeAnalysis,
   generateScopeAnalysis,
   getScopeAnalysis,
   listScopeAnalyses,
-  type ScopeAnalysisRecord,
-} from '@api/ai';
+} from "@api/ai";
+import {
+  type UseMutationResult,
+  type UseQueryResult,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
-export const AI_SCOPE_QUERY_KEY = 'ai-scope';
+export const AI_SCOPE_QUERY_KEY = "ai-scope";
 
 /**
  * Mutation hook to generate an AI Scope Analysis draft from brief text
  */
 export function useGenerateScope(
-  workspaceId: string
+  workspaceId: string,
 ): UseMutationResult<
   ScopeAnalysisRecord,
   Error,
@@ -44,7 +44,7 @@ export function useGenerateScope(
  * Mutation hook to confirm an existing Scope Analysis draft
  */
 export function useConfirmScope(
-  workspaceId: string
+  workspaceId: string,
 ): UseMutationResult<ScopeAnalysisRecord, Error, { scopeId: string }> {
   const queryClient = useQueryClient();
 
@@ -56,7 +56,7 @@ export function useConfirmScope(
       });
       queryClient.setQueryData(
         [AI_SCOPE_QUERY_KEY, workspaceId, data.id],
-        data
+        data,
       );
     },
   });
@@ -67,7 +67,7 @@ export function useConfirmScope(
  */
 export function useScopeAnalyses(
   workspaceId: string,
-  params?: { projectId?: string; limit?: number; offset?: number }
+  params?: { projectId?: string; limit?: number; offset?: number },
 ): UseQueryResult<ScopeAnalysisRecord[], Error> {
   return useQuery({
     queryKey: [AI_SCOPE_QUERY_KEY, workspaceId, params],
@@ -81,7 +81,7 @@ export function useScopeAnalyses(
  */
 export function useScopeDetail(
   workspaceId: string,
-  scopeId: string
+  scopeId: string,
 ): UseQueryResult<ScopeAnalysisRecord, Error> {
   return useQuery({
     queryKey: [AI_SCOPE_QUERY_KEY, workspaceId, scopeId],

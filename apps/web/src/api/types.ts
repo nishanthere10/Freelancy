@@ -26,10 +26,10 @@ export class ApiError extends Error {
     message: string,
     public details?: Record<string, unknown>,
     public status?: number,
-    public requestId?: string
+    public requestId?: string,
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 

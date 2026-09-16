@@ -34,9 +34,13 @@ export const scopeAnalysesTable = pgTable(
       .notNull(),
   },
   (table) => ({
-    workspaceIdx: index("idx_scope_analyses_workspace_id").on(table.workspaceId),
+    workspaceIdx: index("idx_scope_analyses_workspace_id").on(
+      table.workspaceId,
+    ),
     projectIdx: index("idx_scope_analyses_project_id").on(table.projectId),
-    actorUserIdx: index("idx_scope_analyses_actor_user_id").on(table.actorUserId),
+    actorUserIdx: index("idx_scope_analyses_actor_user_id").on(
+      table.actorUserId,
+    ),
     createdAtIdx: index("idx_scope_analyses_created_at").on(table.createdAt),
   }),
 );

@@ -1,14 +1,21 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname, useParams } from 'next/navigation';
-import { Pacifico } from 'next/font/google';
-import { ChartPie, SquaresFour, Users, Briefcase, Receipt, Sparkle } from '@phosphor-icons/react';
-import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/nextjs';
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import {
+  Briefcase,
+  ChartPie,
+  Receipt,
+  Sparkle,
+  SquaresFour,
+  Users,
+} from "@phosphor-icons/react";
+import { Pacifico } from "next/font/google";
+import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
 
 const pacifico = Pacifico({
-  weight: '400',
-  subsets: ['latin'],
+  weight: "400",
+  subsets: ["latin"],
 });
 
 export function Navbar() {
@@ -19,39 +26,39 @@ export function Navbar() {
 
   const navItems = [
     {
-      label: 'Dashboard',
-      href: workspaceId ? `/workspaces/${workspaceId}/dashboard` : '/dashboard',
-      active: pathname?.includes('/dashboard'),
+      label: "Dashboard",
+      href: workspaceId ? `/workspaces/${workspaceId}/dashboard` : "/dashboard",
+      active: pathname?.includes("/dashboard"),
       icon: ChartPie,
     },
     {
-      label: 'Workspaces',
-      href: '/workspaces',
-      active: pathname === '/workspaces',
+      label: "Workspaces",
+      href: "/workspaces",
+      active: pathname === "/workspaces",
       icon: SquaresFour,
     },
     {
-      label: 'Clients',
-      href: workspaceId ? `/workspaces/${workspaceId}/clients` : '/clients',
-      active: pathname?.includes('/clients'),
+      label: "Clients",
+      href: workspaceId ? `/workspaces/${workspaceId}/clients` : "/clients",
+      active: pathname?.includes("/clients"),
       icon: Users,
     },
     {
-      label: 'Projects',
-      href: workspaceId ? `/workspaces/${workspaceId}/projects` : '/projects',
-      active: pathname?.includes('/projects'),
+      label: "Projects",
+      href: workspaceId ? `/workspaces/${workspaceId}/projects` : "/projects",
+      active: pathname?.includes("/projects"),
       icon: Briefcase,
     },
     {
-      label: 'AI Scope',
-      href: workspaceId ? `/workspaces/${workspaceId}/ai/scope` : '/workspaces',
-      active: pathname?.includes('/ai'),
+      label: "AI Scope",
+      href: workspaceId ? `/workspaces/${workspaceId}/ai/scope` : "/workspaces",
+      active: pathname?.includes("/ai"),
       icon: Sparkle,
     },
     {
-      label: 'Invoices',
-      href: workspaceId ? `/workspaces/${workspaceId}/invoices` : '/invoices',
-      active: pathname?.includes('/invoices'),
+      label: "Invoices",
+      href: workspaceId ? `/workspaces/${workspaceId}/invoices` : "/invoices",
+      active: pathname?.includes("/invoices"),
       icon: Receipt,
     },
   ];
@@ -61,11 +68,12 @@ export function Navbar() {
       <div className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-12 flex items-center justify-between h-16">
         {/* Brand */}
         <Link href="/workspaces" className="flex items-center gap-2 group">
-          <span className={`${pacifico.className} text-[22px] text-[var(--color-primary)] transition-colors duration-150 mt-0.5`}>
+          <span
+            className={`${pacifico.className} text-[22px] text-[var(--color-primary)] transition-colors duration-150 mt-0.5`}
+          >
             Freelancy
           </span>
         </Link>
-
 
         {/* Navigation Links & User Controls */}
         <div className="flex items-center gap-4">
@@ -78,8 +86,8 @@ export function Navbar() {
                   href={item.href}
                   className={`flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium rounded-full transition-all duration-150 ${
                     item.active
-                      ? 'bg-[var(--color-brand-yellow)] text-[var(--color-primary)] font-bold shadow-sm'
-                      : 'text-[var(--color-slate-text)] hover:text-[var(--color-ink-deep)] hover:bg-[var(--color-surface-soft)]'
+                      ? "bg-[var(--color-brand-yellow)] text-[var(--color-primary)] font-bold shadow-sm"
+                      : "text-[var(--color-slate-text)] hover:text-[var(--color-ink-deep)] hover:bg-[var(--color-surface-soft)]"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -112,4 +120,3 @@ export function Navbar() {
     </header>
   );
 }
-

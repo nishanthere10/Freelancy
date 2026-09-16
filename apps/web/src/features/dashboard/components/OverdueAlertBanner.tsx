@@ -1,15 +1,18 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Warning, ArrowRight } from '@phosphor-icons/react';
-import type { OverdueAlertDto } from '../api/dashboard.types';
+import { ArrowRight, Warning } from "@phosphor-icons/react";
+import Link from "next/link";
+import type { OverdueAlertDto } from "../api/dashboard.types";
 
 interface OverdueAlertBannerProps {
   workspaceId: string;
   alerts: OverdueAlertDto[];
 }
 
-export function OverdueAlertBanner({ workspaceId, alerts }: OverdueAlertBannerProps) {
+export function OverdueAlertBanner({
+  workspaceId,
+  alerts,
+}: OverdueAlertBannerProps) {
   if (!alerts || alerts.length === 0) return null;
 
   const totalOverdue = alerts.reduce((acc, curr) => acc + curr.amountDue, 0);
@@ -22,10 +25,17 @@ export function OverdueAlertBanner({ workspaceId, alerts }: OverdueAlertBannerPr
         </div>
         <div>
           <h4 className="font-bold text-sm text-[var(--color-yellow-dark)]">
-            {alerts.length} Overdue Invoice{alerts.length > 1 ? 's' : ''} Requiring Attention
+            {alerts.length} Overdue Invoice{alerts.length > 1 ? "s" : ""}{" "}
+            Requiring Attention
           </h4>
           <p className="text-xs text-[var(--color-yellow-dark)] opacity-85 mt-0.5">
-            Total overdue balance awaiting payment: <span className="font-bold font-mono">₹{totalOverdue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            Total overdue balance awaiting payment:{" "}
+            <span className="font-bold font-mono">
+              ₹
+              {totalOverdue.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })}
+            </span>
           </p>
         </div>
       </div>

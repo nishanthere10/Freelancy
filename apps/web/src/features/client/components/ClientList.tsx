@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { ClientCard } from './ClientCard';
-import type { ClientResponse } from '../api';
+import type { ClientResponse } from "../api";
+import { ClientCard } from "./ClientCard";
 
 interface ClientListProps {
   workspaceId: string;

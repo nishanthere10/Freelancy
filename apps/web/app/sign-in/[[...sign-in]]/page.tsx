@@ -1,4 +1,4 @@
-import { SignIn } from '@clerk/nextjs';
+import { SignIn } from "@clerk/nextjs";
 
 export default function SignInPage() {
   return (
@@ -16,11 +16,11 @@ export default function SignInPage() {
         <SignIn
           appearance={{
             elements: {
-              card: 'shadow-xl border border-[var(--color-hairline,#e2e8f0)] rounded-2xl bg-white',
+              card: "shadow-xl border border-[var(--color-hairline,#e2e8f0)] rounded-2xl bg-white",
               formButtonPrimary:
-                'bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold',
+                "bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold",
               footerActionLink:
-                'text-amber-600 hover:text-amber-700 font-medium',
+                "text-amber-600 hover:text-amber-700 font-medium",
             },
           }}
         />

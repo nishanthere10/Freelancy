@@ -1,13 +1,16 @@
-'use client';
+"use client";
 
-import { Dialog, Button, FormField } from '@shared/components';
-import { useUpdateWorkspace } from '../hooks';
-import type { WorkspaceResponse } from '../api';
-import { createWorkspaceSchema, type CreateWorkspaceFormData } from '../schemas';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { CircleNotch } from '@phosphor-icons/react';
-import { FormProvider, useForm } from 'react-hook-form';
-import { useEffect } from 'react';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CircleNotch } from "@phosphor-icons/react";
+import { Button, Dialog, FormField } from "@shared/components";
+import { useEffect } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import type { WorkspaceResponse } from "../api";
+import { useUpdateWorkspace } from "../hooks";
+import {
+  type CreateWorkspaceFormData,
+  createWorkspaceSchema,
+} from "../schemas";
 
 interface EditWorkspaceDialogProps {
   workspace: WorkspaceResponse | null;
@@ -15,13 +18,17 @@ interface EditWorkspaceDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function EditWorkspaceDialog({ workspace, open, onOpenChange }: EditWorkspaceDialogProps) {
+export function EditWorkspaceDialog({
+  workspace,
+  open,
+  onOpenChange,
+}: EditWorkspaceDialogProps) {
   const { mutateAsync, isPending } = useUpdateWorkspace();
 
   const form = useForm<CreateWorkspaceFormData>({
     resolver: zodResolver(createWorkspaceSchema),
-    mode: 'onBlur',
-    defaultValues: { name: '', slug: '', description: '' },
+    mode: "onBlur",
+    defaultValues: { name: "", slug: "", description: "" },
   });
 
   // Reset form when workspace changes
@@ -30,7 +37,7 @@ export function EditWorkspaceDialog({ workspace, open, onOpenChange }: EditWorks
       form.reset({
         name: workspace.name,
         slug: workspace.slug,
-        description: workspace.description || '',
+        description: workspace.description || "",
       });
     }
   }, [workspace, open, form]);
@@ -72,38 +79,57 @@ export function EditWorkspaceDialog({ workspace, open, onOpenChange }: EditWorks
               required
               disabled={true}
             />
-            <p className="text-xs" style={{ color: 'var(--color-steel)' }}>
+            <p className="text-xs" style={{ color: "var(--color-steel)" }}>
               Slugs cannot be changed after creation.
             </p>
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium" style={{ color: 'var(--color-ink-deep)' }}>
-              Description <span style={{ color: 'var(--color-steel)' }}>(optional)</span>
+            <label
+              className="text-sm font-medium"
+              style={{ color: "var(--color-ink-deep)" }}
+            >
+              Description{" "}
+              <span style={{ color: "var(--color-steel)" }}>(optional)</span>
             </label>
             <textarea
               placeholder="What will you use this workspace for?"
               disabled={isPending}
-              {...form.register('description')}
+              {...form.register("description")}
               rows={3}
               className={[
-                'w-full rounded-[var(--radius-md)] border border-[var(--color-hairline-strong)]',
-                'bg-[var(--color-canvas)] px-4 py-2.5 text-sm text-[var(--color-ink)]',
-                'placeholder:text-[var(--color-steel)]',
-                'resize-none transition-colors duration-150',
-                'focus:outline-none focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[var(--color-brand-blue)]/20',
-                'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--color-surface)]',
-              ].join(' ')}
+                "w-full rounded-[var(--radius-md)] border border-[var(--color-hairline-strong)]",
+                "bg-[var(--color-canvas)] px-4 py-2.5 text-sm text-[var(--color-ink)]",
+                "placeholder:text-[var(--color-steel)]",
+                "resize-none transition-colors duration-150",
+                "focus:outline-none focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[var(--color-brand-blue)]/20",
+                "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--color-surface)]",
+              ].join(" ")}
             />
           </div>
 
-          <div className="flex gap-3 justify-end pt-4 border-t" style={{ borderColor: 'var(--color-hairline)' }}>
-            <Button type="button" variant="secondary" size="md" onClick={() => onOpenChange(false)} disabled={isPending}>
+          <div
+            className="flex gap-3 justify-end pt-4 border-t"
+            style={{ borderColor: "var(--color-hairline)" }}
+          >
+            <Button
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={() => onOpenChange(false)}
+              disabled={isPending}
+            >
               Cancel
             </Button>
-            <Button type="submit" variant="primary" size="md" disabled={isPending || form.formState.isSubmitting} className="flex items-center gap-2">
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              disabled={isPending || form.formState.isSubmitting}
+              className="flex items-center gap-2"
+            >
               {isPending && <CircleNotch size={15} className="animate-spin" />}
-              {isPending ? 'Saving…' : 'Save Changes'}
+              {isPending ? "Saving…" : "Save Changes"}
             </Button>
           </div>
         </form>

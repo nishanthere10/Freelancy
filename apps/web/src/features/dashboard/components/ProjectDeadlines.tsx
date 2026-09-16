@@ -1,15 +1,23 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Calendar, UserCheck, FolderSimple, ArrowUpRight } from '@phosphor-icons/react';
-import type { UpcomingDeadlineDto } from '../api/dashboard.types';
+import {
+  ArrowUpRight,
+  Calendar,
+  FolderSimple,
+  UserCheck,
+} from "@phosphor-icons/react";
+import Link from "next/link";
+import type { UpcomingDeadlineDto } from "../api/dashboard.types";
 
 interface ProjectDeadlinesProps {
   workspaceId: string;
   deadlines: UpcomingDeadlineDto[];
 }
 
-export function ProjectDeadlines({ workspaceId, deadlines }: ProjectDeadlinesProps) {
+export function ProjectDeadlines({
+  workspaceId,
+  deadlines,
+}: ProjectDeadlinesProps) {
   return (
     <div className="section-card space-y-4">
       <div className="flex items-center justify-between">
@@ -34,7 +42,9 @@ export function ProjectDeadlines({ workspaceId, deadlines }: ProjectDeadlinesPro
       {!deadlines || deadlines.length === 0 ? (
         <div className="text-center py-8 px-4 border-2 border-dashed border-[var(--color-hairline)] rounded-[var(--radius-xl)] space-y-2 bg-[var(--color-surface-soft)]">
           <FolderSimple className="h-8 w-8 text-[var(--color-stone)] mx-auto" />
-          <p className="text-xs font-medium text-[var(--color-steel)]">No active project target dates</p>
+          <p className="text-xs font-medium text-[var(--color-steel)]">
+            No active project target dates
+          </p>
         </div>
       ) : (
         <div className="space-y-2.5">
@@ -58,8 +68,8 @@ export function ProjectDeadlines({ workspaceId, deadlines }: ProjectDeadlinesPro
                 <span className="flex-shrink-0 px-2.5 py-1 rounded-full bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] font-semibold text-xs border border-[var(--color-hairline)] flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
                   {new Date(proj.targetDate).toLocaleDateString(undefined, {
-                    month: 'short',
-                    day: 'numeric',
+                    month: "short",
+                    day: "numeric",
                   })}
                 </span>
               )}

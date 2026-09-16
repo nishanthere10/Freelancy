@@ -1,4 +1,4 @@
-export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+export type InvoiceStatus = "draft" | "sent" | "paid" | "overdue" | "cancelled";
 
 export interface InvoiceItemResponse {
   id: string;
@@ -93,6 +93,6 @@ export interface RecordPaymentInput {
 export interface ListInvoicesFilters {
   clientId?: string;
   projectId?: string;
-  status?: InvoiceStatus | 'all';
+  status?: InvoiceStatus | "all";
   search?: string;
 }

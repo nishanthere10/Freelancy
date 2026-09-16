@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import Link from 'next/link';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { AlertTriangle, Home, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { useEffect } from "react";
 
 export default function ErrorBoundary({
   error,
@@ -13,7 +13,7 @@ export default function ErrorBoundary({
 }) {
   useEffect(() => {
     // Log error details safely on client
-    console.error('Unhandled Application Render Error:', error);
+    console.error("Unhandled Application Render Error:", error);
   }, [error]);
 
   return (
@@ -28,7 +28,8 @@ export default function ErrorBoundary({
             Something went wrong
           </h2>
           <p className="text-sm text-muted-foreground">
-            {error.message || 'An unexpected error occurred while rendering this page.'}
+            {error.message ||
+              "An unexpected error occurred while rendering this page."}
           </p>
           {error.digest && (
             <p className="text-xs font-mono text-muted-foreground/70 bg-muted/50 py-1 px-2 rounded-md inline-block">

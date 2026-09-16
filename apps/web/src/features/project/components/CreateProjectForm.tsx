@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { FormProvider, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, FormField } from '@shared/components';
-import { useClients } from '@features/client';
-import { projectFormSchema, type ProjectFormValues } from '../schemas';
-import { useCreateProject, useUpdateProject } from '../hooks';
-import type { CreateProjectInput, ProjectResponse } from '../api';
+import { useClients } from "@features/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, FormField } from "@shared/components";
+import { FormProvider, useForm } from "react-hook-form";
+import type { CreateProjectInput, ProjectResponse } from "../api";
+import { useCreateProject, useUpdateProject } from "../hooks";
+import { type ProjectFormValues, projectFormSchema } from "../schemas";
 
 interface CreateProjectFormProps {
   workspaceId: string;
@@ -22,31 +22,32 @@ export function CreateProjectForm({
   onCancel,
 }: CreateProjectFormProps) {
   const isEditing = Boolean(project);
-  const { data: clients } = useClients(workspaceId, { status: 'all' });
+  const { data: clients } = useClients(workspaceId, { status: "all" });
 
   const createMutation = useCreateProject(workspaceId);
-  const updateMutation = useUpdateProject(workspaceId, project?.id || '');
+  const updateMutation = useUpdateProject(workspaceId, project?.id || "");
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
-      name: project?.name || '',
-      clientId: project?.clientId || 'none',
-      pricingModel: project?.pricingModel || 'fixed',
-      budgetCurrency: project?.budgetCurrency || 'INR',
-      budgetAmount: project?.budgetAmount ? String(project.budgetAmount) : '',
-      startDate: project?.startDate || '',
-      targetDate: project?.targetDate || '',
-      description: project?.description || '',
+      name: project?.name || "",
+      clientId: project?.clientId || "none",
+      pricingModel: project?.pricingModel || "fixed",
+      budgetCurrency: project?.budgetCurrency || "INR",
+      budgetAmount: project?.budgetAmount ? String(project.budgetAmount) : "",
+      startDate: project?.startDate || "",
+      targetDate: project?.targetDate || "",
+      description: project?.description || "",
     },
   });
 
   const onSubmit = (values: ProjectFormValues) => {
     const cleanedInput: CreateProjectInput = {
       name: values.name,
-      clientId: values.clientId === 'none' || !values.clientId ? null : values.clientId,
+      clientId:
+        values.clientId === "none" || !values.clientId ? null : values.clientId,
       pricingModel: values.pricingModel,
-      budgetCurrency: values.budgetCurrency || 'INR',
+      budgetCurrency: values.budgetCurrency || "INR",
       budgetAmount: values.budgetAmount ? Number(values.budgetAmount) : null,
       startDate: values.startDate || null,
       targetDate: values.targetDate || null,
@@ -78,19 +79,23 @@ export function CreateProjectForm({
         />
 
         <div className="flex flex-col gap-2 w-full">
-          <label htmlFor="project-client-select" className="text-sm font-medium text-[var(--color-ink-deep)] leading-none">
+          <label
+            htmlFor="project-client-select"
+            className="text-sm font-medium text-[var(--color-ink-deep)] leading-none"
+          >
             Client
           </label>
           <select
             id="project-client-select"
-            {...form.register('clientId')}
+            {...form.register("clientId")}
             disabled={isSubmitting}
             className="w-full px-3.5 py-2.5 text-sm rounded-[var(--radius-lg)] border border-[var(--color-hairline-strong)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-blue)] transition-all"
           >
             <option value="none">None (Internal Project)</option>
             {clients?.map((client) => (
               <option key={client.id} value={client.id}>
-                {client.name} {client.companyName ? `(${client.companyName})` : ''}
+                {client.name}{" "}
+                {client.companyName ? `(${client.companyName})` : ""}
               </option>
             ))}
           </select>
@@ -98,12 +103,15 @@ export function CreateProjectForm({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2 w-full">
-            <label htmlFor="project-pricing-model-select" className="text-sm font-medium text-[var(--color-ink-deep)] leading-none">
+            <label
+              htmlFor="project-pricing-model-select"
+              className="text-sm font-medium text-[var(--color-ink-deep)] leading-none"
+            >
               Pricing Model
             </label>
             <select
               id="project-pricing-model-select"
-              {...form.register('pricingModel')}
+              {...form.register("pricingModel")}
               disabled={isSubmitting}
               className="w-full px-3.5 py-2.5 text-sm rounded-[var(--radius-lg)] border border-[var(--color-hairline-strong)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-blue)] transition-all"
             >
@@ -139,21 +147,31 @@ export function CreateProjectForm({
         </div>
 
         <div className="flex flex-col gap-2 w-full">
-          <label htmlFor="project-description-input" className="text-sm font-medium text-[var(--color-ink-deep)] leading-none">
+          <label
+            htmlFor="project-description-input"
+            className="text-sm font-medium text-[var(--color-ink-deep)] leading-none"
+          >
             Description / Scope
           </label>
           <textarea
             id="project-description-input"
-            {...form.register('description')}
+            {...form.register("description")}
             rows={3}
             placeholder="Briefly describe project scope, key deliverables, or milestones..."
             disabled={isSubmitting}
             aria-invalid={Boolean(form.formState.errors.description)}
-            aria-describedby={form.formState.errors.description ? 'project-description-error' : undefined}
+            aria-describedby={
+              form.formState.errors.description
+                ? "project-description-error"
+                : undefined
+            }
             className="w-full px-3.5 py-2.5 text-sm rounded-[var(--radius-lg)] border border-[var(--color-hairline-strong)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-blue)] transition-all"
           />
           {form.formState.errors.description?.message && (
-            <p id="project-description-error" className="text-xs text-[var(--color-error)]">
+            <p
+              id="project-description-error"
+              className="text-xs text-[var(--color-error)]"
+            >
               {String(form.formState.errors.description.message)}
             </p>
           )}
@@ -161,18 +179,23 @@ export function CreateProjectForm({
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-hairline)]">
           {onCancel && (
-            <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
           )}
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting
               ? isEditing
-                ? 'Updating...'
-                : 'Creating...'
+                ? "Updating..."
+                : "Creating..."
               : isEditing
-              ? 'Update Project'
-              : 'Create Project'}
+                ? "Update Project"
+                : "Create Project"}
           </Button>
         </div>
       </form>

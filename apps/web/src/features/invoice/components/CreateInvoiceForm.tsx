@@ -1,11 +1,17 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button, Input } from '@shared/components';
-import { Plus, Trash, CalendarBlank, User, Receipt } from '@phosphor-icons/react';
-import { useClients } from '../../client/hooks';
-import { useProjects } from '../../project/hooks';
-import type { CreateInvoiceInput, CreateInvoiceItemInput } from '../api';
+import {
+  CalendarBlank,
+  Plus,
+  Receipt,
+  Trash,
+  User,
+} from "@phosphor-icons/react";
+import { Button, Input } from "@shared/components";
+import { useState } from "react";
+import { useClients } from "../../client/hooks";
+import { useProjects } from "../../project/hooks";
+import type { CreateInvoiceInput, CreateInvoiceItemInput } from "../api";
 
 interface CreateInvoiceFormProps {
   workspaceId: string;
@@ -16,13 +22,13 @@ interface CreateInvoiceFormProps {
 }
 
 function getTodayString(): string {
-  return new Date().toISOString().split('T')[0];
+  return new Date().toISOString().split("T")[0];
 }
 
 function getFutureDateString(daysOffset: number): string {
   const date = new Date();
   date.setDate(date.getDate() + daysOffset);
-  return date.toISOString().split('T')[0];
+  return date.toISOString().split("T")[0];
 }
 
 export function CreateInvoiceForm({
@@ -35,23 +41,34 @@ export function CreateInvoiceForm({
   const { data: clients } = useClients(workspaceId);
   const { data: projects } = useProjects(workspaceId);
 
-  const [clientId, setClientId] = useState(initialData?.clientId || '');
-  const [projectId, setProjectId] = useState(initialData?.projectId || '');
-  const [issueDate, setIssueDate] = useState(initialData?.issueDate || getTodayString());
-  const [dueDate, setDueDate] = useState(initialData?.dueDate || getFutureDateString(15));
-  const [taxRate, setTaxRate] = useState<string>(String(initialData?.taxRate ?? '18.00'));
-  const [discountRate, setDiscountRate] = useState<string>(String(initialData?.discountRate ?? '0.00'));
-  const [notes, setNotes] = useState(initialData?.notes || '');
-  const [terms, setTerms] = useState(initialData?.terms || '');
+  const [clientId, setClientId] = useState(initialData?.clientId || "");
+  const [projectId, setProjectId] = useState(initialData?.projectId || "");
+  const [issueDate, setIssueDate] = useState(
+    initialData?.issueDate || getTodayString(),
+  );
+  const [dueDate, setDueDate] = useState(
+    initialData?.dueDate || getFutureDateString(15),
+  );
+  const [taxRate, setTaxRate] = useState<string>(
+    String(initialData?.taxRate ?? "18.00"),
+  );
+  const [discountRate, setDiscountRate] = useState<string>(
+    String(initialData?.discountRate ?? "0.00"),
+  );
+  const [notes, setNotes] = useState(initialData?.notes || "");
+  const [terms, setTerms] = useState(initialData?.terms || "");
 
   const [items, setItems] = useState<CreateInvoiceItemInput[]>(
     initialData?.items && initialData.items.length > 0
       ? initialData.items
-      : [{ description: '', quantity: '1.00', unitPrice: '0.00' }],
+      : [{ description: "", quantity: "1.00", unitPrice: "0.00" }],
   );
 
   const handleAddItem = () => {
-    setItems((prev) => [...prev, { description: '', quantity: '1.00', unitPrice: '0.00' }]);
+    setItems((prev) => [
+      ...prev,
+      { description: "", quantity: "1.00", unitPrice: "0.00" },
+    ]);
   };
 
   const handleRemoveItem = (index: number) => {
@@ -59,7 +76,11 @@ export function CreateInvoiceForm({
     setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleItemChange = (index: number, field: keyof CreateInvoiceItemInput, value: string) => {
+  const handleItemChange = (
+    index: number,
+    field: keyof CreateInvoiceItemInput,
+    value: string,
+  ) => {
     setItems((prev) => {
       const copy = [...prev];
       copy[index] = { ...copy[index], [field]: value };
@@ -107,7 +128,8 @@ export function CreateInvoiceForm({
       {/* 1. Client & Project Info Card */}
       <div className="p-5 bg-[var(--color-surface-soft)] rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] space-y-4">
         <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-steel)] flex items-center gap-1.5">
-          <User className="h-4 w-4 text-[var(--color-brand-blue)]" /> General Information
+          <User className="h-4 w-4 text-[var(--color-brand-blue)]" /> General
+          Information
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -124,7 +146,7 @@ export function CreateInvoiceForm({
               <option value="">Select a Client</option>
               {clients?.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.name} {c.companyName ? `(${c.companyName})` : ''}
+                  {c.name} {c.companyName ? `(${c.companyName})` : ""}
                 </option>
               ))}
             </select>
@@ -132,7 +154,10 @@ export function CreateInvoiceForm({
 
           <div>
             <label className="block text-xs font-semibold text-[var(--color-ink-deep)] mb-1.5">
-              Associated Project <span className="text-[var(--color-steel)] font-normal">(Optional)</span>
+              Associated Project{" "}
+              <span className="text-[var(--color-steel)] font-normal">
+                (Optional)
+              </span>
             </label>
             <select
               value={projectId}
@@ -153,14 +178,17 @@ export function CreateInvoiceForm({
       {/* 2. Date Selection & Tax Terms */}
       <div className="p-5 bg-[var(--color-surface-soft)] rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] space-y-4">
         <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-steel)] flex items-center gap-1.5">
-          <CalendarBlank className="h-4 w-4 text-[var(--color-brand-blue)]" /> Invoice Dates & Tax Settings
+          <CalendarBlank className="h-4 w-4 text-[var(--color-brand-blue)]" />{" "}
+          Invoice Dates & Tax Settings
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Issue Date Selector */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-semibold text-[var(--color-ink-deep)]">Issue Date</label>
+              <label className="block text-xs font-semibold text-[var(--color-ink-deep)]">
+                Issue Date
+              </label>
               <div className="flex gap-1">
                 <button
                   type="button"
@@ -184,7 +212,9 @@ export function CreateInvoiceForm({
           {/* Due Date Selector with Preset Badges */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-semibold text-[var(--color-ink-deep)]">Due Date</label>
+              <label className="block text-xs font-semibold text-[var(--color-ink-deep)]">
+                Due Date
+              </label>
               <div className="flex gap-1">
                 <button
                   type="button"
@@ -222,7 +252,9 @@ export function CreateInvoiceForm({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           <div>
-            <label className="block text-xs font-semibold text-[var(--color-ink-deep)] mb-1.5">GST Tax Rate (%)</label>
+            <label className="block text-xs font-semibold text-[var(--color-ink-deep)] mb-1.5">
+              GST Tax Rate (%)
+            </label>
             <Input
               type="number"
               step="0.01"
@@ -233,7 +265,9 @@ export function CreateInvoiceForm({
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-[var(--color-ink-deep)] mb-1.5">Discount Rate (%)</label>
+            <label className="block text-xs font-semibold text-[var(--color-ink-deep)] mb-1.5">
+              Discount Rate (%)
+            </label>
             <Input
               type="number"
               step="0.01"
@@ -250,9 +284,16 @@ export function CreateInvoiceForm({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-steel)] flex items-center gap-1.5">
-            <Receipt className="h-4 w-4 text-[var(--color-brand-teal)]" /> Line Items
+            <Receipt className="h-4 w-4 text-[var(--color-brand-teal)]" /> Line
+            Items
           </h3>
-          <Button type="button" variant="outline" size="sm" onClick={handleAddItem} className="rounded-full">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAddItem}
+            className="rounded-full"
+          >
             <Plus className="h-4 w-4 mr-1" /> Add Row
           </Button>
         </div>
@@ -270,13 +311,20 @@ export function CreateInvoiceForm({
             </thead>
             <tbody className="divide-y divide-[var(--color-hairline-soft)] bg-white">
               {items.map((item, idx) => {
-                const lineAmt = (Number(item.quantity || 0) * Number(item.unitPrice || 0)).toFixed(2);
+                const lineAmt = (
+                  Number(item.quantity || 0) * Number(item.unitPrice || 0)
+                ).toFixed(2);
                 return (
-                  <tr key={idx} className="hover:bg-[var(--color-surface-soft)] transition">
+                  <tr
+                    key={idx}
+                    className="hover:bg-[var(--color-surface-soft)] transition"
+                  >
                     <td className="p-2.5">
                       <Input
                         value={item.description}
-                        onChange={(e) => handleItemChange(idx, 'description', e.target.value)}
+                        onChange={(e) =>
+                          handleItemChange(idx, "description", e.target.value)
+                        }
                         placeholder="e.g. Website Design & UI Development"
                         required
                         className="bg-white border-[var(--color-hairline-strong)] rounded-[var(--radius-md)]"
@@ -287,7 +335,9 @@ export function CreateInvoiceForm({
                         type="number"
                         step="0.01"
                         value={item.quantity}
-                        onChange={(e) => handleItemChange(idx, 'quantity', e.target.value)}
+                        onChange={(e) =>
+                          handleItemChange(idx, "quantity", e.target.value)
+                        }
                         className="bg-white border-[var(--color-hairline-strong)] rounded-[var(--radius-md)]"
                       />
                     </td>
@@ -296,7 +346,9 @@ export function CreateInvoiceForm({
                         type="number"
                         step="0.01"
                         value={item.unitPrice}
-                        onChange={(e) => handleItemChange(idx, 'unitPrice', e.target.value)}
+                        onChange={(e) =>
+                          handleItemChange(idx, "unitPrice", e.target.value)
+                        }
                         className="bg-white border-[var(--color-hairline-strong)] rounded-[var(--radius-md)]"
                       />
                     </td>
@@ -325,7 +377,9 @@ export function CreateInvoiceForm({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[var(--color-ink-deep)] mb-1.5">Notes & Instructions</label>
+            <label className="block text-xs font-semibold text-[var(--color-ink-deep)] mb-1.5">
+              Notes & Instructions
+            </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -335,7 +389,9 @@ export function CreateInvoiceForm({
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-[var(--color-ink-deep)] mb-1.5">Payment Terms</label>
+            <label className="block text-xs font-semibold text-[var(--color-ink-deep)] mb-1.5">
+              Payment Terms
+            </label>
             <textarea
               value={terms}
               onChange={(e) => setTerms(e.target.value)}
@@ -370,18 +426,34 @@ export function CreateInvoiceForm({
           </div>
           <div className="border-t border-[var(--color-brand-yellow)]/40 pt-3 flex justify-between text-base font-bold text-[var(--color-ink-deep)]">
             <span>Total Payable:</span>
-            <span className="text-[var(--color-yellow-dark)] font-mono">₹{totalNum.toFixed(2)}</span>
+            <span className="text-[var(--color-yellow-dark)] font-mono">
+              ₹{totalNum.toFixed(2)}
+            </span>
           </div>
         </div>
       </div>
 
       {/* 5. Actions Footer */}
       <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-hairline-soft)]">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting} className="rounded-full px-5">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isSubmitting}
+          className="rounded-full px-5"
+        >
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting || !clientId} className="rounded-full px-6 shadow-xs font-semibold">
-          {isSubmitting ? 'Saving...' : initialData ? 'Save Changes' : 'Create Draft Invoice'}
+        <Button
+          type="submit"
+          disabled={isSubmitting || !clientId}
+          className="rounded-full px-6 shadow-xs font-semibold"
+        >
+          {isSubmitting
+            ? "Saving..."
+            : initialData
+              ? "Save Changes"
+              : "Create Draft Invoice"}
         </Button>
       </div>
     </form>

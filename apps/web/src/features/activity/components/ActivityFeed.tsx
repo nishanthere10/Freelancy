@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useActivity } from '../hooks/useActivity';
-import type { ActivityFilters } from '../api/activity.types';
-import { ActivityItem } from './ActivityItem';
-import { ActivitySkeleton } from './ActivitySkeleton';
-import { ActivityEmptyState } from './ActivityEmptyState';
+import type { ActivityFilters } from "../api/activity.types";
+import { useActivity } from "../hooks/useActivity";
+import { ActivityEmptyState } from "./ActivityEmptyState";
+import { ActivityItem } from "./ActivityItem";
+import { ActivitySkeleton } from "./ActivitySkeleton";
 
 interface ActivityFeedProps {
   workspaceId: string;
@@ -17,13 +17,14 @@ interface ActivityFeedProps {
 export function ActivityFeed({
   workspaceId,
   filters,
-  title = 'Recent Activity',
+  title = "Recent Activity",
   maxItems,
   showCardWrapper = true,
 }: ActivityFeedProps) {
   const { data, isLoading, error, refetch } = useActivity(workspaceId, filters);
 
-  const items = maxItems && data?.items ? data.items.slice(0, maxItems) : data?.items;
+  const items =
+    maxItems && data?.items ? data.items.slice(0, maxItems) : data?.items;
 
   const content = (
     <>
@@ -34,7 +35,7 @@ export function ActivityFeed({
           </h3>
           {data?.items && data.items.length > 0 && (
             <span className="text-xs text-[var(--color-steel)] font-medium">
-              {data.items.length} {data.items.length === 1 ? 'event' : 'events'}
+              {data.items.length} {data.items.length === 1 ? "event" : "events"}
             </span>
           )}
         </div>
@@ -74,11 +75,7 @@ export function ActivityFeed({
   );
 
   if (showCardWrapper) {
-    return (
-      <div className="section-card">
-        {content}
-      </div>
-    );
+    return <div className="section-card">{content}</div>;
   }
 
   return <div>{content}</div>;

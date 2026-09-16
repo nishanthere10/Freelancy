@@ -82,6 +82,7 @@ flowchart TD
 4. **Type-Safe Query Invalidation**: Passed `workspaceId` to `invoiceKeys.all(workspaceId)` in `useProjectDeliverables.ts`, resolving compiler typecheck error.
 5. **No-Explicit-Any Remediation**: Replaced `as any` casts with `as unknown as ReturnType<...>` in test suites and type-safe ternaries for deliverable complexity.
 6. **ESLint Cleanliness**: Removed all unused icon imports and variables across all frontend components and hooks.
+7. **Axios Next.js Proxy Routing Bug (DEF-06)**: Fixed an issue where Axios API requests to `project`, `invoice`, and `dashboard` were incorrectly hitting the frontend Next.js server (port 5000) instead of the Express backend API (port 5001) and throwing 404s. Removed leading slashes from Axios client URLs (e.g., changing `/workspaces/...` to `workspaces/...`) to prevent Axios from resolving URLs as absolute paths from the root origin and overriding the `/api/v1` base path segment.
 
 ---
 

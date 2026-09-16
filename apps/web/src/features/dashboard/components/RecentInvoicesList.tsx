@@ -1,25 +1,28 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Receipt, ArrowUpRight } from '@phosphor-icons/react';
-import type { RecentInvoiceDto } from '../api/dashboard.types';
+import { ArrowUpRight, Receipt } from "@phosphor-icons/react";
+import Link from "next/link";
+import type { RecentInvoiceDto } from "../api/dashboard.types";
 
 interface RecentInvoicesListProps {
   workspaceId: string;
   invoices: RecentInvoiceDto[];
 }
 
-export function RecentInvoicesList({ workspaceId, invoices }: RecentInvoicesListProps) {
+export function RecentInvoicesList({
+  workspaceId,
+  invoices,
+}: RecentInvoicesListProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'paid':
-        return 'bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border-[var(--color-brand-teal)]/30';
-      case 'sent':
-        return 'bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20';
-      case 'overdue':
-        return 'bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/40';
+      case "paid":
+        return "bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border-[var(--color-brand-teal)]/30";
+      case "sent":
+        return "bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20";
+      case "overdue":
+        return "bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/40";
       default:
-        return 'bg-[var(--color-surface-soft)] text-[var(--color-charcoal)] border-[var(--color-hairline-strong)]';
+        return "bg-[var(--color-surface-soft)] text-[var(--color-charcoal)] border-[var(--color-hairline-strong)]";
     }
   };
 
@@ -46,7 +49,9 @@ export function RecentInvoicesList({ workspaceId, invoices }: RecentInvoicesList
 
       {!invoices || invoices.length === 0 ? (
         <div className="text-center py-8 px-4 border-2 border-dashed border-[var(--color-hairline)] rounded-[var(--radius-xl)] space-y-1 bg-[var(--color-surface-soft)]">
-          <p className="text-xs font-medium text-[var(--color-steel)]">No invoices created yet</p>
+          <p className="text-xs font-medium text-[var(--color-steel)]">
+            No invoices created yet
+          </p>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -67,17 +72,24 @@ export function RecentInvoicesList({ workspaceId, invoices }: RecentInvoicesList
                       href={`/workspaces/${workspaceId}/invoices`}
                       className="hover:text-[var(--color-brand-blue)] transition-colors"
                     >
-                      {inv.invoiceNumber || 'DRAFT'}
+                      {inv.invoiceNumber || "DRAFT"}
                     </Link>
                   </td>
-                  <td className="font-medium text-[var(--color-charcoal)]">{inv.clientName}</td>
+                  <td className="font-medium text-[var(--color-charcoal)]">
+                    {inv.clientName}
+                  </td>
                   <td>
-                    <span className={`px-2 py-0.5 rounded-full font-bold uppercase text-[10px] border ${getStatusBadge(inv.status)}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded-full font-bold uppercase text-[10px] border ${getStatusBadge(inv.status)}`}
+                    >
                       {inv.status}
                     </span>
                   </td>
                   <td className="text-right font-mono font-semibold text-[var(--color-ink-deep)]">
-                    ₹{inv.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    ₹
+                    {inv.totalAmount.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                    })}
                   </td>
                 </tr>
               ))}

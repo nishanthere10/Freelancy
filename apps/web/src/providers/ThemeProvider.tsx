@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { ThemeProvider } from 'next-themes';
-import type { ReactNode } from 'react';
+import { ThemeProvider } from "next-themes";
+import type { ReactNode } from "react";
 
 /**
  * Locks theme to light — the design system is a stark-white canvas.
@@ -9,7 +9,12 @@ import type { ReactNode } from 'react';
  */
 export function CustomThemeProvider({ children }: { children: ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="light"
+      forcedTheme="light"
+      enableSystem={false}
+    >
       {children}
     </ThemeProvider>
   );

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Button } from '@shared/components';
-import { ChartPie, UserPlus, Plus } from '@phosphor-icons/react';
+import { ChartPie, Plus, UserPlus } from "@phosphor-icons/react";
+import { Button } from "@shared/components";
+import Link from "next/link";
 
 interface DashboardEmptyStateProps {
   workspaceId: string;
@@ -20,7 +20,8 @@ export function DashboardEmptyState({ workspaceId }: DashboardEmptyStateProps) {
           Welcome to your workspace dashboard!
         </h3>
         <p className="text-sm text-[var(--color-slate-text)] max-w-md mx-auto leading-relaxed">
-          Create your first client record, deliverable project, or GST invoice to view real-time financial metrics and operational insights here.
+          Create your first client record, deliverable project, or GST invoice
+          to view real-time financial metrics and operational insights here.
         </p>
       </div>
 

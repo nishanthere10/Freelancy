@@ -1,7 +1,7 @@
 # Freelance OS — Current System Update & Reasoning Agent Context
 
 **Date:** September 13, 2026  
-**Status:** Sprints 1–12 COMPLETE + AI Subsystem Phases 1–11 COMPLETE + Sprint 16 ("Collaborative AI Scope Studio & Operational Bridge") COMPLETE, AUDITED, HARDENED & VERIFIED. Monorepo Quality Gate: 367 / 367 tests passing across API, Web, and AI with 0 TypeScript/linter errors (Biome & ESLint clean). Hardening defects DEF-01 to DEF-05 resolved (pre-conversion auto-confirmation, idempotency 409 guard, strict invoice error propagation, prompt length constraints, and modal state resets). `/deep` architectural analysis skill added.
+**Status:** Sprints 1–12 COMPLETE + AI Subsystem Phases 1–11 COMPLETE + Sprint 16 COMPLETE + Sprint 17 ("Project Hub & Deliverables Execution Engine") COMPLETE, AUDITED, HARDENED & VERIFIED. Monorepo Quality Gate: 386 / 386 tests passing across API, Web, and AI with 0 TypeScript/linter errors (Biome & ESLint clean). Hardening defects DEF-01 to DEF-06 resolved (including Axios leading slash routing fixes). `/deep` architectural analysis skill added.
 
 ---
 
@@ -206,6 +206,7 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 - **DEF-03: Financial Error Propagation**: In `ai.service.ts`, if upfront deposit invoice creation fails when `depositPercentage > 0`, an explicit HTTP 400 `INVOICE_CREATION_FAILED` error is raised instead of silently ignoring the failure.
 - **DEF-04: Scope Confirmation Precondition & Auto-Bridge**: Backend strictly validates `existing.confirmedAt` with HTTP 422 `UNCONFIRMED_SCOPE`. In `ConvertScopeModal.tsx`, if a scope is unconfirmed when the user initiates conversion, `confirmScopeAnalysis()` is automatically called before `convertScopeToProject()`. In `ScopeReviewDraft.tsx`, clicking "Convert to Live Project" automatically flushes dirty milestone edits to the database first.
 - **DEF-05: AI Prompt Length Bounds**: Constrained conversational refinement input to `min(5).max(1000)` in both Zod (`apps/api/src/domains/ai/ai.schema.ts`) and Pydantic (`apps/ai/app/schemas/scope.py`), preventing token exhaustion and prompt-injection flood vectors.
+- **DEF-06: Axios Next.js Proxy Routing Bug**: Fixed an issue where Axios API requests to `project`, `invoice`, and `dashboard` were incorrectly hitting the frontend Next.js server (port 5000) instead of the Express backend API (port 5001) and throwing 404s. Removed leading slashes from Axios client URLs (e.g., changing `/workspaces/...` to `workspaces/...`) to prevent Axios from resolving URLs as absolute paths from the root origin and overriding the `/api/v1` base path segment.
 - **Integration Test Expansion**: Added 4 Vitest integration tests in `apps/api/src/domains/ai/__tests__/scope-refine.test.ts` validating 409 conflict, 422 precondition, and 1000-char boundary behavior.
 - **`/deep` Architectural Analysis Skill**: Created `.agents/skills/deep/SKILL.md` to provide structured, plain-language architectural breakdowns covering root cause, fixes, advantages, tradeoffs, and alternative approaches.
 

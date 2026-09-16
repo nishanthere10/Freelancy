@@ -1,14 +1,14 @@
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
-vi.mock('next/font/google', () => ({
-  Pacifico: () => ({ className: 'className', variable: '--font-pacifico' }),
-  Inter: () => ({ className: 'className', variable: '--font-inter' }),
-  Roboto: () => ({ className: 'className', variable: '--font-roboto' }),
+vi.mock("next/font/google", () => ({
+  Pacifico: () => ({ className: "className", variable: "--font-pacifico" }),
+  Inter: () => ({ className: "className", variable: "--font-inter" }),
+  Roboto: () => ({ className: "className", variable: "--font-roboto" }),
 }));
 
 // Browser API Polyfills for jsdom
-if (typeof window !== 'undefined') {
-  Object.defineProperty(window, 'matchMedia', {
+if (typeof window !== "undefined") {
+  Object.defineProperty(window, "matchMedia", {
     writable: true,
     value: vi.fn().mockImplementation((query: string) => ({
       matches: false,

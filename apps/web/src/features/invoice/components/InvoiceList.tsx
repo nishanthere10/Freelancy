@@ -1,5 +1,5 @@
-import type { InvoiceResponse } from '../api';
-import { InvoiceCard } from './InvoiceCard';
+import type { InvoiceResponse } from "../api";
+import { InvoiceCard } from "./InvoiceCard";
 
 interface InvoiceListProps {
   invoices: InvoiceResponse[];

@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
 import {
+  type DriftAnalysisRecord,
+  analyzeScopeDrift,
+  listScopeDriftAnalyses,
+} from "@api/ai";
+import {
+  type UseMutationResult,
+  type UseQueryResult,
   useMutation,
   useQuery,
   useQueryClient,
-  type UseMutationResult,
-  type UseQueryResult,
-} from '@tanstack/react-query';
-import {
-  analyzeScopeDrift,
-  listScopeDriftAnalyses,
-  type DriftAnalysisRecord,
-} from '@api/ai';
+} from "@tanstack/react-query";
 
-export const AI_DRIFT_QUERY_KEY = 'ai-drift';
+export const AI_DRIFT_QUERY_KEY = "ai-drift";
 
 /**
  * Mutation hook to detect scope drift against a confirmed scope
  */
 export function useAnalyzeDrift(
-  workspaceId: string
+  workspaceId: string,
 ): UseMutationResult<
   DriftAnalysisRecord,
   Error,
@@ -43,7 +43,7 @@ export function useAnalyzeDrift(
  */
 export function useScopeDriftAnalyses(
   workspaceId: string,
-  scopeAnalysisId: string
+  scopeAnalysisId: string,
 ): UseQueryResult<DriftAnalysisRecord[], Error> {
   return useQuery({
     queryKey: [AI_DRIFT_QUERY_KEY, workspaceId, scopeAnalysisId],

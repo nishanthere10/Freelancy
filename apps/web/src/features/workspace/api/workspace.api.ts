@@ -3,14 +3,18 @@
  * All workspace API calls centralized here
  */
 
-import { apiDelete, apiGet, apiPatch, apiPost } from '@api/client';
-import type { CreateWorkspaceInput, UpdateWorkspaceInput, WorkspaceResponse } from './workspace.types';
+import { apiDelete, apiGet, apiPatch, apiPost } from "@api/client";
+import type {
+  CreateWorkspaceInput,
+  UpdateWorkspaceInput,
+  WorkspaceResponse,
+} from "./workspace.types";
 
 /**
  * Get all workspaces for current user
  */
 export async function getWorkspaces(): Promise<WorkspaceResponse[]> {
-  return apiGet<WorkspaceResponse[]>('/workspaces');
+  return apiGet<WorkspaceResponse[]>("/workspaces");
 }
 
 /**
@@ -23,8 +27,10 @@ export async function getWorkspace(id: string): Promise<WorkspaceResponse> {
 /**
  * Create new workspace
  */
-export async function createWorkspace(data: CreateWorkspaceInput): Promise<WorkspaceResponse> {
-  return apiPost<WorkspaceResponse>('/workspaces', data);
+export async function createWorkspace(
+  data: CreateWorkspaceInput,
+): Promise<WorkspaceResponse> {
+  return apiPost<WorkspaceResponse>("/workspaces", data);
 }
 
 /**
@@ -32,7 +38,7 @@ export async function createWorkspace(data: CreateWorkspaceInput): Promise<Works
  */
 export async function updateWorkspace(
   id: string,
-  data: UpdateWorkspaceInput
+  data: UpdateWorkspaceInput,
 ): Promise<WorkspaceResponse> {
   return apiPatch<WorkspaceResponse>(`/workspaces/${id}`, data);
 }

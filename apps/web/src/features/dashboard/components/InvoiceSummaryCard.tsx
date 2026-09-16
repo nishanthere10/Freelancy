@@ -1,20 +1,43 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Receipt, ArrowUpRight } from '@phosphor-icons/react';
-import type { DashboardInvoiceSummaryData } from '../api/dashboard.types';
+import { ArrowUpRight, Receipt } from "@phosphor-icons/react";
+import Link from "next/link";
+import type { DashboardInvoiceSummaryData } from "../api/dashboard.types";
 
 interface InvoiceSummaryCardProps {
   workspaceId: string;
   summary: DashboardInvoiceSummaryData;
 }
 
-export function InvoiceSummaryCard({ workspaceId, summary }: InvoiceSummaryCardProps) {
+export function InvoiceSummaryCard({
+  workspaceId,
+  summary,
+}: InvoiceSummaryCardProps) {
   const items = [
-    { label: 'Paid', count: summary.paidCount, badgeClass: 'bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border-[var(--color-brand-teal)]/30' },
-    { label: 'Sent', count: summary.sentCount, badgeClass: 'bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20' },
-    { label: 'Draft', count: summary.draftCount, badgeClass: 'bg-[var(--color-surface-soft)] text-[var(--color-charcoal)] border-[var(--color-hairline-strong)]' },
-    { label: 'Overdue', count: summary.overdueCount, badgeClass: 'bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/40' },
+    {
+      label: "Paid",
+      count: summary.paidCount,
+      badgeClass:
+        "bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border-[var(--color-brand-teal)]/30",
+    },
+    {
+      label: "Sent",
+      count: summary.sentCount,
+      badgeClass:
+        "bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20",
+    },
+    {
+      label: "Draft",
+      count: summary.draftCount,
+      badgeClass:
+        "bg-[var(--color-surface-soft)] text-[var(--color-charcoal)] border-[var(--color-hairline-strong)]",
+    },
+    {
+      label: "Overdue",
+      count: summary.overdueCount,
+      badgeClass:
+        "bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/40",
+    },
   ];
 
   return (
@@ -44,8 +67,12 @@ export function InvoiceSummaryCard({ workspaceId, summary }: InvoiceSummaryCardP
             key={it.label}
             className="p-3.5 rounded-[var(--radius-lg)] border border-[var(--color-hairline-soft)] bg-[var(--color-surface-soft)] flex items-center justify-between hover:border-[var(--color-hairline-strong)] hover:bg-[var(--color-canvas)] transition-all duration-150"
           >
-            <span className="text-xs font-semibold text-[var(--color-charcoal)]">{it.label}</span>
-            <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${it.badgeClass}`}>
+            <span className="text-xs font-semibold text-[var(--color-charcoal)]">
+              {it.label}
+            </span>
+            <span
+              className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${it.badgeClass}`}
+            >
               {it.count}
             </span>
           </div>

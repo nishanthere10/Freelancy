@@ -1,18 +1,10 @@
-'use client';
-
-import { use } from 'react';
-import { useParams } from 'next/navigation';
-import { ScopeAnalysisPage } from '@features/ai';
+import { ScopeAnalysisPage } from "@features/ai";
 
 interface AiStudioRouteProps {
-  params?: Promise<{ workspaceId: string }> | { workspaceId: string };
+  params: Promise<{ workspaceId: string }>;
 }
 
-export default function AiStudioRoute({ params }: AiStudioRouteProps) {
-  const routeParams = useParams();
-  const resolvedWorkspaceId =
-    (params && ('then' in params ? use(params).workspaceId : params.workspaceId)) ||
-    (routeParams?.workspaceId as string);
-
-  return <ScopeAnalysisPage workspaceId={resolvedWorkspaceId} />;
+export default async function AiStudioRoute({ params }: AiStudioRouteProps) {
+  const { workspaceId } = await params;
+  return <ScopeAnalysisPage workspaceId={workspaceId} />;
 }

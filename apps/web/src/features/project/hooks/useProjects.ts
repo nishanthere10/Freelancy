@@ -1,9 +1,12 @@
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { getProjects, projectKeys, type ListProjectsFilters } from '../api';
+import { useQuery } from "@tanstack/react-query";
+import { type ListProjectsFilters, getProjects, projectKeys } from "../api";
 
-export function useProjects(workspaceId: string, filters?: ListProjectsFilters) {
+export function useProjects(
+  workspaceId: string,
+  filters?: ListProjectsFilters,
+) {
   return useQuery({
     queryKey: projectKeys.list(workspaceId, filters as Record<string, unknown>),
     queryFn: () => getProjects(workspaceId, filters),

@@ -1,8 +1,8 @@
-import { apiDelete, apiGet, apiPatch, apiPost } from '@api/client';
-import type { InvoiceResponse } from '@features/invoice/api';
+import { apiDelete, apiGet, apiPatch, apiPost } from "@api/client";
+import type { InvoiceResponse } from "@features/invoice/api";
 
-export type DeliverableComplexity = 'low' | 'medium' | 'high';
-export type DeliverableStatus = 'pending' | 'in_progress' | 'completed';
+export type DeliverableComplexity = "low" | "medium" | "high";
+export type DeliverableStatus = "pending" | "in_progress" | "completed";
 
 export interface ProjectDeliverable {
   id: string;
@@ -72,21 +72,21 @@ export interface CreateProgressInvoiceResponse {
 
 export async function getProjectDeliverables(
   workspaceId: string,
-  projectId: string
+  projectId: string,
 ): Promise<ProjectDeliverablesResponse> {
   return apiGet<ProjectDeliverablesResponse>(
-    `/workspaces/${workspaceId}/projects/${projectId}/deliverables`
+    `/workspaces/${workspaceId}/projects/${projectId}/deliverables`,
   );
 }
 
 export async function createProjectDeliverable(
   workspaceId: string,
   projectId: string,
-  data: CreateProjectDeliverableInput
+  data: CreateProjectDeliverableInput,
 ): Promise<ProjectDeliverable> {
   return apiPost<ProjectDeliverable>(
     `/workspaces/${workspaceId}/projects/${projectId}/deliverables`,
-    data
+    data,
   );
 }
 
@@ -94,41 +94,49 @@ export async function updateProjectDeliverable(
   workspaceId: string,
   projectId: string,
   deliverableId: string,
-  data: UpdateProjectDeliverableInput
+  data: UpdateProjectDeliverableInput,
 ): Promise<ProjectDeliverable> {
   return apiPatch<ProjectDeliverable>(
     `/workspaces/${workspaceId}/projects/${projectId}/deliverables/${deliverableId}`,
-    data
+    data,
   );
 }
 
 export async function deleteProjectDeliverable(
   workspaceId: string,
   projectId: string,
-  deliverableId: string
+  deliverableId: string,
 ): Promise<{ deleted: boolean }> {
   return apiDelete<{ deleted: boolean }>(
-    `/workspaces/${workspaceId}/projects/${projectId}/deliverables/${deliverableId}`
+    `/workspaces/${workspaceId}/projects/${projectId}/deliverables/${deliverableId}`,
   );
 }
 
 export async function createProgressInvoice(
   workspaceId: string,
   projectId: string,
-  data: CreateProgressInvoiceInput
+  data: CreateProgressInvoiceInput,
 ): Promise<CreateProgressInvoiceResponse> {
   return apiPost<CreateProgressInvoiceResponse>(
     `/workspaces/${workspaceId}/projects/${projectId}/invoices/progress`,
-    data
+    data,
   );
 }
 
 export async function backfillProjectDeliverables(
   workspaceId: string,
-  projectId: string
-): Promise<{ count: number; deliverables: ProjectDeliverable[]; message: string }> {
-  return apiPost<{ count: number; deliverables: ProjectDeliverable[]; message: string }>(
+  projectId: string,
+): Promise<{
+  count: number;
+  deliverables: ProjectDeliverable[];
+  message: string;
+}> {
+  return apiPost<{
+    count: number;
+    deliverables: ProjectDeliverable[];
+    message: string;
+  }>(
     `/workspaces/${workspaceId}/projects/${projectId}/deliverables/backfill`,
-    {}
+    {},
   );
 }

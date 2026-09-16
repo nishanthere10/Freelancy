@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Pacifico } from 'next/font/google';
-import { CaretDown } from '@phosphor-icons/react';
+import { CaretDown } from "@phosphor-icons/react";
+import { Pacifico } from "next/font/google";
+import Link from "next/link";
 
 const pacifico = Pacifico({
-  weight: '400',
-  subsets: ['latin'],
+  weight: "400",
+  subsets: ["latin"],
 });
 
 export function MarketingNav() {
@@ -15,30 +15,57 @@ export function MarketingNav() {
       <div className="max-w-[1280px] mx-auto px-8 h-full flex items-center justify-between">
         {/* Brand */}
         <Link href="/" className="flex items-center gap-3 group">
-          <span className={`${pacifico.className} text-[26px] text-[var(--color-ink-deep)] group-hover:text-[var(--color-brand-blue)] transition-colors mt-1`}>
+          <span
+            className={`${pacifico.className} text-[26px] text-[var(--color-ink-deep)] group-hover:text-[var(--color-brand-blue)] transition-colors mt-1`}
+          >
             Freelancy
           </span>
         </Link>
 
         {/* Links (Desktop) */}
         <div className="hidden md:flex items-center gap-8">
-          <Link href="#product" className="group flex items-center gap-1 text-[15px] font-medium text-[var(--color-slate)] hover:text-[var(--color-ink)] transition-colors">
-            Product <CaretDown size={14} weight="bold" className="group-hover:rotate-180 transition-transform duration-300" />
+          <Link
+            href="#product"
+            className="group flex items-center gap-1 text-[15px] font-medium text-[var(--color-slate)] hover:text-[var(--color-ink)] transition-colors"
+          >
+            Product{" "}
+            <CaretDown
+              size={14}
+              weight="bold"
+              className="group-hover:rotate-180 transition-transform duration-300"
+            />
           </Link>
-          <Link href="#solutions" className="group flex items-center gap-1 text-[15px] font-medium text-[var(--color-slate)] hover:text-[var(--color-ink)] transition-colors">
-            Solutions <CaretDown size={14} weight="bold" className="group-hover:rotate-180 transition-transform duration-300" />
+          <Link
+            href="#solutions"
+            className="group flex items-center gap-1 text-[15px] font-medium text-[var(--color-slate)] hover:text-[var(--color-ink)] transition-colors"
+          >
+            Solutions{" "}
+            <CaretDown
+              size={14}
+              weight="bold"
+              className="group-hover:rotate-180 transition-transform duration-300"
+            />
           </Link>
-          <Link href="#pricing" className="text-[15px] font-medium text-[var(--color-slate)] hover:text-[var(--color-ink)] transition-colors">
+          <Link
+            href="#pricing"
+            className="text-[15px] font-medium text-[var(--color-slate)] hover:text-[var(--color-ink)] transition-colors"
+          >
             Pricing
           </Link>
-          <Link href="#resources" className="text-[15px] font-medium text-[var(--color-slate)] hover:text-[var(--color-ink)] transition-colors">
+          <Link
+            href="#resources"
+            className="text-[15px] font-medium text-[var(--color-slate)] hover:text-[var(--color-ink)] transition-colors"
+          >
             Resources
           </Link>
         </div>
 
         {/* CTAs */}
         <div className="flex items-center gap-5">
-          <Link href="/sign-in" className="text-[15px] font-medium text-[var(--color-charcoal)] hover:text-[var(--color-ink)] transition-colors hidden sm:block">
+          <Link
+            href="/sign-in"
+            className="text-[15px] font-medium text-[var(--color-charcoal)] hover:text-[var(--color-ink)] transition-colors hidden sm:block"
+          >
             Log in
           </Link>
           <div className="h-6 w-px bg-[var(--color-hairline)] hidden sm:block"></div>

@@ -1,34 +1,41 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button, Input, Skeleton } from '@shared/components';
 import {
-  Plus,
-  MagnifyingGlass,
-  Receipt,
   CheckCircle,
   Clock,
   CurrencyDollar,
+  MagnifyingGlass,
+  Plus,
+  Receipt,
   TrendUp,
-} from '@phosphor-icons/react';
-import { useInvoices } from '../hooks';
-import type { InvoiceResponse, InvoiceStatus } from '../api';
-import { InvoiceList } from './InvoiceList';
-import { InvoiceDetailView } from './InvoiceDetailView';
-import { InvoiceEmptyState } from './InvoiceEmptyState';
-import { CreateInvoiceDialog } from './CreateInvoiceDialog';
+} from "@phosphor-icons/react";
+import { Button, Input, Skeleton } from "@shared/components";
+import { useState } from "react";
+import type { InvoiceResponse, InvoiceStatus } from "../api";
+import { useInvoices } from "../hooks";
+import { CreateInvoiceDialog } from "./CreateInvoiceDialog";
+import { InvoiceDetailView } from "./InvoiceDetailView";
+import { InvoiceEmptyState } from "./InvoiceEmptyState";
+import { InvoiceList } from "./InvoiceList";
 
 interface InvoicePageProps {
   workspaceId: string;
 }
 
 export function InvoicePage({ workspaceId }: InvoicePageProps) {
-  const [statusFilter, setStatusFilter] = useState<InvoiceStatus | 'all'>('all');
-  const [search, setSearch] = useState('');
-  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceResponse | null>(null);
+  const [statusFilter, setStatusFilter] = useState<InvoiceStatus | "all">(
+    "all",
+  );
+  const [search, setSearch] = useState("");
+  const [selectedInvoice, setSelectedInvoice] =
+    useState<InvoiceResponse | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
-  const { data: invoices, isLoading, error } = useInvoices(workspaceId, {
+  const {
+    data: invoices,
+    isLoading,
+    error,
+  } = useInvoices(workspaceId, {
     status: statusFilter,
     search,
   });
@@ -36,8 +43,9 @@ export function InvoicePage({ workspaceId }: InvoicePageProps) {
   // Calculate overview metrics from invoices list
   const totalBilled = invoices
     ? invoices.reduce(
-        (acc, inv) => (inv.status !== 'cancelled' ? acc + Number(inv.totalAmount) : acc),
-        0
+        (acc, inv) =>
+          inv.status !== "cancelled" ? acc + Number(inv.totalAmount) : acc,
+        0,
       )
     : 0;
   const totalCollected = invoices
@@ -45,8 +53,9 @@ export function InvoicePage({ workspaceId }: InvoicePageProps) {
     : 0;
   const totalPending = invoices
     ? invoices.reduce(
-        (acc, inv) => (inv.status !== 'cancelled' ? acc + Number(inv.amountDue) : acc),
-        0
+        (acc, inv) =>
+          inv.status !== "cancelled" ? acc + Number(inv.amountDue) : acc,
+        0,
       )
     : 0;
 
@@ -78,12 +87,16 @@ export function InvoicePage({ workspaceId }: InvoicePageProps) {
                 Invoices
               </h1>
               <p className="text-xs sm:text-sm text-[var(--color-slate-text)]">
-                Issue professional GST-compliant invoices, track due dates, and record payments.
+                Issue professional GST-compliant invoices, track due dates, and
+                record payments.
               </p>
             </div>
           </div>
 
-          <Button onClick={() => setCreateDialogOpen(true)} className="shadow-xs rounded-full">
+          <Button
+            onClick={() => setCreateDialogOpen(true)}
+            className="shadow-xs rounded-full"
+          >
             <Plus className="h-4 w-4 mr-1.5" /> Create Invoice
           </Button>
         </div>
@@ -97,7 +110,9 @@ export function InvoicePage({ workspaceId }: InvoicePageProps) {
               </div>
               <div className="text-2xl sm:text-3xl font-bold text-[var(--color-ink-deep)] flex items-center">
                 <CurrencyDollar className="h-6 w-6 text-[var(--color-brand-blue)] mr-0.5" />
-                {totalBilled.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                {totalBilled.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}
               </div>
               <div className="text-[11px] font-medium text-[var(--color-brand-blue)] flex items-center gap-1">
                 <TrendUp className="h-3.5 w-3.5" /> Gross billed revenue
@@ -115,7 +130,9 @@ export function InvoicePage({ workspaceId }: InvoicePageProps) {
               </div>
               <div className="text-2xl sm:text-3xl font-bold text-[var(--color-success-accent)] flex items-center">
                 <CurrencyDollar className="h-6 w-6 text-[var(--color-success-accent)] mr-0.5" />
-                {totalCollected.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                {totalCollected.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}
               </div>
               <div className="text-[11px] font-medium text-[var(--color-success-accent)] flex items-center gap-1">
                 <CheckCircle className="h-3.5 w-3.5" /> Payments cleared
@@ -133,7 +150,9 @@ export function InvoicePage({ workspaceId }: InvoicePageProps) {
               </div>
               <div className="text-2xl sm:text-3xl font-bold text-[var(--color-rose-dark)] flex items-center">
                 <CurrencyDollar className="h-6 w-6 text-[var(--color-rose-dark)] mr-0.5" />
-                {totalPending.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                {totalPending.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}
               </div>
               <div className="text-[11px] font-medium text-[var(--color-rose-dark)] flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" /> Outstanding balance
@@ -158,13 +177,15 @@ export function InvoicePage({ workspaceId }: InvoicePageProps) {
           </div>
 
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-            {(['all', 'draft', 'sent', 'paid', 'overdue', 'cancelled'] as const).map((st) => (
+            {(
+              ["all", "draft", "sent", "paid", "overdue", "cancelled"] as const
+            ).map((st) => (
               <button
                 key={st}
                 type="button"
                 onClick={() => setStatusFilter(st)}
                 className={`pill-tab capitalize ${
-                  statusFilter === st ? 'pill-tab-active' : ''
+                  statusFilter === st ? "pill-tab-active" : ""
                 }`}
               >
                 {st}
@@ -184,13 +205,18 @@ export function InvoicePage({ workspaceId }: InvoicePageProps) {
           <div className="p-8 text-center text-[var(--color-error)] bg-[var(--color-error-bg)] rounded-[var(--radius-xl)] border border-[var(--color-error-border)] max-w-lg mx-auto">
             <p className="text-sm font-semibold">Failed to load invoices</p>
             <p className="text-xs text-[var(--color-error)]/80 mt-1">
-              {error instanceof Error ? error.message : 'Unknown error occurred'}
+              {error instanceof Error
+                ? error.message
+                : "Unknown error occurred"}
             </p>
           </div>
         ) : !invoices || invoices.length === 0 ? (
           <InvoiceEmptyState onCreateClick={() => setCreateDialogOpen(true)} />
         ) : (
-          <InvoiceList invoices={invoices} onSelect={(inv) => setSelectedInvoice(inv)} />
+          <InvoiceList
+            invoices={invoices}
+            onSelect={(inv) => setSelectedInvoice(inv)}
+          />
         )}
 
         {/* Create Invoice Dialog */}

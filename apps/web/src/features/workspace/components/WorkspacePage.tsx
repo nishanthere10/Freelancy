@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Workspace landing page
@@ -6,19 +6,20 @@
  * Entry point for workspace management
  */
 
-import { useState } from 'react';
-import { useWorkspaces } from '../hooks';
-import type { WorkspaceResponse } from '../api';
-import { CreateWorkspaceDialog } from './CreateWorkspaceDialog';
-import { EditWorkspaceDialog } from './EditWorkspaceDialog';
-import { WorkspaceEmptyState } from './WorkspaceEmptyState';
-import { WorkspaceGrid } from './WorkspaceGrid';
-import { WorkspaceHeader } from './WorkspaceHeader';
+import { useState } from "react";
+import type { WorkspaceResponse } from "../api";
+import { useWorkspaces } from "../hooks";
+import { CreateWorkspaceDialog } from "./CreateWorkspaceDialog";
+import { EditWorkspaceDialog } from "./EditWorkspaceDialog";
+import { WorkspaceEmptyState } from "./WorkspaceEmptyState";
+import { WorkspaceGrid } from "./WorkspaceGrid";
+import { WorkspaceHeader } from "./WorkspaceHeader";
 
 export function WorkspacePage() {
   const { data: workspaces, isLoading, error } = useWorkspaces();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editingWorkspace, setEditingWorkspace] = useState<WorkspaceResponse | null>(null);
+  const [editingWorkspace, setEditingWorkspace] =
+    useState<WorkspaceResponse | null>(null);
 
   if (error) {
     return (
@@ -26,7 +27,7 @@ export function WorkspacePage() {
         <div className="text-center max-w-sm">
           <div
             className="mx-auto mb-4 h-12 w-12 rounded-[var(--radius-full)] flex items-center justify-center"
-            style={{ background: 'var(--color-error-bg)' }}
+            style={{ background: "var(--color-error-bg)" }}
           >
             <span className="text-xl">!</span>
           </div>
@@ -34,7 +35,7 @@ export function WorkspacePage() {
             Error loading workspaces
           </h1>
           <p className="text-sm text-[var(--color-slate-text)]">
-            {error instanceof Error ? error.message : 'Unknown error'}
+            {error instanceof Error ? error.message : "Unknown error"}
           </p>
         </div>
       </div>
@@ -47,12 +48,12 @@ export function WorkspacePage() {
     <div className="min-h-screen bg-[var(--color-surface-soft)]">
       {/* Page body */}
       <main className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-10 sm:py-14 lg:py-16 pb-24 space-y-10">
-
-
         <WorkspaceHeader onCreateClick={() => setCreateDialogOpen(true)} />
 
         {isEmpty ? (
-          <WorkspaceEmptyState onCreateClick={() => setCreateDialogOpen(true)} />
+          <WorkspaceEmptyState
+            onCreateClick={() => setCreateDialogOpen(true)}
+          />
         ) : (
           <WorkspaceGrid
             workspaces={workspaces || []}
@@ -66,7 +67,7 @@ export function WorkspacePage() {
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
       />
-      
+
       <EditWorkspaceDialog
         workspace={editingWorkspace}
         open={!!editingWorkspace}

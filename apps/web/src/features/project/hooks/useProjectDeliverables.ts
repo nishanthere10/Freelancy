@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { invoiceKeys } from "@features/invoice/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
+  type CreateProgressInvoiceInput,
+  type CreateProjectDeliverableInput,
+  type UpdateProjectDeliverableInput,
   backfillProjectDeliverables,
   createProgressInvoice,
   createProjectDeliverable,
   deleteProjectDeliverable,
   getProjectDeliverables,
   updateProjectDeliverable,
-  type CreateProgressInvoiceInput,
-  type CreateProjectDeliverableInput,
-  type UpdateProjectDeliverableInput,
-} from '../api';
-import { invoiceKeys } from '@features/invoice/api';
+} from "../api";
 
 export const deliverableKeys = {
-  all: ['project-deliverables'] as const,
+  all: ["project-deliverables"] as const,
   list: (workspaceId: string, projectId: string) =>
     [...deliverableKeys.all, workspaceId, projectId] as const,
 };
@@ -30,27 +30,33 @@ export function useProjectDeliverables(workspaceId: string, projectId: string) {
   });
 }
 
-export function useCreateProjectDeliverable(workspaceId: string, projectId: string) {
+export function useCreateProjectDeliverable(
+  workspaceId: string,
+  projectId: string,
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: CreateProjectDeliverableInput) =>
       createProjectDeliverable(workspaceId, projectId, data),
     onSuccess: () => {
-      toast.success('Deliverable added successfully');
+      toast.success("Deliverable added successfully");
       queryClient.invalidateQueries({
         queryKey: deliverableKeys.list(workspaceId, projectId),
       });
     },
     onError: (err: unknown) => {
       const message =
-        err instanceof Error ? err.message : 'Failed to create deliverable';
+        err instanceof Error ? err.message : "Failed to create deliverable";
       toast.error(message);
     },
   });
 }
 
-export function useUpdateProjectDeliverable(workspaceId: string, projectId: string) {
+export function useUpdateProjectDeliverable(
+  workspaceId: string,
+  projectId: string,
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -65,39 +71,45 @@ export function useUpdateProjectDeliverable(workspaceId: string, projectId: stri
       queryClient.invalidateQueries({
         queryKey: deliverableKeys.list(workspaceId, projectId),
       });
-      if (updated.status === 'completed') {
+      if (updated.status === "completed") {
         toast.success(`Milestone "${updated.title}" marked as completed!`);
       }
     },
     onError: (err: unknown) => {
       const message =
-        err instanceof Error ? err.message : 'Failed to update deliverable';
+        err instanceof Error ? err.message : "Failed to update deliverable";
       toast.error(message);
     },
   });
 }
 
-export function useDeleteProjectDeliverable(workspaceId: string, projectId: string) {
+export function useDeleteProjectDeliverable(
+  workspaceId: string,
+  projectId: string,
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (deliverableId: string) =>
       deleteProjectDeliverable(workspaceId, projectId, deliverableId),
     onSuccess: () => {
-      toast.success('Deliverable deleted');
+      toast.success("Deliverable deleted");
       queryClient.invalidateQueries({
         queryKey: deliverableKeys.list(workspaceId, projectId),
       });
     },
     onError: (err: unknown) => {
       const message =
-        err instanceof Error ? err.message : 'Failed to delete deliverable';
+        err instanceof Error ? err.message : "Failed to delete deliverable";
       toast.error(message);
     },
   });
 }
 
-export function useCreateProgressInvoice(workspaceId: string, projectId: string) {
+export function useCreateProgressInvoice(
+  workspaceId: string,
+  projectId: string,
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -105,7 +117,7 @@ export function useCreateProgressInvoice(workspaceId: string, projectId: string)
       createProgressInvoice(workspaceId, projectId, data),
     onSuccess: (res) => {
       toast.success(
-        `Progress invoice ${res.invoice.invoiceNumber || ''} created successfully!`
+        `Progress invoice ${res.invoice.invoiceNumber || ""} created successfully!`,
       );
       // Invalidate deliverables (to reflect billedAt / invoiceId)
       queryClient.invalidateQueries({
@@ -118,13 +130,18 @@ export function useCreateProgressInvoice(workspaceId: string, projectId: string)
     },
     onError: (err: unknown) => {
       const message =
-        err instanceof Error ? err.message : 'Failed to create progress invoice';
+        err instanceof Error
+          ? err.message
+          : "Failed to create progress invoice";
       toast.error(message);
     },
   });
 }
 
-export function useBackfillProjectDeliverables(workspaceId: string, projectId: string) {
+export function useBackfillProjectDeliverables(
+  workspaceId: string,
+  projectId: string,
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -137,7 +154,7 @@ export function useBackfillProjectDeliverables(workspaceId: string, projectId: s
     },
     onError: (err: unknown) => {
       const message =
-        err instanceof Error ? err.message : 'Failed to backfill deliverables';
+        err instanceof Error ? err.message : "Failed to backfill deliverables";
       toast.error(message);
     },
   });

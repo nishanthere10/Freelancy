@@ -1,9 +1,12 @@
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { getInvoices, invoiceKeys, type ListInvoicesFilters } from '../api';
+import { useQuery } from "@tanstack/react-query";
+import { type ListInvoicesFilters, getInvoices, invoiceKeys } from "../api";
 
-export function useInvoices(workspaceId: string, filters?: ListInvoicesFilters) {
+export function useInvoices(
+  workspaceId: string,
+  filters?: ListInvoicesFilters,
+) {
   return useQuery({
     queryKey: invoiceKeys.list(workspaceId, filters),
     queryFn: () => getInvoices(workspaceId, filters),

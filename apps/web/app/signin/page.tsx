@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
+import { redirect } from "next/navigation";
 
 export default function SigninAliasPage() {
-  redirect('/sign-in');
+  redirect("/sign-in");
 }

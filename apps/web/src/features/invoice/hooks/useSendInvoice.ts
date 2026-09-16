@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { sendInvoice, invoiceKeys, type SendInvoiceInput } from '../api';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { type SendInvoiceInput, invoiceKeys, sendInvoice } from "../api";
 
 export function useSendInvoice(workspaceId: string) {
   const queryClient = useQueryClient();
@@ -15,7 +15,8 @@ export function useSendInvoice(workspaceId: string) {
       toast.success(`Invoice "${invoice.invoiceNumber}" issued`);
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : 'Failed to issue invoice';
+      const message =
+        error instanceof Error ? error.message : "Failed to issue invoice";
       toast.error(message);
     },
   });

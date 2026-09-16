@@ -2,9 +2,13 @@
  * Axios interceptors for request/response handling
  */
 
-import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import axios from 'axios';
-import { ApiError } from './types';
+import type {
+  AxiosError,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
+import type axios from "axios";
+import { ApiError } from "./types";
 
 /**
  * Request interceptor
@@ -12,32 +16,34 @@ import { ApiError } from './types';
  * - Add correlation tracking headers
  */
 export function setupRequestInterceptor(
-  instance: ReturnType<typeof axios.create>
+  instance: ReturnType<typeof axios.create>,
 ) {
-  instance.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
-    if (typeof window !== 'undefined') {
-      const clerkObj = (
-        window as unknown as {
-          Clerk?: {
-            session?: { getToken: () => Promise<string | null> };
-          };
-        }
-      ).Clerk;
-
-      if (clerkObj?.session) {
-        try {
-          const token = await clerkObj.session.getToken();
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+  instance.interceptors.request.use(
+    async (config: InternalAxiosRequestConfig) => {
+      if (typeof window !== "undefined") {
+        const clerkObj = (
+          window as unknown as {
+            Clerk?: {
+              session?: { getToken: () => Promise<string | null> };
+            };
           }
-        } catch (err) {
-          console.warn('Failed to retrieve Clerk token:', err);
+        ).Clerk;
+
+        if (clerkObj?.session) {
+          try {
+            const token = await clerkObj.session.getToken();
+            if (token) {
+              config.headers.Authorization = `Bearer ${token}`;
+            }
+          } catch (err) {
+            console.warn("Failed to retrieve Clerk token:", err);
+          }
         }
       }
-    }
 
-    return config;
-  });
+      return config;
+    },
+  );
 }
 
 /**
@@ -46,14 +52,14 @@ export function setupRequestInterceptor(
  * - Extract requestId and error context
  */
 export function setupResponseInterceptor(
-  instance: ReturnType<typeof axios.create>
+  instance: ReturnType<typeof axios.create>,
 ) {
   instance.interceptors.response.use(
     (response: AxiosResponse) => response,
     (error: AxiosError) => {
       const normalizedError = normalizeError(error);
       return Promise.reject(normalizedError);
-    }
+    },
   );
 }
 
@@ -62,7 +68,7 @@ export function setupResponseInterceptor(
  */
 function normalizeError(error: AxiosError): ApiError {
   const requestId =
-    (error.response?.headers?.['x-request-id'] as string | undefined) ||
+    (error.response?.headers?.["x-request-id"] as string | undefined) ||
     (error.response?.data as { requestId?: string } | undefined)?.requestId;
 
   // API error response
@@ -74,12 +80,16 @@ function normalizeError(error: AxiosError): ApiError {
       requestId?: string;
     };
 
-    let errorCode = 'UNKNOWN_ERROR';
-    let errorMessage = 'An error occurred';
+    let errorCode = "UNKNOWN_ERROR";
+    let errorMessage = "An error occurred";
 
-    if (typeof data.error === 'string') {
+    if (typeof data.error === "string") {
       errorCode = data.error;
-    } else if (data.error && typeof data.error === 'object' && data.error.code) {
+    } else if (
+      data.error &&
+      typeof data.error === "object" &&
+      data.error.code
+    ) {
       errorCode = data.error.code;
       errorMessage = data.error.message || errorMessage;
     }
@@ -93,38 +103,38 @@ function normalizeError(error: AxiosError): ApiError {
       errorMessage,
       data.details,
       error.response.status,
-      requestId
+      requestId,
     );
   }
 
   // Network error
-  if (error.message === 'Network Error') {
+  if (error.message === "Network Error") {
     return new ApiError(
-      'NETWORK_ERROR',
-      'Network error. Check your connection.',
+      "NETWORK_ERROR",
+      "Network error. Check your connection.",
       undefined,
       0,
-      requestId
+      requestId,
     );
   }
 
   // Timeout
-  if (error.code === 'ECONNABORTED') {
+  if (error.code === "ECONNABORTED") {
     return new ApiError(
-      'TIMEOUT',
-      'Request timeout. Please try again.',
+      "TIMEOUT",
+      "Request timeout. Please try again.",
       undefined,
       408,
-      requestId
+      requestId,
     );
   }
 
   // Fallback
   return new ApiError(
-    'UNKNOWN_ERROR',
-    error.message || 'An unexpected error occurred',
+    "UNKNOWN_ERROR",
+    error.message || "An unexpected error occurred",
     undefined,
     error.response?.status,
-    requestId
+    requestId,
   );
 }

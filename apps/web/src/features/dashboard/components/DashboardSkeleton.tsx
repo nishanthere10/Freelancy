@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Skeleton } from '@shared/components';
+import { Skeleton } from "@shared/components";
 
 export function DashboardSkeleton() {
   return (

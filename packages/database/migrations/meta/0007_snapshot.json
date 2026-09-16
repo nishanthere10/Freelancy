@@ -77,16 +77,12 @@
       "indexes": {
         "idx_workspace_members_workspace_id": {
           "name": "idx_workspace_members_workspace_id",
-          "columns": [
-            "workspace_id"
-          ],
+          "columns": ["workspace_id"],
           "isUnique": false
         },
         "idx_workspace_members_user_id": {
           "name": "idx_workspace_members_user_id",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -178,16 +174,12 @@
       "indexes": {
         "idx_workspace_owner_id": {
           "name": "idx_workspace_owner_id",
-          "columns": [
-            "owner_id"
-          ],
+          "columns": ["owner_id"],
           "isUnique": false
         },
         "idx_workspace_slug": {
           "name": "idx_workspace_slug",
-          "columns": [
-            "slug"
-          ],
+          "columns": ["slug"],
           "isUnique": false
         }
       },
@@ -197,9 +189,7 @@
         "workspaces_slug_unique": {
           "name": "workspaces_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       }
     },
@@ -275,16 +265,12 @@
       "indexes": {
         "idx_users_clerk_id": {
           "name": "idx_users_clerk_id",
-          "columns": [
-            "clerk_id"
-          ],
+          "columns": ["clerk_id"],
           "isUnique": true
         },
         "idx_users_email": {
           "name": "idx_users_email",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": true
         }
       },
@@ -294,16 +280,12 @@
         "users_clerk_id_unique": {
           "name": "users_clerk_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "clerk_id"
-          ]
+          "columns": ["clerk_id"]
         },
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       }
     },
@@ -446,32 +428,22 @@
       "indexes": {
         "idx_clients_workspace_id": {
           "name": "idx_clients_workspace_id",
-          "columns": [
-            "workspace_id"
-          ],
+          "columns": ["workspace_id"],
           "isUnique": false
         },
         "idx_clients_email": {
           "name": "idx_clients_email",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": false
         },
         "idx_clients_workspace_id_id": {
           "name": "idx_clients_workspace_id_id",
-          "columns": [
-            "workspace_id",
-            "id"
-          ],
+          "columns": ["workspace_id", "id"],
           "isUnique": true
         },
         "idx_clients_workspace_email": {
           "name": "idx_clients_workspace_email",
-          "columns": [
-            "workspace_id",
-            "email"
-          ],
+          "columns": ["workspace_id", "email"],
           "isUnique": true
         }
       },
@@ -480,12 +452,8 @@
           "name": "clients_workspace_id_workspaces_id_fk",
           "tableFrom": "clients",
           "tableTo": "workspaces",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workspace_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -615,39 +583,27 @@
       "indexes": {
         "idx_projects_workspace_id": {
           "name": "idx_projects_workspace_id",
-          "columns": [
-            "workspace_id"
-          ],
+          "columns": ["workspace_id"],
           "isUnique": false
         },
         "idx_projects_client_id": {
           "name": "idx_projects_client_id",
-          "columns": [
-            "client_id"
-          ],
+          "columns": ["client_id"],
           "isUnique": false
         },
         "idx_projects_status": {
           "name": "idx_projects_status",
-          "columns": [
-            "status"
-          ],
+          "columns": ["status"],
           "isUnique": false
         },
         "idx_projects_workspace_slug": {
           "name": "idx_projects_workspace_slug",
-          "columns": [
-            "workspace_id",
-            "slug"
-          ],
+          "columns": ["workspace_id", "slug"],
           "isUnique": true
         },
         "idx_projects_workspace_id_id": {
           "name": "idx_projects_workspace_id_id",
-          "columns": [
-            "workspace_id",
-            "id"
-          ],
+          "columns": ["workspace_id", "id"],
           "isUnique": true
         }
       },
@@ -656,12 +612,8 @@
           "name": "projects_workspace_id_workspaces_id_fk",
           "tableFrom": "projects",
           "tableTo": "workspaces",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workspace_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -669,14 +621,8 @@
           "name": "fk_projects_workspace_client",
           "tableFrom": "projects",
           "tableTo": "clients",
-          "columnsFrom": [
-            "workspace_id",
-            "client_id"
-          ],
-          "columnsTo": [
-            "workspace_id",
-            "id"
-          ],
+          "columnsFrom": ["workspace_id", "client_id"],
+          "columnsTo": ["workspace_id", "id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -745,9 +691,7 @@
       "indexes": {
         "idx_invoice_items_invoice_id": {
           "name": "idx_invoice_items_invoice_id",
-          "columns": [
-            "invoice_id"
-          ],
+          "columns": ["invoice_id"],
           "isUnique": false
         }
       },
@@ -756,12 +700,8 @@
           "name": "fk_invoice_items_invoice",
           "tableFrom": "invoice_items",
           "tableTo": "invoices",
-          "columnsFrom": [
-            "invoice_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invoice_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -769,12 +709,8 @@
           "name": "fk_invoice_items_workspace",
           "tableFrom": "invoice_items",
           "tableTo": "workspaces",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workspace_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -978,46 +914,32 @@
       "indexes": {
         "idx_invoices_workspace_id": {
           "name": "idx_invoices_workspace_id",
-          "columns": [
-            "workspace_id"
-          ],
+          "columns": ["workspace_id"],
           "isUnique": false
         },
         "idx_invoices_client_id": {
           "name": "idx_invoices_client_id",
-          "columns": [
-            "client_id"
-          ],
+          "columns": ["client_id"],
           "isUnique": false
         },
         "idx_invoices_project_id": {
           "name": "idx_invoices_project_id",
-          "columns": [
-            "project_id"
-          ],
+          "columns": ["project_id"],
           "isUnique": false
         },
         "idx_invoices_status": {
           "name": "idx_invoices_status",
-          "columns": [
-            "status"
-          ],
+          "columns": ["status"],
           "isUnique": false
         },
         "idx_invoices_workspace_id_id": {
           "name": "idx_invoices_workspace_id_id",
-          "columns": [
-            "workspace_id",
-            "id"
-          ],
+          "columns": ["workspace_id", "id"],
           "isUnique": true
         },
         "idx_invoices_workspace_number": {
           "name": "idx_invoices_workspace_number",
-          "columns": [
-            "workspace_id",
-            "invoice_number"
-          ],
+          "columns": ["workspace_id", "invoice_number"],
           "isUnique": true
         }
       },
@@ -1026,12 +948,8 @@
           "name": "invoices_workspace_id_workspaces_id_fk",
           "tableFrom": "invoices",
           "tableTo": "workspaces",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workspace_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1039,14 +957,8 @@
           "name": "fk_invoices_workspace_client",
           "tableFrom": "invoices",
           "tableTo": "clients",
-          "columnsFrom": [
-            "workspace_id",
-            "client_id"
-          ],
-          "columnsTo": [
-            "workspace_id",
-            "id"
-          ],
+          "columnsFrom": ["workspace_id", "client_id"],
+          "columnsTo": ["workspace_id", "id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -1054,14 +966,8 @@
           "name": "fk_invoices_workspace_project",
           "tableFrom": "invoices",
           "tableTo": "projects",
-          "columnsFrom": [
-            "workspace_id",
-            "project_id"
-          ],
-          "columnsTo": [
-            "workspace_id",
-            "id"
-          ],
+          "columnsFrom": ["workspace_id", "project_id"],
+          "columnsTo": ["workspace_id", "id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1128,29 +1034,17 @@
       "indexes": {
         "idx_activity_events_workspace_created_at": {
           "name": "idx_activity_events_workspace_created_at",
-          "columns": [
-            "workspace_id",
-            "created_at"
-          ],
+          "columns": ["workspace_id", "created_at"],
           "isUnique": false
         },
         "idx_activity_events_workspace_entity": {
           "name": "idx_activity_events_workspace_entity",
-          "columns": [
-            "workspace_id",
-            "entity_type",
-            "entity_id",
-            "created_at"
-          ],
+          "columns": ["workspace_id", "entity_type", "entity_id", "created_at"],
           "isUnique": false
         },
         "idx_activity_events_workspace_actor": {
           "name": "idx_activity_events_workspace_actor",
-          "columns": [
-            "workspace_id",
-            "actor_user_id",
-            "created_at"
-          ],
+          "columns": ["workspace_id", "actor_user_id", "created_at"],
           "isUnique": false
         }
       },
@@ -1159,12 +1053,8 @@
           "name": "activity_events_workspace_id_workspaces_id_fk",
           "tableFrom": "activity_events",
           "tableTo": "workspaces",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workspace_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1172,12 +1062,8 @@
           "name": "activity_events_actor_user_id_users_id_fk",
           "tableFrom": "activity_events",
           "tableTo": "users",
-          "columnsFrom": [
-            "actor_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["actor_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1250,30 +1136,22 @@
       "indexes": {
         "idx_scope_analyses_workspace_id": {
           "name": "idx_scope_analyses_workspace_id",
-          "columns": [
-            "workspace_id"
-          ],
+          "columns": ["workspace_id"],
           "isUnique": false
         },
         "idx_scope_analyses_project_id": {
           "name": "idx_scope_analyses_project_id",
-          "columns": [
-            "project_id"
-          ],
+          "columns": ["project_id"],
           "isUnique": false
         },
         "idx_scope_analyses_actor_user_id": {
           "name": "idx_scope_analyses_actor_user_id",
-          "columns": [
-            "actor_user_id"
-          ],
+          "columns": ["actor_user_id"],
           "isUnique": false
         },
         "idx_scope_analyses_created_at": {
           "name": "idx_scope_analyses_created_at",
-          "columns": [
-            "created_at"
-          ],
+          "columns": ["created_at"],
           "isUnique": false
         }
       },
@@ -1282,12 +1160,8 @@
           "name": "scope_analyses_workspace_id_workspaces_id_fk",
           "tableFrom": "scope_analyses",
           "tableTo": "workspaces",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workspace_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1295,12 +1169,8 @@
           "name": "scope_analyses_project_id_projects_id_fk",
           "tableFrom": "scope_analyses",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1308,12 +1178,8 @@
           "name": "scope_analyses_actor_user_id_users_id_fk",
           "tableFrom": "scope_analyses",
           "tableTo": "users",
-          "columnsFrom": [
-            "actor_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["actor_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1380,23 +1246,17 @@
       "indexes": {
         "idx_drift_analyses_workspace_id": {
           "name": "idx_drift_analyses_workspace_id",
-          "columns": [
-            "workspace_id"
-          ],
+          "columns": ["workspace_id"],
           "isUnique": false
         },
         "idx_drift_analyses_scope_analysis_id": {
           "name": "idx_drift_analyses_scope_analysis_id",
-          "columns": [
-            "scope_analysis_id"
-          ],
+          "columns": ["scope_analysis_id"],
           "isUnique": false
         },
         "idx_drift_analyses_created_at": {
           "name": "idx_drift_analyses_created_at",
-          "columns": [
-            "created_at"
-          ],
+          "columns": ["created_at"],
           "isUnique": false
         }
       },
@@ -1405,12 +1265,8 @@
           "name": "drift_analyses_workspace_id_workspaces_id_fk",
           "tableFrom": "drift_analyses",
           "tableTo": "workspaces",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workspace_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1418,12 +1274,8 @@
           "name": "drift_analyses_scope_analysis_id_scope_analyses_id_fk",
           "tableFrom": "drift_analyses",
           "tableTo": "scope_analyses",
-          "columnsFrom": [
-            "scope_analysis_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["scope_analysis_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1431,12 +1283,8 @@
           "name": "drift_analyses_actor_user_id_users_id_fk",
           "tableFrom": "drift_analyses",
           "tableTo": "users",
-          "columnsFrom": [
-            "actor_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["actor_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

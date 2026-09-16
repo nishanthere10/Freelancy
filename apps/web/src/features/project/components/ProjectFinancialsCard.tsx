@@ -1,20 +1,21 @@
-'use client';
+"use client";
 
-import React, { useMemo, useState } from 'react';
-import Link from 'next/link';
+import type { InvoiceStatus } from "@features/invoice/api";
+import { useInvoices } from "@features/invoice/hooks";
 import {
-  CurrencyDollar,
-  Receipt,
   ArrowSquareOut,
   CheckCircle,
   Clock,
+  CurrencyDollar,
+  Receipt,
   WarningCircle,
-} from '@phosphor-icons/react';
-import { Button } from '@shared/components/Button';
-import { useInvoices } from '@features/invoice/hooks';
-import type { InvoiceStatus } from '@features/invoice/api';
-import { CreateProgressInvoiceModal } from './CreateProgressInvoiceModal';
-import type { ProjectDeliverable } from '../api';
+} from "@phosphor-icons/react";
+import { Button } from "@shared/components/Button";
+import Link from "next/link";
+import type React from "react";
+import { useMemo, useState } from "react";
+import type { ProjectDeliverable } from "../api";
+import { CreateProgressInvoiceModal } from "./CreateProgressInvoiceModal";
 
 interface ProjectFinancialsCardProps {
   workspaceId: string;
@@ -28,7 +29,7 @@ export const ProjectFinancialsCard: React.FC<ProjectFinancialsCardProps> = ({
   workspaceId,
   projectId,
   budgetAmount,
-  budgetCurrency = 'USD',
+  budgetCurrency = "USD",
   deliverables,
 }) => {
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
@@ -36,7 +37,7 @@ export const ProjectFinancialsCard: React.FC<ProjectFinancialsCardProps> = ({
     projectId,
   });
 
-  const currency = budgetCurrency || 'USD';
+  const currency = budgetCurrency || "USD";
   const numericBudget = Number(budgetAmount || 0);
 
   // Financial aggregates calculated from linked invoices
@@ -45,7 +46,7 @@ export const ProjectFinancialsCard: React.FC<ProjectFinancialsCardProps> = ({
     let paid = 0;
 
     for (const inv of invoices) {
-      if (inv.status !== 'cancelled') {
+      if (inv.status !== "cancelled") {
         invoiced += Number(inv.totalAmount || 0);
         paid += Number(inv.amountPaid || 0);
       }
@@ -60,25 +61,25 @@ export const ProjectFinancialsCard: React.FC<ProjectFinancialsCardProps> = ({
 
   const getInvoiceStatusBadge = (status: InvoiceStatus) => {
     switch (status) {
-      case 'paid':
+      case "paid":
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--color-teal-light)] text-[var(--color-brand-teal)]">
             <CheckCircle className="h-3 w-3" weight="fill" /> Paid
           </span>
         );
-      case 'sent':
+      case "sent":
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)]">
             <Clock className="h-3 w-3" weight="bold" /> Sent
           </span>
         );
-      case 'overdue':
+      case "overdue":
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--color-error-bg)] text-[var(--color-error)]">
             <WarningCircle className="h-3 w-3" weight="fill" /> Overdue
           </span>
         );
-      case 'cancelled':
+      case "cancelled":
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--color-surface-soft)] text-[var(--color-slate-text)]">
             Cancelled
@@ -94,7 +95,8 @@ export const ProjectFinancialsCard: React.FC<ProjectFinancialsCardProps> = ({
   };
 
   const completedUnbilledCount = useMemo(() => {
-    return deliverables.filter((d) => d.status === 'completed' && !d.billedAt).length;
+    return deliverables.filter((d) => d.status === "completed" && !d.billedAt)
+      .length;
   }, [deliverables]);
 
   return (
@@ -107,7 +109,8 @@ export const ProjectFinancialsCard: React.FC<ProjectFinancialsCardProps> = ({
             <span>Project Financials & Invoices</span>
           </h2>
           <p className="text-xs text-[var(--color-slate-text)] mt-0.5">
-            Track deposit billings, progress milestones, and client payment collection.
+            Track deposit billings, progress milestones, and client payment
+            collection.
           </p>
         </div>
 
@@ -134,7 +137,10 @@ export const ProjectFinancialsCard: React.FC<ProjectFinancialsCardProps> = ({
             Total Budget
           </span>
           <p className="font-mono font-bold text-lg text-[var(--color-ink-deep)]">
-            {currency} {numericBudget.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {currency}{" "}
+            {numericBudget.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+            })}
           </p>
         </div>
 
@@ -143,7 +149,10 @@ export const ProjectFinancialsCard: React.FC<ProjectFinancialsCardProps> = ({
             Total Invoiced
           </span>
           <p className="font-mono font-bold text-lg text-[var(--color-ink-deep)]">
-            {currency} {totalInvoiced.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {currency}{" "}
+            {totalInvoiced.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+            })}
           </p>
         </div>
 
@@ -152,7 +161,8 @@ export const ProjectFinancialsCard: React.FC<ProjectFinancialsCardProps> = ({
             Total Paid
           </span>
           <p className="font-mono font-bold text-lg text-[var(--color-moss-dark)]">
-            {currency} {totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {currency}{" "}
+            {totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
         </div>
 
@@ -161,7 +171,10 @@ export const ProjectFinancialsCard: React.FC<ProjectFinancialsCardProps> = ({
             Outstanding Due
           </span>
           <p className="font-mono font-bold text-lg text-[var(--color-yellow-dark)]">
-            {currency} {outstanding.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {currency}{" "}
+            {outstanding.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+            })}
           </p>
         </div>
       </div>
@@ -178,7 +191,8 @@ export const ProjectFinancialsCard: React.FC<ProjectFinancialsCardProps> = ({
           </div>
         ) : invoices.length === 0 ? (
           <div className="py-8 text-center text-xs text-[var(--color-slate-text)] border border-dashed border-[var(--color-hairline)] rounded-[var(--radius-lg)] p-4">
-            No invoices linked to this project yet. Use &quot;Create Progress Invoice&quot; to bill completed deliverables.
+            No invoices linked to this project yet. Use &quot;Create Progress
+            Invoice&quot; to bill completed deliverables.
           </div>
         ) : (
           <div className="overflow-x-auto border border-[var(--color-hairline-soft)] rounded-[var(--radius-lg)]">
@@ -195,19 +209,30 @@ export const ProjectFinancialsCard: React.FC<ProjectFinancialsCardProps> = ({
               </thead>
               <tbody className="divide-y divide-[var(--color-hairline-soft)]">
                 {invoices.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-[var(--color-surface-soft)]/50 transition-colors">
+                  <tr
+                    key={inv.id}
+                    className="hover:bg-[var(--color-surface-soft)]/50 transition-colors"
+                  >
                     <td className="py-3 px-4 font-mono font-bold text-[var(--color-ink-deep)]">
-                      {inv.invoiceNumber || 'Draft'}
+                      {inv.invoiceNumber || "Draft"}
                     </td>
-                    <td className="py-3 px-4">{getInvoiceStatusBadge(inv.status)}</td>
+                    <td className="py-3 px-4">
+                      {getInvoiceStatusBadge(inv.status)}
+                    </td>
                     <td className="py-3 px-4 font-mono font-semibold text-[var(--color-ink-deep)]">
-                      {inv.currency} {Number(inv.totalAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      {inv.currency}{" "}
+                      {Number(inv.totalAmount).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                      })}
                     </td>
                     <td className="py-3 px-4 font-mono text-[var(--color-slate-text)]">
-                      {inv.currency} {Number(inv.amountPaid || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      {inv.currency}{" "}
+                      {Number(inv.amountPaid || 0).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                      })}
                     </td>
                     <td className="py-3 px-4 text-[var(--color-slate-text)]">
-                      {inv.dueDate || 'Not set'}
+                      {inv.dueDate || "Not set"}
                     </td>
                     <td className="py-3 px-4 text-right">
                       <Link

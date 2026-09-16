@@ -1,5 +1,5 @@
-export type ProjectStatus = 'draft' | 'active' | 'completed' | 'archived';
-export type PricingModel = 'fixed' | 'hourly' | 'retainer';
+export type ProjectStatus = "draft" | "active" | "completed" | "archived";
+export type PricingModel = "fixed" | "hourly" | "retainer";
 
 export interface ProjectResponse {
   id: string;
@@ -51,7 +51,7 @@ export interface ChangeProjectStatusInput {
 }
 
 export interface ListProjectsFilters {
-  status?: ProjectStatus | 'all';
+  status?: ProjectStatus | "all";
   clientId?: string;
   excludeDeleted?: boolean;
   search?: string;

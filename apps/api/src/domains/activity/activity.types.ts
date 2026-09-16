@@ -25,6 +25,11 @@ export type ActivityEventType =
   | "project.deliverable.updated"
   | "project.deliverable.completed"
   | "project.deliverable.deleted"
+  // Change Order events
+  | "project.change_order.created"
+  | "project.change_order.approved"
+  | "project.change_order.rejected"
+  | "project.change_order.cancelled"
   // Invoice events
   | "invoice.created"
   | "invoice.updated"
@@ -38,6 +43,7 @@ export type ActivityEntityType =
   | "client"
   | "project"
   | "deliverable"
+  | "change_order"
   | "invoice"
   | "member";
 

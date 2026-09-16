@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Create workspace form
@@ -6,11 +6,14 @@
  * Uses React Hook Form + Zod
  */
 
-import { Button, FormField } from '@shared/components';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { CircleNotch } from '@phosphor-icons/react';
-import { FormProvider, useForm } from 'react-hook-form';
-import { createWorkspaceSchema, type CreateWorkspaceFormData } from '../schemas';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CircleNotch } from "@phosphor-icons/react";
+import { Button, FormField } from "@shared/components";
+import { FormProvider, useForm } from "react-hook-form";
+import {
+  type CreateWorkspaceFormData,
+  createWorkspaceSchema,
+} from "../schemas";
 
 interface CreateWorkspaceFormProps {
   onSubmit: (data: CreateWorkspaceFormData) => Promise<void>;
@@ -25,8 +28,8 @@ export function CreateWorkspaceForm({
 }: CreateWorkspaceFormProps) {
   const form = useForm<CreateWorkspaceFormData>({
     resolver: zodResolver(createWorkspaceSchema),
-    mode: 'onBlur',
-    defaultValues: { name: '', slug: '', description: '' },
+    mode: "onBlur",
+    defaultValues: { name: "", slug: "", description: "" },
   });
 
   const { handleSubmit, formState } = form;
@@ -52,7 +55,7 @@ export function CreateWorkspaceForm({
             required
             disabled={isLoading}
           />
-          <p className="text-xs" style={{ color: 'var(--color-steel)' }}>
+          <p className="text-xs" style={{ color: "var(--color-steel)" }}>
             URL-friendly identifier — lowercase, hyphens only
           </p>
         </div>
@@ -62,28 +65,28 @@ export function CreateWorkspaceForm({
           <label
             htmlFor="description"
             className="text-sm font-medium"
-            style={{ color: 'var(--color-ink-deep)' }}
+            style={{ color: "var(--color-ink-deep)" }}
           >
-            Description{' '}
-            <span style={{ color: 'var(--color-steel)' }}>(optional)</span>
+            Description{" "}
+            <span style={{ color: "var(--color-steel)" }}>(optional)</span>
           </label>
           <textarea
             id="description"
             placeholder="What will you use this workspace for?"
             disabled={isLoading}
-            {...form.register('description')}
+            {...form.register("description")}
             rows={3}
             className={[
-              'w-full rounded-[var(--radius-md)] border border-[var(--color-hairline-strong)]',
-              'bg-[var(--color-canvas)] px-4 py-2.5 text-sm text-[var(--color-ink)]',
-              'placeholder:text-[var(--color-steel)]',
-              'resize-none transition-colors duration-150',
-              'focus:outline-none focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[var(--color-brand-blue)]/20',
-              'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--color-surface)]',
-            ].join(' ')}
+              "w-full rounded-[var(--radius-md)] border border-[var(--color-hairline-strong)]",
+              "bg-[var(--color-canvas)] px-4 py-2.5 text-sm text-[var(--color-ink)]",
+              "placeholder:text-[var(--color-steel)]",
+              "resize-none transition-colors duration-150",
+              "focus:outline-none focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[var(--color-brand-blue)]/20",
+              "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--color-surface)]",
+            ].join(" ")}
           />
           {formState.errors.description && (
-            <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+            <p className="text-xs" style={{ color: "var(--color-error)" }}>
               {formState.errors.description.message as string}
             </p>
           )}
@@ -92,7 +95,7 @@ export function CreateWorkspaceForm({
         {/* Actions */}
         <div
           className="flex gap-3 justify-end pt-4 border-t"
-          style={{ borderColor: 'var(--color-hairline)' }}
+          style={{ borderColor: "var(--color-hairline)" }}
         >
           <Button
             type="button"
@@ -111,7 +114,7 @@ export function CreateWorkspaceForm({
             className="flex items-center gap-2"
           >
             {isLoading && <CircleNotch size={15} className="animate-spin" />}
-            {isLoading ? 'Creating…' : 'Create Workspace'}
+            {isLoading ? "Creating…" : "Create Workspace"}
           </Button>
         </div>
       </form>

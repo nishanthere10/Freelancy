@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import type { ProjectResponse } from '../api';
-import { ProjectCard } from './ProjectCard';
+import type { ProjectResponse } from "../api";
+import { ProjectCard } from "./ProjectCard";
 
 interface ProjectListProps {
   workspaceId: string;

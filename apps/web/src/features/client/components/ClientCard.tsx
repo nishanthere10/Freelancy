@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { Card, Button } from '@shared/components';
 import {
-  Buildings,
-  EnvelopeSimple,
-  Phone,
-  PencilSimple,
   Archive,
   ArrowClockwise,
+  Buildings,
+  EnvelopeSimple,
+  PencilSimple,
+  Phone,
   User,
-} from '@phosphor-icons/react';
-import type { ClientResponse } from '../api';
-import { useDeleteClient, useRestoreClient } from '../hooks';
+} from "@phosphor-icons/react";
+import { Button, Card } from "@shared/components";
+import type { ClientResponse } from "../api";
+import { useDeleteClient, useRestoreClient } from "../hooks";
 
 interface ClientCardProps {
   workspaceId: string;
@@ -26,10 +26,12 @@ export function ClientCard({
   onSelect,
   onEdit,
 }: ClientCardProps) {
-  const { mutate: deleteClient, isPending: isDeleting } = useDeleteClient(workspaceId);
-  const { mutate: restoreClient, isPending: isRestoring } = useRestoreClient(workspaceId);
+  const { mutate: deleteClient, isPending: isDeleting } =
+    useDeleteClient(workspaceId);
+  const { mutate: restoreClient, isPending: isRestoring } =
+    useRestoreClient(workspaceId);
 
-  const isArchived = client.status === 'archived' || Boolean(client.deletedAt);
+  const isArchived = client.status === "archived" || Boolean(client.deletedAt);
 
   const handleArchive = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -81,10 +83,10 @@ export function ClientCard({
           <span
             className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider border ${
               isArchived
-                ? 'bg-[var(--color-surface-soft)] text-[var(--color-steel)] border-[var(--color-hairline-strong)]'
-                : client.status === 'active'
-                ? 'bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border-[var(--color-brand-teal)]/30'
-                : 'bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/40'
+                ? "bg-[var(--color-surface-soft)] text-[var(--color-steel)] border-[var(--color-hairline-strong)]"
+                : client.status === "active"
+                  ? "bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] border-[var(--color-brand-teal)]/30"
+                  : "bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/40"
             }`}
           >
             {client.status}
@@ -97,7 +99,9 @@ export function ClientCard({
             <div className="p-1 rounded-[var(--radius-sm)] bg-[var(--color-surface-soft)] text-[var(--color-stone)]">
               <EnvelopeSimple className="h-3.5 w-3.5" />
             </div>
-            <span className="truncate font-medium text-[var(--color-charcoal)]">{client.email}</span>
+            <span className="truncate font-medium text-[var(--color-charcoal)]">
+              {client.email}
+            </span>
           </div>
 
           {client.phone && (
@@ -105,13 +109,18 @@ export function ClientCard({
               <div className="p-1 rounded-[var(--radius-sm)] bg-[var(--color-surface-soft)] text-[var(--color-stone)]">
                 <Phone className="h-3.5 w-3.5" />
               </div>
-              <span className="font-medium text-[var(--color-charcoal)]">{client.phone}</span>
+              <span className="font-medium text-[var(--color-charcoal)]">
+                {client.phone}
+              </span>
             </div>
           )}
 
           {client.gstNumber && (
             <div className="text-[10px] font-mono text-[var(--color-steel)] pt-1">
-              GST: <span className="text-[var(--color-charcoal)] font-semibold">{client.gstNumber}</span>
+              GST:{" "}
+              <span className="text-[var(--color-charcoal)] font-semibold">
+                {client.gstNumber}
+              </span>
             </div>
           )}
         </div>

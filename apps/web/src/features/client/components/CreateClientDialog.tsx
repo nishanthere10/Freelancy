@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Dialog } from '@shared/components';
-import { CreateClientForm } from './CreateClientForm';
-import { useCreateClient } from '../hooks';
-import type { CreateClientInput } from '../api';
+import { Dialog } from "@shared/components";
+import type { CreateClientInput } from "../api";
+import { useCreateClient } from "../hooks";
+import { CreateClientForm } from "./CreateClientForm";
 
 interface CreateClientDialogProps {
   workspaceId: string;

@@ -1,7 +1,11 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import {
+  type ConvertScopeResponse,
+  type ScopeAnalysisRecord,
+  confirmScopeAnalysis,
+} from "@api/ai";
+import { useClients } from "@features/client";
 import {
   CalendarBlank,
   CurrencyDollar,
@@ -10,18 +14,15 @@ import {
   Sparkle,
   SpinnerGap,
   User,
-} from '@phosphor-icons/react';
-import { toast } from 'sonner';
-import {
-  type ConvertScopeResponse,
-  type ScopeAnalysisRecord,
-  confirmScopeAnalysis,
-} from '@api/ai';
-import { useClients } from '@features/client';
-import { Button } from '@shared/components/Button';
-import { Dialog } from '@shared/components/Dialog';
-import { Input } from '@shared/components/Input';
-import { useConvertScope } from '../hooks/useScopeRefinement';
+} from "@phosphor-icons/react";
+import { Button } from "@shared/components/Button";
+import { Dialog } from "@shared/components/Dialog";
+import { Input } from "@shared/components/Input";
+import { useRouter } from "next/navigation";
+import type React from "react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useConvertScope } from "../hooks/useScopeRefinement";
 
 interface ConvertScopeModalProps {
   isOpen: boolean;
@@ -40,45 +41,59 @@ export const ConvertScopeModal: React.FC<ConvertScopeModalProps> = ({
 }) => {
   const router = useRouter();
   const result = scopeRecord.result;
-  const { data: clientsData, isLoading: isLoadingClients } = useClients(workspaceId);
+  const { data: clientsData, isLoading: isLoadingClients } =
+    useClients(workspaceId);
   const convertMutation = useConvertScope(workspaceId);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Derive reasonable defaults from scope
-  const summaryText = result?.summary || '';
+  const summaryText = result?.summary || "";
   const firstLine = summaryText
-    ? summaryText.split('\n')[0].replace(/^Architecture & Delivery Plan for:\s*/i, '')
-    : 'Client Project';
-  const defaultTitle = firstLine.slice(0, 60) || 'Client Project';
+    ? summaryText
+        .split("\n")[0]
+        .replace(/^Architecture & Delivery Plan for:\s*/i, "")
+    : "Client Project";
+  const defaultTitle = firstLine.slice(0, 60) || "Client Project";
 
   const defaultTotalHours =
-    result?.deliverables?.reduce((acc, d) => acc + (d.estimated_hours || 0), 0) || 40;
+    result?.deliverables?.reduce(
+      (acc, d) => acc + (d.estimated_hours || 0),
+      0,
+    ) || 40;
 
   const weeks = result?.timeline_weeks || 2;
   const targetDateObj = new Date();
   targetDateObj.setDate(targetDateObj.getDate() + weeks * 7);
-  const defaultTargetDate = targetDateObj.toISOString().split('T')[0];
+  const defaultTargetDate = targetDateObj.toISOString().split("T")[0];
 
   const [name, setName] = useState(defaultTitle);
   const [description, setDescription] = useState(summaryText);
-  const [clientId, setClientId] = useState('');
+  const [clientId, setClientId] = useState("");
   const [budget, setBudget] = useState(String(defaultTotalHours * 85)); // standard $85/hr estimate
-  const [currency, setCurrency] = useState('USD');
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [currency, setCurrency] = useState("USD");
+  const [startDate, setStartDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
   const [targetDate, setTargetDate] = useState(defaultTargetDate);
   const [depositPercentage, setDepositPercentage] = useState<number>(50); // 50% default
 
   // Synchronize defaults whenever modal opens or scopeRecord changes
-  const [prevOpenState, setPrevOpenState] = useState({ isOpen: false, id: scopeRecord.id });
-  if (isOpen && (!prevOpenState.isOpen || prevOpenState.id !== scopeRecord.id)) {
+  const [prevOpenState, setPrevOpenState] = useState({
+    isOpen: false,
+    id: scopeRecord.id,
+  });
+  if (
+    isOpen &&
+    (!prevOpenState.isOpen || prevOpenState.id !== scopeRecord.id)
+  ) {
     setPrevOpenState({ isOpen: true, id: scopeRecord.id });
     setName(defaultTitle);
     setDescription(summaryText);
-    setClientId('');
+    setClientId("");
     setBudget(String(defaultTotalHours * 85));
     setDepositPercentage(50);
     setTargetDate(defaultTargetDate);
-    setStartDate(new Date().toISOString().split('T')[0]);
+    setStartDate(new Date().toISOString().split("T")[0]);
   } else if (!isOpen && prevOpenState.isOpen) {
     setPrevOpenState({ isOpen: false, id: scopeRecord.id });
   }
@@ -89,12 +104,12 @@ export const ConvertScopeModal: React.FC<ConvertScopeModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      toast.error('Project name is required');
+      toast.error("Project name is required");
       return;
     }
 
     if (targetDate && startDate && new Date(targetDate) < new Date(startDate)) {
-      toast.error('Target completion date cannot be before start date');
+      toast.error("Target completion date cannot be before start date");
       return;
     }
 
@@ -111,7 +126,7 @@ export const ConvertScopeModal: React.FC<ConvertScopeModalProps> = ({
           name: name.trim(),
           description: description.trim() || undefined,
           clientId: clientId || undefined,
-          status: 'active',
+          status: "active",
           startDate: startDate || undefined,
           targetDate: targetDate || undefined,
           budget: numericBudget,
@@ -123,8 +138,8 @@ export const ConvertScopeModal: React.FC<ConvertScopeModalProps> = ({
 
       toast.success(
         depositPercentage > 0 && clientId
-          ? 'Project & deposit invoice generated successfully!'
-          : 'Project successfully created from scope!'
+          ? "Project & deposit invoice generated successfully!"
+          : "Project successfully created from scope!",
       );
 
       if (onConverted) {
@@ -134,10 +149,15 @@ export const ConvertScopeModal: React.FC<ConvertScopeModalProps> = ({
 
       // Navigate to project
       if (response?.project?.id) {
-        router.push(`/workspaces/${workspaceId}/projects/${response.project.id}`);
+        router.push(
+          `/workspaces/${workspaceId}/projects/${response.project.id}`,
+        );
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to convert scope to project';
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Failed to convert scope to project";
       toast.error(msg);
     } finally {
       setIsSubmitting(false);
@@ -155,9 +175,18 @@ export const ConvertScopeModal: React.FC<ConvertScopeModalProps> = ({
       <form onSubmit={handleSubmit} className="space-y-6 py-2">
         {/* Scope Source Badge */}
         <div className="flex items-center gap-2.5 rounded-[var(--radius-xl)] bg-[var(--color-yellow-light)]/40 border border-[var(--color-brand-yellow)]/30 p-3.5 text-xs text-[var(--color-ink-deep)]">
-          <Sparkle size={16} className="shrink-0 text-[var(--color-yellow-dark)]" weight="fill" />
+          <Sparkle
+            size={16}
+            className="shrink-0 text-[var(--color-yellow-dark)]"
+            weight="fill"
+          />
           <span>
-            Converting <strong>{result?.deliverables?.length || 0} scoped milestones</strong> ({defaultTotalHours} hrs total estimate, ~{result?.timeline_weeks || 1} weeks duration).
+            Converting{" "}
+            <strong>
+              {result?.deliverables?.length || 0} scoped milestones
+            </strong>{" "}
+            ({defaultTotalHours} hrs total estimate, ~
+            {result?.timeline_weeks || 1} weeks duration).
           </span>
         </div>
 
@@ -203,7 +232,8 @@ export const ConvertScopeModal: React.FC<ConvertScopeModalProps> = ({
               <option value="">No client assigned (Internal Project)</option>
               {clientsData?.map((client) => (
                 <option key={client.id} value={client.id}>
-                  {client.name} {client.companyName ? `(${client.companyName})` : ''}
+                  {client.name}{" "}
+                  {client.companyName ? `(${client.companyName})` : ""}
                 </option>
               ))}
             </select>
@@ -259,7 +289,11 @@ export const ConvertScopeModal: React.FC<ConvertScopeModalProps> = ({
         <div className="rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-[var(--color-surface-soft)] p-4 sm:p-5 space-y-3.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Receipt size={18} className="text-[var(--color-brand-blue)]" weight="bold" />
+              <Receipt
+                size={18}
+                className="text-[var(--color-brand-blue)]"
+                weight="bold"
+              />
               <span className="text-sm font-bold text-[var(--color-ink-deep)]">
                 Upfront Deposit Invoice
               </span>
@@ -272,16 +306,17 @@ export const ConvertScopeModal: React.FC<ConvertScopeModalProps> = ({
           </div>
 
           <p className="text-xs text-[var(--color-slate-text)] leading-relaxed">
-            Automatically create a professional draft invoice in your workspace with line items corresponding to the scoped deliverables.
+            Automatically create a professional draft invoice in your workspace
+            with line items corresponding to the scoped deliverables.
           </p>
 
           {/* Quick Pill Buttons */}
           <div className="flex flex-wrap gap-2">
             {[
-              { label: 'None (0%)', value: 0 },
-              { label: '25% Deposit', value: 25 },
-              { label: '50% Deposit (Recommended)', value: 50 },
-              { label: '100% Full Payment', value: 100 },
+              { label: "None (0%)", value: 0 },
+              { label: "25% Deposit", value: 25 },
+              { label: "50% Deposit (Recommended)", value: 50 },
+              { label: "100% Full Payment", value: 100 },
             ].map((pill) => {
               const active = depositPercentage === pill.value;
               return (
@@ -291,8 +326,8 @@ export const ConvertScopeModal: React.FC<ConvertScopeModalProps> = ({
                   onClick={() => setDepositPercentage(pill.value)}
                   className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
                     active
-                      ? 'bg-[var(--color-primary)] text-white shadow-xs'
-                      : 'bg-white text-[var(--color-charcoal)] border border-[var(--color-hairline-strong)] hover:border-[var(--color-primary)]'
+                      ? "bg-[var(--color-primary)] text-white shadow-xs"
+                      : "bg-white text-[var(--color-charcoal)] border border-[var(--color-hairline-strong)] hover:border-[var(--color-primary)]"
                   }`}
                 >
                   {pill.label}
@@ -308,7 +343,11 @@ export const ConvertScopeModal: React.FC<ConvertScopeModalProps> = ({
                 Deposit amount due upon project start:
               </span>
               <span className="font-bold text-sm text-[var(--color-ink-deep)]">
-                {currency} {depositAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {currency}{" "}
+                {depositAmount.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </span>
             </div>
           )}
@@ -335,13 +374,21 @@ export const ConvertScopeModal: React.FC<ConvertScopeModalProps> = ({
           >
             {isSubmitting || convertMutation.isPending ? (
               <>
-                <SpinnerGap size={16} className="animate-spin text-[var(--color-brand-yellow)]" />
+                <SpinnerGap
+                  size={16}
+                  className="animate-spin text-[var(--color-brand-yellow)]"
+                />
                 Creating Project...
               </>
             ) : (
               <>
-                <FolderPlus size={16} weight="bold" className="text-[var(--color-brand-yellow)]" />
-                Create Live Project {depositPercentage > 0 && clientId ? '& Invoice' : ''}
+                <FolderPlus
+                  size={16}
+                  weight="bold"
+                  className="text-[var(--color-brand-yellow)]"
+                />
+                Create Live Project{" "}
+                {depositPercentage > 0 && clientId ? "& Invoice" : ""}
               </>
             )}
           </Button>

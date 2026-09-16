@@ -77,16 +77,12 @@
       "indexes": {
         "idx_workspace_members_workspace_id": {
           "name": "idx_workspace_members_workspace_id",
-          "columns": [
-            "workspace_id"
-          ],
+          "columns": ["workspace_id"],
           "isUnique": false
         },
         "idx_workspace_members_user_id": {
           "name": "idx_workspace_members_user_id",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -178,16 +174,12 @@
       "indexes": {
         "idx_workspace_owner_id": {
           "name": "idx_workspace_owner_id",
-          "columns": [
-            "owner_id"
-          ],
+          "columns": ["owner_id"],
           "isUnique": false
         },
         "idx_workspace_slug": {
           "name": "idx_workspace_slug",
-          "columns": [
-            "slug"
-          ],
+          "columns": ["slug"],
           "isUnique": false
         }
       },
@@ -197,9 +189,7 @@
         "workspaces_slug_unique": {
           "name": "workspaces_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       }
     },
@@ -342,32 +332,22 @@
       "indexes": {
         "idx_clients_workspace_id": {
           "name": "idx_clients_workspace_id",
-          "columns": [
-            "workspace_id"
-          ],
+          "columns": ["workspace_id"],
           "isUnique": false
         },
         "idx_clients_email": {
           "name": "idx_clients_email",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": false
         },
         "idx_clients_workspace_id_id": {
           "name": "idx_clients_workspace_id_id",
-          "columns": [
-            "workspace_id",
-            "id"
-          ],
+          "columns": ["workspace_id", "id"],
           "isUnique": true
         },
         "idx_clients_workspace_email": {
           "name": "idx_clients_workspace_email",
-          "columns": [
-            "workspace_id",
-            "email"
-          ],
+          "columns": ["workspace_id", "email"],
           "isUnique": true
         }
       },
@@ -376,12 +356,8 @@
           "name": "clients_workspace_id_workspaces_id_fk",
           "tableFrom": "clients",
           "tableTo": "workspaces",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workspace_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -511,31 +487,22 @@
       "indexes": {
         "idx_projects_workspace_id": {
           "name": "idx_projects_workspace_id",
-          "columns": [
-            "workspace_id"
-          ],
+          "columns": ["workspace_id"],
           "isUnique": false
         },
         "idx_projects_client_id": {
           "name": "idx_projects_client_id",
-          "columns": [
-            "client_id"
-          ],
+          "columns": ["client_id"],
           "isUnique": false
         },
         "idx_projects_status": {
           "name": "idx_projects_status",
-          "columns": [
-            "status"
-          ],
+          "columns": ["status"],
           "isUnique": false
         },
         "idx_projects_workspace_slug": {
           "name": "idx_projects_workspace_slug",
-          "columns": [
-            "workspace_id",
-            "slug"
-          ],
+          "columns": ["workspace_id", "slug"],
           "isUnique": true
         }
       },
@@ -544,12 +511,8 @@
           "name": "projects_workspace_id_workspaces_id_fk",
           "tableFrom": "projects",
           "tableTo": "workspaces",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workspace_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -557,14 +520,8 @@
           "name": "fk_projects_workspace_client",
           "tableFrom": "projects",
           "tableTo": "clients",
-          "columnsFrom": [
-            "workspace_id",
-            "client_id"
-          ],
-          "columnsTo": [
-            "workspace_id",
-            "id"
-          ],
+          "columnsFrom": ["workspace_id", "client_id"],
+          "columnsTo": ["workspace_id", "id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }

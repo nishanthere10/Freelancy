@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { getProject, projectKeys } from '../api';
+import { useQuery } from "@tanstack/react-query";
+import { getProject, projectKeys } from "../api";
 
 export function useProject(workspaceId: string, projectId: string) {
   return useQuery({

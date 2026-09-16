@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Card, Button } from '@shared/components';
 import {
-  UserCheck,
-  CalendarBlank,
-  CurrencyDollar,
-  PencilSimple,
   Archive,
   ArrowClockwise,
+  CalendarBlank,
   Check,
-  X,
+  CurrencyDollar,
+  PencilSimple,
   Tag,
-} from '@phosphor-icons/react';
-import type { ProjectResponse } from '../api';
-import { useDeleteProject, useRestoreProject } from '../hooks';
-import { ProjectStatusControl } from './ProjectStatusControl';
+  UserCheck,
+  X,
+} from "@phosphor-icons/react";
+import { Button, Card } from "@shared/components";
+import { useState } from "react";
+import type { ProjectResponse } from "../api";
+import { useDeleteProject, useRestoreProject } from "../hooks";
+import { ProjectStatusControl } from "./ProjectStatusControl";
 
 interface ProjectCardProps {
   workspaceId: string;
@@ -31,10 +31,13 @@ export function ProjectCard({
   onEdit,
 }: ProjectCardProps) {
   const [confirmingArchive, setConfirmingArchive] = useState(false);
-  const { mutate: deleteProject, isPending: isDeleting } = useDeleteProject(workspaceId);
-  const { mutate: restoreProject, isPending: isRestoring } = useRestoreProject(workspaceId);
+  const { mutate: deleteProject, isPending: isDeleting } =
+    useDeleteProject(workspaceId);
+  const { mutate: restoreProject, isPending: isRestoring } =
+    useRestoreProject(workspaceId);
 
-  const isArchived = project.status === 'archived' || Boolean(project.deletedAt);
+  const isArchived =
+    project.status === "archived" || Boolean(project.deletedAt);
 
   const handleArchiveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -64,8 +67,8 @@ export function ProjectCard({
   };
 
   const formattedBudget = project.budgetAmount
-    ? `${project.budgetCurrency || 'USD'} ${Number(project.budgetAmount).toLocaleString()}`
-    : 'No budget set';
+    ? `${project.budgetCurrency || "USD"} ${Number(project.budgetAmount).toLocaleString()}`
+    : "No budget set";
 
   return (
     <Card
@@ -94,7 +97,9 @@ export function ProjectCard({
 
           <p className="text-xs font-medium text-[var(--color-slate-text)] flex items-center gap-1.5 mt-1">
             <UserCheck className="h-3.5 w-3.5 text-[var(--color-yellow-dark)]" />
-            <span>{project.clientName ? project.clientName : 'Internal Project'}</span>
+            <span>
+              {project.clientName ? project.clientName : "Internal Project"}
+            </span>
           </p>
         </div>
 
@@ -102,17 +107,23 @@ export function ProjectCard({
         <div className="space-y-2 text-xs text-[var(--color-slate-text)] pt-3 border-t border-[var(--color-hairline-soft)]">
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-[var(--color-steel)] font-medium">
-              <CurrencyDollar className="h-4 w-4 text-[var(--color-success-accent)]" /> Budget
+              <CurrencyDollar className="h-4 w-4 text-[var(--color-success-accent)]" />{" "}
+              Budget
             </span>
-            <span className="font-semibold text-[var(--color-ink-deep)]">{formattedBudget}</span>
+            <span className="font-semibold text-[var(--color-ink-deep)]">
+              {formattedBudget}
+            </span>
           </div>
 
           {project.targetDate && (
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-[var(--color-steel)] font-medium">
-                <CalendarBlank className="h-4 w-4 text-[var(--color-brand-blue)]" /> Target Date
+                <CalendarBlank className="h-4 w-4 text-[var(--color-brand-blue)]" />{" "}
+                Target Date
               </span>
-              <span className="font-medium text-[var(--color-charcoal)]">{project.targetDate}</span>
+              <span className="font-medium text-[var(--color-charcoal)]">
+                {project.targetDate}
+              </span>
             </div>
           )}
         </div>

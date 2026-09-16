@@ -1,14 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { apiPost } from '@api/client';
-
+import { apiPost } from "@api/client";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function WorkspaceOnboardingPage() {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [slug, setSlug] = useState('');
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,8 +16,8 @@ export default function WorkspaceOnboardingPage() {
     const generatedSlug = val
       .toLowerCase()
       .trim()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-');
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-");
     setSlug(generatedSlug);
   };
 
@@ -30,14 +29,14 @@ export default function WorkspaceOnboardingPage() {
     setError(null);
 
     try {
-      const workspace = await apiPost<{ id: string }>('/workspaces', {
+      const workspace = await apiPost<{ id: string }>("/workspaces", {
         name,
-        slug: slug || name.toLowerCase().replace(/\s+/g, '-'),
+        slug: slug || name.toLowerCase().replace(/\s+/g, "-"),
       });
       router.push(`/workspaces/${workspace.id}/clients`);
     } catch (err: unknown) {
       setError(
-        err instanceof Error ? err.message : 'Failed to create workspace'
+        err instanceof Error ? err.message : "Failed to create workspace",
       );
     } finally {
       setIsSubmitting(false);
@@ -107,7 +106,9 @@ export default function WorkspaceOnboardingPage() {
             disabled={isSubmitting || !name.trim()}
             className="w-full py-3 px-4 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-semibold rounded-xl text-sm transition shadow-sm"
           >
-            {isSubmitting ? 'Creating Workspace...' : 'Create Workspace & Continue'}
+            {isSubmitting
+              ? "Creating Workspace..."
+              : "Create Workspace & Continue"}
           </button>
         </form>
       </div>

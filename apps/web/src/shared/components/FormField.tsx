@@ -1,23 +1,42 @@
-'use client';
+"use client";
 
 /**
  * FormField component
  * Abstracts React Hook Form Controller with label, input, and error rendering
  */
 
-import { forwardRef, type InputHTMLAttributes } from 'react';
-import { Controller, useFormContext, type FieldValues, type Path } from 'react-hook-form';
-import { Input } from './Input';
+import { type InputHTMLAttributes, forwardRef } from "react";
+import {
+  Controller,
+  type FieldValues,
+  type Path,
+  useFormContext,
+} from "react-hook-form";
+import { Input } from "./Input";
 
 export interface FormFieldProps<T extends FieldValues>
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name'> {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "name"> {
   name: Path<T>;
   label?: string;
   required?: boolean;
 }
 
-export const FormField = forwardRef<HTMLInputElement, FormFieldProps<FieldValues>>(
-  ({ name, label, placeholder, type = 'text', required = false, disabled = false, ...props }, ref) => {
+export const FormField = forwardRef<
+  HTMLInputElement,
+  FormFieldProps<FieldValues>
+>(
+  (
+    {
+      name,
+      label,
+      placeholder,
+      type = "text",
+      required = false,
+      disabled = false,
+      ...props
+    },
+    ref,
+  ) => {
     const { control, formState } = useFormContext<FieldValues>();
     const fieldError = formState.errors[name];
     const errorMessage = fieldError?.message as string | undefined;
@@ -35,7 +54,10 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps<FieldValues
               >
                 {label}
                 {required && (
-                  <span className="text-[var(--color-error)] ml-1" aria-hidden="true">
+                  <span
+                    className="text-[var(--color-error)] ml-1"
+                    aria-hidden="true"
+                  >
                     *
                   </span>
                 )}
@@ -55,7 +77,7 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps<FieldValues
         )}
       />
     );
-  }
+  },
 );
 
-FormField.displayName = 'FormField';
+FormField.displayName = "FormField";

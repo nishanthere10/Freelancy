@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Card } from '@shared/components';
+import { Card } from "@shared/components";
+import type { ReactNode } from "react";
 
 interface MetricCardProps {
   label: string;
@@ -17,8 +17,8 @@ export function MetricCard({
   value,
   subtext,
   icon,
-  valueColorClass = 'text-[var(--color-ink-deep)]',
-  iconBgClass = 'bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)]',
+  valueColorClass = "text-[var(--color-ink-deep)]",
+  iconBgClass = "bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)]",
 }: MetricCardProps) {
   return (
     <Card className="stat-card group">
@@ -26,7 +26,9 @@ export function MetricCard({
         <div className="text-[11px] font-bold text-[var(--color-slate-text)] uppercase tracking-wider">
           {label}
         </div>
-        <div className={`text-3xl sm:text-4xl font-bold tracking-tight leading-none ${valueColorClass}`}>
+        <div
+          className={`text-3xl sm:text-4xl font-bold tracking-tight leading-none ${valueColorClass}`}
+        >
           {value}
         </div>
         {subtext && (
@@ -36,7 +38,9 @@ export function MetricCard({
         )}
       </div>
 
-      <div className={`w-14 h-14 rounded-[var(--radius-xl)] flex items-center justify-center font-bold text-xl transition-transform duration-200 group-hover:scale-110 shadow-xs ${iconBgClass}`}>
+      <div
+        className={`w-14 h-14 rounded-[var(--radius-xl)] flex items-center justify-center font-bold text-xl transition-transform duration-200 group-hover:scale-110 shadow-xs ${iconBgClass}`}
+      >
         {icon}
       </div>
     </Card>

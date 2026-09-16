@@ -1,9 +1,9 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
-import path from "path";
 import fs from "fs";
+import path from "path";
 import { fileURLToPath } from "url";
+import { neon } from "@neondatabase/serverless";
 import { and, eq, isNotNull, isNull } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "../schema";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -25,7 +25,10 @@ function loadEnv() {
           const trimmed = line.trim();
           if (trimmed && !trimmed.startsWith("#") && trimmed.includes("=")) {
             const [key, ...rest] = trimmed.split("=");
-            const val = rest.join("=").trim().replace(/^["']|["']$/g, "");
+            const val = rest
+              .join("=")
+              .trim()
+              .replace(/^["']|["']$/g, "");
             const cleanKey = key.trim();
             if (cleanKey && val && !process.env[cleanKey]) {
               process.env[cleanKey] = val;
@@ -51,7 +54,9 @@ async function runBackfill() {
   const sql = neon(dbUrl);
   const db = drizzle(sql, { schema });
 
-  console.log("[Backfill] Starting idempotent project deliverables backfill...");
+  console.log(
+    "[Backfill] Starting idempotent project deliverables backfill...",
+  );
 
   const projects = await db
     .select({

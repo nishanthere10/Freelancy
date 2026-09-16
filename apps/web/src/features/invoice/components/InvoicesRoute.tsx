@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { InvoicePage } from './InvoicePage';
+import { InvoicePage } from "./InvoicePage";
 
 interface InvoicesRouteProps {
   workspaceId: string;

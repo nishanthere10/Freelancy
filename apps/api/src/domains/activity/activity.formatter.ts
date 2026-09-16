@@ -75,6 +75,16 @@ export function formatActivityMessage(
     case "project.deliverable.deleted":
       return `Deleted deliverable "${name || ""}"`;
 
+    // Change Order events
+    case "project.change_order.created":
+      return `Created change order proposal "${name || "New Change Order"}"`;
+    case "project.change_order.approved":
+      return `Approved change order "${name || "Change Order"}"`;
+    case "project.change_order.rejected":
+      return `Rejected change order "${name || "Change Order"}"`;
+    case "project.change_order.cancelled":
+      return `Cancelled change order "${name || "Change Order"}"`;
+
     // Invoice events
     case "invoice.created":
       return `Created invoice ${invoiceNumber ? `#${invoiceNumber}` : ""}`;

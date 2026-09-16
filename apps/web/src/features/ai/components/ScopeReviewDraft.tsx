@@ -1,7 +1,10 @@
-'use client';
+"use client";
 
-import React, { useMemo, useState } from 'react';
-import Link from 'next/link';
+import type {
+  ScopeAnalysisRecord,
+  ScopeAnalysisResult,
+  ScopeDeliverable,
+} from "@api/ai";
 import {
   ArrowCounterClockwise,
   CalendarBlank,
@@ -16,12 +19,17 @@ import {
   SpinnerGap,
   Trash,
   WarningCircle,
-} from '@phosphor-icons/react';
-import { toast } from 'sonner';
-import type { ScopeAnalysisRecord, ScopeAnalysisResult, ScopeDeliverable } from '@api/ai';
-import { Button } from '@shared/components/Button';
-import { useRefineScope, useUpdateScopeResult } from '../hooks/useScopeRefinement';
-import { ConvertScopeModal } from './ConvertScopeModal';
+} from "@phosphor-icons/react";
+import { Button } from "@shared/components/Button";
+import Link from "next/link";
+import type React from "react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import {
+  useRefineScope,
+  useUpdateScopeResult,
+} from "../hooks/useScopeRefinement";
+import { ConvertScopeModal } from "./ConvertScopeModal";
 
 interface ScopeReviewDraftProps {
   scopeRecord: ScopeAnalysisRecord;
@@ -45,9 +53,11 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
   const isLinkedToProject = Boolean(scopeRecord.projectId);
 
   // Local editable state for deliverables & summary
-  const [localResult, setLocalResult] = useState<ScopeAnalysisResult>(scopeRecord.result);
+  const [localResult, setLocalResult] = useState<ScopeAnalysisResult>(
+    scopeRecord.result,
+  );
   const [isDirty, setIsDirty] = useState(false);
-  const [revisionPrompt, setRevisionPrompt] = useState('');
+  const [revisionPrompt, setRevisionPrompt] = useState("");
   const [isConvertModalOpen, setIsConvertModalOpen] = useState(false);
 
   // Mutations
@@ -64,23 +74,28 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
 
   // Dynamic calculations from current local state
   const totalHours = useMemo(() => {
-    return localResult?.deliverables?.reduce(
-      (acc: number, curr: ScopeDeliverable) => acc + (Number(curr.estimated_hours) || 0),
-      0
-    ) || 0;
+    return (
+      localResult?.deliverables?.reduce(
+        (acc: number, curr: ScopeDeliverable) =>
+          acc + (Number(curr.estimated_hours) || 0),
+        0,
+      ) || 0
+    );
   }, [localResult?.deliverables]);
 
   const calculatedWeeks = useMemo(() => {
     return Math.max(1, Math.round(totalHours / 35));
   }, [totalHours]);
 
-  const displayWeeks = isDirty ? calculatedWeeks : (localResult?.timeline_weeks ?? calculatedWeeks);
+  const displayWeeks = isDirty
+    ? calculatedWeeks
+    : (localResult?.timeline_weeks ?? calculatedWeeks);
 
   // Handle deliverable field changes with real-time recalculation
   const handleDeliverableChange = (
     index: number,
     field: keyof ScopeDeliverable,
-    value: unknown
+    value: unknown,
   ) => {
     setLocalResult((prev) => {
       const updated = [...(prev.deliverables || [])];
@@ -89,8 +104,9 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
         [field]: value,
       };
       const updatedTotalHours = updated.reduce(
-        (acc: number, curr: ScopeDeliverable) => acc + (Number(curr.estimated_hours) || 0),
-        0
+        (acc: number, curr: ScopeDeliverable) =>
+          acc + (Number(curr.estimated_hours) || 0),
+        0,
       );
       const newWeeks = Math.max(1, Math.round(updatedTotalHours / 35));
       return {
@@ -106,16 +122,18 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
   const handleAddDeliverable = () => {
     setLocalResult((prev) => {
       const newDeliverable: ScopeDeliverable = {
-        title: 'New Milestone / Deliverable',
-        description: 'Detail the tasks, architecture, and deliverables for this milestone.',
+        title: "New Milestone / Deliverable",
+        description:
+          "Detail the tasks, architecture, and deliverables for this milestone.",
         estimated_hours: 12,
-        complexity: 'medium',
+        complexity: "medium",
         skills_required: [],
       };
       const updated = [...(prev.deliverables || []), newDeliverable];
       const updatedTotalHours = updated.reduce(
-        (acc: number, curr: ScopeDeliverable) => acc + (Number(curr.estimated_hours) || 0),
-        0
+        (acc: number, curr: ScopeDeliverable) =>
+          acc + (Number(curr.estimated_hours) || 0),
+        0,
       );
       return {
         ...prev,
@@ -129,14 +147,15 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
   // Remove deliverable
   const handleRemoveDeliverable = (index: number) => {
     if ((localResult?.deliverables?.length || 0) <= 1) {
-      toast.error('Scope must have at least one deliverable');
+      toast.error("Scope must have at least one deliverable");
       return;
     }
     setLocalResult((prev) => {
       const updated = prev.deliverables.filter((_, idx) => idx !== index);
       const updatedTotalHours = updated.reduce(
-        (acc: number, curr: ScopeDeliverable) => acc + (Number(curr.estimated_hours) || 0),
-        0
+        (acc: number, curr: ScopeDeliverable) =>
+          acc + (Number(curr.estimated_hours) || 0),
+        0,
       );
       return {
         ...prev,
@@ -195,12 +214,12 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
         },
       });
       setIsDirty(false);
-      toast.success('Deliverable edits saved successfully!');
+      toast.success("Deliverable edits saved successfully!");
       if (onScopeUpdated) {
         onScopeUpdated(updated);
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to save edits';
+      const msg = err instanceof Error ? err.message : "Failed to save edits";
       toast.error(msg);
     }
   };
@@ -220,7 +239,10 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
           onScopeUpdated(updated);
         }
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Failed to save changes before converting';
+        const msg =
+          err instanceof Error
+            ? err.message
+            : "Failed to save changes before converting";
         toast.error(msg);
         return;
       }
@@ -232,7 +254,7 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
   const handleRefineSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!revisionPrompt.trim() || revisionPrompt.trim().length < 5) {
-      toast.error('Please enter a revision request of at least 5 characters');
+      toast.error("Please enter a revision request of at least 5 characters");
       return;
     }
 
@@ -243,13 +265,13 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
       });
       setLocalResult(refined.result);
       setIsDirty(false);
-      setRevisionPrompt('');
-      toast.success('Scope refined with AI successfully!');
+      setRevisionPrompt("");
+      toast.success("Scope refined with AI successfully!");
       if (onScopeUpdated) {
         onScopeUpdated(refined);
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to refine scope';
+      const msg = err instanceof Error ? err.message : "Failed to refine scope";
       toast.error(msg);
     }
   };
@@ -310,7 +332,9 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
           <div className="rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-white p-4 shadow-xs">
             <div className="flex items-center gap-2 text-[var(--color-slate-text)]">
               <Clock size={16} className="text-[var(--color-brand-blue)]" />
-              <span className="text-xs font-semibold uppercase tracking-wider">Estimated Work</span>
+              <span className="text-xs font-semibold uppercase tracking-wider">
+                Estimated Work
+              </span>
             </div>
             <p className="mt-1.5 text-2xl font-bold text-[var(--color-ink-deep)] tracking-tight">
               {totalHours} hrs
@@ -319,18 +343,28 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
 
           <div className="rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-white p-4 shadow-xs">
             <div className="flex items-center gap-2 text-[var(--color-slate-text)]">
-              <CalendarBlank size={16} className="text-[var(--color-yellow-dark)]" />
-              <span className="text-xs font-semibold uppercase tracking-wider">Duration</span>
+              <CalendarBlank
+                size={16}
+                className="text-[var(--color-yellow-dark)]"
+              />
+              <span className="text-xs font-semibold uppercase tracking-wider">
+                Duration
+              </span>
             </div>
             <p className="mt-1.5 text-2xl font-bold text-[var(--color-ink-deep)] tracking-tight">
-              {displayWeeks} {displayWeeks === 1 ? 'week' : 'weeks'}
+              {displayWeeks} {displayWeeks === 1 ? "week" : "weeks"}
             </p>
           </div>
 
           <div className="col-span-2 rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-white p-4 sm:col-span-1 shadow-xs">
             <div className="flex items-center gap-2 text-[var(--color-slate-text)]">
-              <CheckCircle size={16} className="text-[var(--color-moss-dark)]" />
-              <span className="text-xs font-semibold uppercase tracking-wider">Milestones</span>
+              <CheckCircle
+                size={16}
+                className="text-[var(--color-moss-dark)]"
+              />
+              <span className="text-xs font-semibold uppercase tracking-wider">
+                Milestones
+              </span>
             </div>
             <p className="mt-1.5 text-2xl font-bold text-[var(--color-ink-deep)] tracking-tight">
               {localResult?.deliverables?.length || 0} items
@@ -343,7 +377,11 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
       <div className="rounded-[var(--radius-xxl)] border border-[var(--color-brand-blue)]/25 bg-[var(--color-surface-soft)]/70 p-4 sm:p-5 shadow-[var(--shadow-subtle)] space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--color-ink-deep)]">
-            <Sparkle size={16} className="text-[var(--color-brand-blue)]" weight="fill" />
+            <Sparkle
+              size={16}
+              className="text-[var(--color-brand-blue)]"
+              weight="fill"
+            />
             <span>Refine Scope with AI</span>
           </div>
           <span className="text-[11px] text-[var(--color-slate-text)] hidden sm:inline">
@@ -369,12 +407,19 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
           >
             {refineMutation.isPending ? (
               <>
-                <SpinnerGap size={16} className="animate-spin text-[var(--color-brand-yellow)]" />
+                <SpinnerGap
+                  size={16}
+                  className="animate-spin text-[var(--color-brand-yellow)]"
+                />
                 <span className="hidden sm:inline">Refining...</span>
               </>
             ) : (
               <>
-                <Sparkle size={16} weight="bold" className="text-[var(--color-brand-yellow)]" />
+                <Sparkle
+                  size={16}
+                  weight="bold"
+                  className="text-[var(--color-brand-yellow)]"
+                />
                 <span>Refine</span>
               </>
             )}
@@ -387,10 +432,10 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
             Suggestions:
           </span>
           {[
-            'Add automated Playwright testing',
-            'Focus on mobile app MVP',
-            'Tighten timeline to 3 weeks',
-            'Add Stripe payment gateway',
+            "Add automated Playwright testing",
+            "Focus on mobile app MVP",
+            "Tighten timeline to 3 weeks",
+            "Add Stripe payment gateway",
           ].map((prompt) => (
             <button
               key={prompt}
@@ -435,131 +480,158 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
         </div>
 
         <div className="space-y-3.5">
-          {localResult?.deliverables?.map((item: ScopeDeliverable, idx: number) => (
-            <div
-              key={idx}
-              className="rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] border-t-[3px] border-t-[var(--color-brand-yellow)] bg-white p-4 sm:p-5 shadow-[var(--shadow-subtle)] space-y-3 transition-all hover:shadow-[var(--shadow-card)]"
-            >
-              {/* Header row: Index, Title Input, Complexity, Hours, Delete */}
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5 flex-1 min-w-[240px]">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-xs font-bold text-white">
-                    {idx + 1}
-                  </span>
-                  <input
-                    type="text"
-                    value={item.title}
-                    onChange={(e) => handleDeliverableChange(idx, 'title', e.target.value)}
-                    className="flex-1 font-bold text-sm text-[var(--color-ink-deep)] border-b border-transparent hover:border-[var(--color-hairline-strong)] focus:border-[var(--color-brand-blue)] focus:outline-none bg-transparent py-0.5 transition-colors"
-                    placeholder="Milestone Title"
+          {localResult?.deliverables?.map(
+            (item: ScopeDeliverable, idx: number) => (
+              <div
+                key={idx}
+                className="rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] border-t-[3px] border-t-[var(--color-brand-yellow)] bg-white p-4 sm:p-5 shadow-[var(--shadow-subtle)] space-y-3 transition-all hover:shadow-[var(--shadow-card)]"
+              >
+                {/* Header row: Index, Title Input, Complexity, Hours, Delete */}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 flex-1 min-w-[240px]">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-xs font-bold text-white">
+                      {idx + 1}
+                    </span>
+                    <input
+                      type="text"
+                      value={item.title}
+                      onChange={(e) =>
+                        handleDeliverableChange(idx, "title", e.target.value)
+                      }
+                      className="flex-1 font-bold text-sm text-[var(--color-ink-deep)] border-b border-transparent hover:border-[var(--color-hairline-strong)] focus:border-[var(--color-brand-blue)] focus:outline-none bg-transparent py-0.5 transition-colors"
+                      placeholder="Milestone Title"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    {/* Complexity Selector */}
+                    <div className="flex rounded-full bg-[var(--color-surface-soft)] p-0.5 border border-[var(--color-hairline)]">
+                      {(["low", "medium", "high"] as const).map((level) => {
+                        const active = (item.complexity || "medium") === level;
+                        return (
+                          <button
+                            key={level}
+                            type="button"
+                            onClick={() =>
+                              handleDeliverableChange(idx, "complexity", level)
+                            }
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                              active
+                                ? level === "high"
+                                  ? "bg-[var(--color-coral-light)] text-[var(--color-coral-dark)] shadow-2xs"
+                                  : level === "medium"
+                                    ? "bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] shadow-2xs"
+                                    : "bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] shadow-2xs"
+                                : "text-[var(--color-slate-text)] hover:text-[var(--color-ink)]"
+                            }`}
+                          >
+                            {level}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Hours Input */}
+                    <div className="flex items-center gap-1 rounded-full bg-[var(--color-surface)] border border-[var(--color-hairline)] px-2.5 py-0.5">
+                      <input
+                        type="number"
+                        min="1"
+                        max="500"
+                        value={
+                          item.estimated_hours === 0 ? "" : item.estimated_hours
+                        }
+                        onChange={(e) => {
+                          const val =
+                            e.target.value === ""
+                              ? 0
+                              : Math.max(
+                                  0,
+                                  Number.parseInt(e.target.value, 10) || 0,
+                                );
+                          handleDeliverableChange(idx, "estimated_hours", val);
+                        }}
+                        onBlur={() => {
+                          if (
+                            !item.estimated_hours ||
+                            item.estimated_hours < 1
+                          ) {
+                            handleDeliverableChange(idx, "estimated_hours", 1);
+                          }
+                        }}
+                        className="w-12 text-xs font-bold text-[var(--color-ink-deep)] bg-transparent text-right focus:outline-none"
+                      />
+                      <span className="text-[11px] font-semibold text-[var(--color-slate-text)]">
+                        hrs
+                      </span>
+                    </div>
+
+                    {/* Delete button */}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveDeliverable(idx)}
+                      title="Remove deliverable"
+                      className="p-1 rounded-md text-[var(--color-steel)] hover:text-[var(--color-error)] hover:bg-[var(--color-coral-light)]/40 transition-colors"
+                    >
+                      <Trash size={15} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Description textarea */}
+                <div className="pl-8.5">
+                  <textarea
+                    value={item.description}
+                    onChange={(e) =>
+                      handleDeliverableChange(
+                        idx,
+                        "description",
+                        e.target.value,
+                      )
+                    }
+                    rows={2}
+                    className="w-full text-xs leading-relaxed text-[var(--color-charcoal)] border border-transparent hover:border-[var(--color-hairline-strong)] focus:border-[var(--color-brand-blue)] focus:bg-white rounded-md p-1.5 bg-transparent focus:outline-none transition-colors"
+                    placeholder="Technical description of what will be delivered..."
                   />
                 </div>
 
-                <div className="flex items-center gap-2.5 shrink-0">
-                  {/* Complexity Selector */}
-                  <div className="flex rounded-full bg-[var(--color-surface-soft)] p-0.5 border border-[var(--color-hairline)]">
-                    {(['low', 'medium', 'high'] as const).map((level) => {
-                      const active = (item.complexity || 'medium') === level;
-                      return (
+                {/* Skills Tags & Quick Add */}
+                <div className="flex flex-wrap items-center gap-1.5 pl-8.5">
+                  {item.skills_required &&
+                    item.skills_required.map((skill: string, sIdx: number) => (
+                      <span
+                        key={`${skill}-${sIdx}`}
+                        className="inline-flex items-center gap-1 rounded-full bg-[var(--color-surface-soft)] border border-[var(--color-hairline)] px-2.5 py-0.5 text-[10px] font-medium text-[var(--color-slate-text)]"
+                      >
+                        {skill}
                         <button
-                          key={level}
                           type="button"
-                          onClick={() => handleDeliverableChange(idx, 'complexity', level)}
-                          className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
-                            active
-                              ? level === 'high'
-                                ? 'bg-[var(--color-coral-light)] text-[var(--color-coral-dark)] shadow-2xs'
-                                : level === 'medium'
-                                  ? 'bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] shadow-2xs'
-                                  : 'bg-[var(--color-teal-light)] text-[var(--color-moss-dark)] shadow-2xs'
-                              : 'text-[var(--color-slate-text)] hover:text-[var(--color-ink)]'
-                          }`}
+                          onClick={() => handleRemoveSkill(idx, sIdx)}
+                          className="hover:text-[var(--color-coral-dark)] text-[var(--color-steel)] transition-colors ml-0.5 font-bold"
+                          title={`Remove ${skill}`}
                         >
-                          {level}
+                          ×
                         </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Hours Input */}
-                  <div className="flex items-center gap-1 rounded-full bg-[var(--color-surface)] border border-[var(--color-hairline)] px-2.5 py-0.5">
-                    <input
-                      type="number"
-                      min="1"
-                      max="500"
-                      value={item.estimated_hours === 0 ? '' : item.estimated_hours}
-                      onChange={(e) => {
-                        const val = e.target.value === '' ? 0 : Math.max(0, parseInt(e.target.value, 10) || 0);
-                        handleDeliverableChange(idx, 'estimated_hours', val);
-                      }}
-                      onBlur={() => {
-                        if (!item.estimated_hours || item.estimated_hours < 1) {
-                          handleDeliverableChange(idx, 'estimated_hours', 1);
-                        }
-                      }}
-                      className="w-12 text-xs font-bold text-[var(--color-ink-deep)] bg-transparent text-right focus:outline-none"
-                    />
-                    <span className="text-[11px] font-semibold text-[var(--color-slate-text)]">
-                      hrs
-                    </span>
-                  </div>
-
-                  {/* Delete button */}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveDeliverable(idx)}
-                    title="Remove deliverable"
-                    className="p-1 rounded-md text-[var(--color-steel)] hover:text-[var(--color-error)] hover:bg-[var(--color-coral-light)]/40 transition-colors"
-                  >
-                    <Trash size={15} />
-                  </button>
+                      </span>
+                    ))}
+                  <input
+                    type="text"
+                    placeholder="+ Skill"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddSkill(
+                          idx,
+                          (e.target as HTMLInputElement).value,
+                        );
+                        (e.target as HTMLInputElement).value = "";
+                      }
+                    }}
+                    className="w-16 hover:w-24 focus:w-28 transition-all rounded-full bg-transparent border border-dashed border-[var(--color-hairline-strong)] hover:border-[var(--color-brand-blue)] px-2 py-0.5 text-[10px] text-[var(--color-ink)] placeholder:text-[var(--color-steel)] focus:outline-none focus:bg-white"
+                  />
                 </div>
               </div>
-
-              {/* Description textarea */}
-              <div className="pl-8.5">
-                <textarea
-                  value={item.description}
-                  onChange={(e) => handleDeliverableChange(idx, 'description', e.target.value)}
-                  rows={2}
-                  className="w-full text-xs leading-relaxed text-[var(--color-charcoal)] border border-transparent hover:border-[var(--color-hairline-strong)] focus:border-[var(--color-brand-blue)] focus:bg-white rounded-md p-1.5 bg-transparent focus:outline-none transition-colors"
-                  placeholder="Technical description of what will be delivered..."
-                />
-              </div>
-
-              {/* Skills Tags & Quick Add */}
-              <div className="flex flex-wrap items-center gap-1.5 pl-8.5">
-                {item.skills_required && item.skills_required.map((skill: string, sIdx: number) => (
-                  <span
-                    key={`${skill}-${sIdx}`}
-                    className="inline-flex items-center gap-1 rounded-full bg-[var(--color-surface-soft)] border border-[var(--color-hairline)] px-2.5 py-0.5 text-[10px] font-medium text-[var(--color-slate-text)]"
-                  >
-                    {skill}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveSkill(idx, sIdx)}
-                      className="hover:text-[var(--color-coral-dark)] text-[var(--color-steel)] transition-colors ml-0.5 font-bold"
-                      title={`Remove ${skill}`}
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-                <input
-                  type="text"
-                  placeholder="+ Skill"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddSkill(idx, (e.target as HTMLInputElement).value);
-                      (e.target as HTMLInputElement).value = '';
-                    }
-                  }}
-                  className="w-16 hover:w-24 focus:w-28 transition-all rounded-full bg-transparent border border-dashed border-[var(--color-hairline-strong)] hover:border-[var(--color-brand-blue)] px-2 py-0.5 text-[10px] text-[var(--color-ink)] placeholder:text-[var(--color-steel)] focus:outline-none focus:bg-white"
-                />
-              </div>
-            </div>
-          ))}
+            ),
+          )}
 
           {/* Add Custom Deliverable Button */}
           <button
@@ -575,41 +647,47 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
 
       {/* Risks & Recommendations Grid */}
       <div className="grid gap-4 md:grid-cols-2">
-        {localResult?.risks_and_dependencies && localResult.risks_and_dependencies.length > 0 && (
-          <div className="rounded-[var(--radius-xl)] border border-[var(--color-brand-coral)]/30 bg-[var(--color-coral-light)]/40 p-4 space-y-2.5">
-            <div className="flex items-center gap-2 text-[var(--color-coral-dark)] font-bold text-xs uppercase tracking-wider">
-              <WarningCircle size={16} weight="bold" />
-              <h5>Risks & Dependencies</h5>
+        {localResult?.risks_and_dependencies &&
+          localResult.risks_and_dependencies.length > 0 && (
+            <div className="rounded-[var(--radius-xl)] border border-[var(--color-brand-coral)]/30 bg-[var(--color-coral-light)]/40 p-4 space-y-2.5">
+              <div className="flex items-center gap-2 text-[var(--color-coral-dark)] font-bold text-xs uppercase tracking-wider">
+                <WarningCircle size={16} weight="bold" />
+                <h5>Risks & Dependencies</h5>
+              </div>
+              <ul className="space-y-1.5 text-xs text-[var(--color-coral-dark)]/90">
+                {localResult.risks_and_dependencies.map(
+                  (risk: string, idx: number) => (
+                    <li key={idx} className="flex items-start gap-1.5">
+                      <span className="mt-0.5 text-[var(--color-brand-coral)] font-bold">
+                        •
+                      </span>
+                      <span>{risk}</span>
+                    </li>
+                  ),
+                )}
+              </ul>
             </div>
-            <ul className="space-y-1.5 text-xs text-[var(--color-coral-dark)]/90">
-              {localResult.risks_and_dependencies.map((risk: string, idx: number) => (
-                <li key={idx} className="flex items-start gap-1.5">
-                  <span className="mt-0.5 text-[var(--color-brand-coral)] font-bold">•</span>
-                  <span>{risk}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+          )}
 
-        {localResult?.recommended_tech_stack && localResult.recommended_tech_stack.length > 0 && (
-          <div className="rounded-[var(--radius-xl)] border border-[var(--color-brand-teal)]/30 bg-[var(--color-teal-light)]/40 p-4 space-y-2.5">
-            <div className="flex items-center gap-2 text-[var(--color-moss-dark)] font-bold text-xs uppercase tracking-wider">
-              <Code size={16} weight="bold" />
-              <h5>Recommended Tech Stack</h5>
+        {localResult?.recommended_tech_stack &&
+          localResult.recommended_tech_stack.length > 0 && (
+            <div className="rounded-[var(--radius-xl)] border border-[var(--color-brand-teal)]/30 bg-[var(--color-teal-light)]/40 p-4 space-y-2.5">
+              <div className="flex items-center gap-2 text-[var(--color-moss-dark)] font-bold text-xs uppercase tracking-wider">
+                <Code size={16} weight="bold" />
+                <h5>Recommended Tech Stack</h5>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {localResult.recommended_tech_stack.map((tech: string) => (
+                  <span
+                    key={tech}
+                    className="rounded-full border border-[var(--color-brand-teal)]/30 bg-white px-3 py-1 text-xs font-semibold text-[var(--color-moss-dark)] shadow-xs"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {localResult.recommended_tech_stack.map((tech: string) => (
-                <span
-                  key={tech}
-                  className="rounded-full border border-[var(--color-brand-teal)]/30 bg-white px-3 py-1 text-xs font-semibold text-[var(--color-moss-dark)] shadow-xs"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+          )}
       </div>
 
       {/* Action Buttons & Operational Conversion Bridge */}
@@ -650,12 +728,19 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
                 >
                   {isConfirming ? (
                     <>
-                      <SpinnerGap size={16} className="animate-spin text-[var(--color-brand-blue)]" />
+                      <SpinnerGap
+                        size={16}
+                        className="animate-spin text-[var(--color-brand-blue)]"
+                      />
                       Confirming...
                     </>
                   ) : (
                     <>
-                      <CheckCircle size={16} weight="bold" className="text-[var(--color-moss-dark)]" />
+                      <CheckCircle
+                        size={16}
+                        weight="bold"
+                        className="text-[var(--color-moss-dark)]"
+                      />
                       Approve & Confirm
                     </>
                   )}
@@ -670,7 +755,11 @@ export const ScopeReviewDraft: React.FC<ScopeReviewDraftProps> = ({
                 onClick={handleOpenConvert}
                 className="rounded-full flex items-center gap-2 shadow-[var(--shadow-subtle)] bg-[var(--color-ink-deep)] text-white hover:bg-black"
               >
-                <FolderPlus size={18} weight="bold" className="text-[var(--color-brand-yellow)]" />
+                <FolderPlus
+                  size={18}
+                  weight="bold"
+                  className="text-[var(--color-brand-yellow)]"
+                />
                 Convert to Live Project
               </Button>
             </>

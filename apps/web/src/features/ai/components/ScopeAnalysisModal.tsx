@@ -1,12 +1,13 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { toast } from 'sonner';
-import type { ScopeAnalysisRecord } from '@api/ai';
-import { Dialog } from '@shared/components/Dialog';
-import { useConfirmScope, useGenerateScope } from '../hooks/useScopeAnalysis';
-import { ScopeGeneratorForm } from './ScopeGeneratorForm';
-import { ScopeReviewDraft } from './ScopeReviewDraft';
+import type { ScopeAnalysisRecord } from "@api/ai";
+import { Dialog } from "@shared/components/Dialog";
+import type React from "react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useConfirmScope, useGenerateScope } from "../hooks/useScopeAnalysis";
+import { ScopeGeneratorForm } from "./ScopeGeneratorForm";
+import { ScopeReviewDraft } from "./ScopeReviewDraft";
 
 interface ScopeAnalysisModalProps {
   isOpen: boolean;
@@ -23,7 +24,9 @@ export const ScopeAnalysisModal: React.FC<ScopeAnalysisModalProps> = ({
   projectId,
   onScopeConfirmed,
 }) => {
-  const [draftScope, setDraftScope] = useState<ScopeAnalysisRecord | null>(null);
+  const [draftScope, setDraftScope] = useState<ScopeAnalysisRecord | null>(
+    null,
+  );
 
   const generateMutation = useGenerateScope(workspaceId);
   const confirmMutation = useConfirmScope(workspaceId);
@@ -35,9 +38,10 @@ export const ScopeAnalysisModal: React.FC<ScopeAnalysisModalProps> = ({
         projectId,
       });
       setDraftScope(generated);
-      toast.success('Scope analysis draft generated successfully!');
+      toast.success("Scope analysis draft generated successfully!");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to generate scope';
+      const message =
+        err instanceof Error ? err.message : "Failed to generate scope";
       toast.error(message);
     }
   };
@@ -49,12 +53,13 @@ export const ScopeAnalysisModal: React.FC<ScopeAnalysisModalProps> = ({
         scopeId: draftScope.id,
       });
       setDraftScope(confirmed);
-      toast.success('Project scope confirmed and activated!');
+      toast.success("Project scope confirmed and activated!");
       if (onScopeConfirmed) {
         onScopeConfirmed(confirmed);
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to confirm scope';
+      const message =
+        err instanceof Error ? err.message : "Failed to confirm scope";
       toast.error(message);
     }
   };

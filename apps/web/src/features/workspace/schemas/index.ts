@@ -1,1 +1,4 @@
-export { createWorkspaceSchema, type CreateWorkspaceFormData } from './createWorkspace.schema';
+export {
+  createWorkspaceSchema,
+  type CreateWorkspaceFormData,
+} from "./createWorkspace.schema";

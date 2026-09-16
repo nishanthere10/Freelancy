@@ -1,30 +1,30 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@shared/components';
-import { Pacifico } from 'next/font/google';
 import {
   ArrowLeft,
-  Printer,
-  PaperPlaneRight,
+  Building,
+  CheckCircle,
   CreditCard,
+  FileText,
+  PaperPlaneRight,
   Pencil,
+  Printer,
   Prohibit,
   Trash,
-  Building,
   User,
-  CheckCircle,
-  FileText,
-} from '@phosphor-icons/react';
-import type { InvoiceResponse } from '../api';
-import { InvoiceStatusBadge } from './InvoiceStatusBadge';
-import { useSendInvoice, useCancelInvoice, useDeleteInvoice } from '../hooks';
-import { RecordPaymentDialog } from './RecordPaymentDialog';
-import { EditInvoiceDialog } from './EditInvoiceDialog';
+} from "@phosphor-icons/react";
+import { Button } from "@shared/components";
+import { Pacifico } from "next/font/google";
+import { useState } from "react";
+import type { InvoiceResponse } from "../api";
+import { useCancelInvoice, useDeleteInvoice, useSendInvoice } from "../hooks";
+import { EditInvoiceDialog } from "./EditInvoiceDialog";
+import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
+import { RecordPaymentDialog } from "./RecordPaymentDialog";
 
 const pacifico = Pacifico({
-  weight: '400',
-  subsets: ['latin'],
+  weight: "400",
+  subsets: ["latin"],
 });
 
 interface InvoiceDetailViewProps {
@@ -52,7 +52,7 @@ export function InvoiceDetailView({
   const handleSend = async () => {
     if (
       confirm(
-        'Issue this invoice? A sequential invoice number will be permanently assigned.'
+        "Issue this invoice? A sequential invoice number will be permanently assigned.",
       )
     ) {
       await sendInvoiceMutation.mutateAsync({ id: invoice.id });
@@ -62,7 +62,7 @@ export function InvoiceDetailView({
   const handleCancel = async () => {
     if (
       confirm(
-        'Are you sure you want to void/cancel this invoice? This action cannot be undone.'
+        "Are you sure you want to void/cancel this invoice? This action cannot be undone.",
       )
     ) {
       await cancelInvoiceMutation.mutateAsync(invoice.id);
@@ -70,7 +70,7 @@ export function InvoiceDetailView({
   };
 
   const handleDelete = async () => {
-    if (confirm('Delete this draft invoice?')) {
+    if (confirm("Delete this draft invoice?")) {
       await deleteInvoiceMutation.mutateAsync(invoice.id);
       onBack();
     }
@@ -85,7 +85,7 @@ export function InvoiceDetailView({
   const halfTaxRate = taxRate / 2;
   const halfTaxAmt = taxAmt / 2;
 
-  const currencySymbol = invoice.currency === 'INR' ? '₹' : '$';
+  const currencySymbol = invoice.currency === "INR" ? "₹" : "$";
 
   return (
     <div className="space-y-6 max-w-[1200px] w-full mx-auto">
@@ -101,11 +101,16 @@ export function InvoiceDetailView({
         </button>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handlePrint} className="rounded-full">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePrint}
+            className="rounded-full"
+          >
             <Printer className="h-4 w-4 mr-1.5" /> Print / Save PDF
           </Button>
 
-          {invoice.status === 'draft' && (
+          {invoice.status === "draft" && (
             <>
               <Button
                 variant="outline"
@@ -127,7 +132,7 @@ export function InvoiceDetailView({
             </>
           )}
 
-          {(invoice.status === 'sent' || invoice.status === 'overdue') && (
+          {(invoice.status === "sent" || invoice.status === "overdue") && (
             <Button
               variant="default"
               size="sm"
@@ -138,7 +143,7 @@ export function InvoiceDetailView({
             </Button>
           )}
 
-          {invoice.status !== 'cancelled' && (
+          {invoice.status !== "cancelled" && (
             <Button
               variant="outline"
               size="sm"
@@ -150,7 +155,7 @@ export function InvoiceDetailView({
             </Button>
           )}
 
-          {invoice.status === 'draft' && (
+          {invoice.status === "draft" && (
             <Button
               variant="outline"
               size="sm"
@@ -170,7 +175,9 @@ export function InvoiceDetailView({
         <div className="flex flex-col sm:flex-row justify-between items-start gap-6 pb-8 border-b-2 border-[var(--color-hairline-soft)]">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <span className={`${pacifico.className} text-3xl text-[var(--color-primary)]`}>
+              <span
+                className={`${pacifico.className} text-3xl text-[var(--color-primary)]`}
+              >
                 Freelancy
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-[var(--color-rose-light)] text-[var(--color-brand-rose)] font-bold text-[10px] uppercase tracking-wider border border-[var(--color-brand-rose)]/30">
@@ -178,11 +185,11 @@ export function InvoiceDetailView({
               </span>
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-ink-deep)] uppercase">
-              {invoice.invoiceNumber || 'DRAFT INVOICE'}
+              {invoice.invoiceNumber || "DRAFT INVOICE"}
             </h1>
             <div className="flex items-center gap-2 pt-1">
               <InvoiceStatusBadge status={invoice.status} />
-              {invoice.status === 'paid' && (
+              {invoice.status === "paid" && (
                 <span className="inline-flex items-center text-xs font-semibold text-[var(--color-success-accent)] gap-1">
                   <CheckCircle className="h-3.5 w-3.5" /> Paid in full
                 </span>
@@ -192,15 +199,23 @@ export function InvoiceDetailView({
 
           <div className="text-left sm:text-right space-y-1.5 text-xs text-[var(--color-slate-text)] bg-[var(--color-surface-soft)] p-4 rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] min-w-[200px]">
             <div>
-              <span className="font-semibold text-[var(--color-ink-deep)]">Issue Date:</span>{' '}
-              <span className="font-mono">{invoice.issueDate || 'Draft'}</span>
+              <span className="font-semibold text-[var(--color-ink-deep)]">
+                Issue Date:
+              </span>{" "}
+              <span className="font-mono">{invoice.issueDate || "Draft"}</span>
             </div>
             <div>
-              <span className="font-semibold text-[var(--color-ink-deep)]">Due Date:</span>{' '}
-              <span className="font-mono">{invoice.dueDate || 'Upon receipt'}</span>
+              <span className="font-semibold text-[var(--color-ink-deep)]">
+                Due Date:
+              </span>{" "}
+              <span className="font-mono">
+                {invoice.dueDate || "Upon receipt"}
+              </span>
             </div>
             <div>
-              <span className="font-semibold text-[var(--color-ink-deep)]">Currency:</span>{' '}
+              <span className="font-semibold text-[var(--color-ink-deep)]">
+                Currency:
+              </span>{" "}
               <span className="font-mono uppercase">{invoice.currency}</span>
             </div>
           </div>
@@ -211,22 +226,28 @@ export function InvoiceDetailView({
           {/* Billed From (Freelancer Workspace) */}
           <div className="bg-[var(--color-surface-soft)] p-6 rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] space-y-2">
             <div className="font-bold uppercase text-[var(--color-steel)] text-[10px] tracking-wider mb-2 flex items-center gap-1.5">
-              <Building className="h-4 w-4 text-[var(--color-brand-blue)]" /> Billed From
+              <Building className="h-4 w-4 text-[var(--color-brand-blue)]" />{" "}
+              Billed From
             </div>
             <div className="font-bold text-base text-[var(--color-ink-deep)]">
               Freelancy Studio
             </div>
-            <div className="text-[var(--color-slate-text)] font-mono">GSTIN: 27AAAAA0000A1Z5</div>
-            <div className="text-[var(--color-steel)]">Professional Freelance Operations</div>
+            <div className="text-[var(--color-slate-text)] font-mono">
+              GSTIN: 27AAAAA0000A1Z5
+            </div>
+            <div className="text-[var(--color-steel)]">
+              Professional Freelance Operations
+            </div>
           </div>
 
           {/* Billed To (Client) */}
           <div className="bg-[var(--color-surface-soft)] p-6 rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] space-y-2">
             <div className="font-bold uppercase text-[var(--color-steel)] text-[10px] tracking-wider mb-2 flex items-center gap-1.5">
-              <User className="h-4 w-4 text-[var(--color-brand-teal)]" /> Billed To
+              <User className="h-4 w-4 text-[var(--color-brand-teal)]" /> Billed
+              To
             </div>
             <div className="font-bold text-base text-[var(--color-ink-deep)]">
-              {invoice.clientName || 'Client Name'}
+              {invoice.clientName || "Client Name"}
             </div>
             {invoice.projectName && (
               <div className="text-[var(--color-slate-text)] font-medium">
@@ -250,10 +271,19 @@ export function InvoiceDetailView({
             </thead>
             <tbody className="divide-y divide-[var(--color-hairline-soft)]">
               {invoice.items.map((item, idx) => (
-                <tr key={item.id} className="hover:bg-[var(--color-surface-soft)] transition-colors">
-                  <td className="p-4 text-center text-[var(--color-steel)] font-mono">{idx + 1}</td>
-                  <td className="p-4 font-semibold text-[var(--color-ink-deep)]">{item.description}</td>
-                  <td className="p-4 text-right font-mono text-[var(--color-charcoal)]">{item.quantity}</td>
+                <tr
+                  key={item.id}
+                  className="hover:bg-[var(--color-surface-soft)] transition-colors"
+                >
+                  <td className="p-4 text-center text-[var(--color-steel)] font-mono">
+                    {idx + 1}
+                  </td>
+                  <td className="p-4 font-semibold text-[var(--color-ink-deep)]">
+                    {item.description}
+                  </td>
+                  <td className="p-4 text-right font-mono text-[var(--color-charcoal)]">
+                    {item.quantity}
+                  </td>
                   <td className="p-4 text-right font-mono text-[var(--color-charcoal)]">
                     {currencySymbol}
                     {Number(item.unitPrice).toFixed(2)}
@@ -274,7 +304,8 @@ export function InvoiceDetailView({
             {invoice.notes && (
               <div className="space-y-1.5">
                 <div className="font-bold text-[var(--color-steel)] uppercase text-[10px] tracking-wider flex items-center gap-1">
-                  <FileText className="h-3.5 w-3.5 text-[var(--color-stone)]" /> Notes & Overview
+                  <FileText className="h-3.5 w-3.5 text-[var(--color-stone)]" />{" "}
+                  Notes & Overview
                 </div>
                 <div className="bg-[var(--color-surface-soft)] p-4 rounded-[var(--radius-xl)] text-[var(--color-charcoal)] leading-relaxed whitespace-pre-wrap border border-[var(--color-hairline-soft)]">
                   {invoice.notes}
@@ -369,7 +400,8 @@ export function InvoiceDetailView({
 
         {/* Document Footer */}
         <div className="text-center text-xs text-[var(--color-steel)] border-t border-[var(--color-hairline-soft)] pt-8">
-          Thank you for working with Freelancy. Generated electronically with GST compliance.
+          Thank you for working with Freelancy. Generated electronically with
+          GST compliance.
         </div>
       </div>
 

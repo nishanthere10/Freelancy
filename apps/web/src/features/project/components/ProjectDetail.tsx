@@ -1,33 +1,39 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Card, Button } from '@shared/components';
+import { listScopeAnalyses } from "@api/ai";
+import { DriftAnalysisModal } from "@features/ai";
 import {
-  ArrowLeft,
-  UserCheck,
-  CalendarBlank,
-  CurrencyDollar,
-  PencilSimple,
   Archive,
   ArrowClockwise,
+  ArrowLeft,
+  CalendarBlank,
   Check,
-  X,
-  Tag,
   Clock,
+  CurrencyDollar,
   FileText,
-  Sparkle,
   Lightbulb,
-} from '@phosphor-icons/react';
-import { toast } from 'sonner';
-import type { ProjectResponse } from '../api';
-import { useDeleteProject, useRestoreProject, useProjectDeliverables } from '../hooks';
-import { ProjectStatusControl } from './ProjectStatusControl';
-import { ProjectProgressBar } from './ProjectProgressBar';
-import { ProjectDeliverablesCard } from './ProjectDeliverablesCard';
-import { ProjectFinancialsCard } from './ProjectFinancialsCard';
-import { DriftAnalysisModal } from '@features/ai';
-import { listScopeAnalyses } from '@api/ai';
+  PencilSimple,
+  Sparkle,
+  Tag,
+  UserCheck,
+  X,
+} from "@phosphor-icons/react";
+import { Button, Card } from "@shared/components";
+import { useQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { toast } from "sonner";
+import type { ProjectResponse } from "../api";
+import {
+  useDeleteProject,
+  useProjectDeliverables,
+  useRestoreProject,
+} from "../hooks";
+import { ChangeOrderProposalModal } from "./ChangeOrderProposalModal";
+import { ProjectChangeOrdersCard } from "./ProjectChangeOrdersCard";
+import { ProjectDeliverablesCard } from "./ProjectDeliverablesCard";
+import { ProjectFinancialsCard } from "./ProjectFinancialsCard";
+import { ProjectProgressBar } from "./ProjectProgressBar";
+import { ProjectStatusControl } from "./ProjectStatusControl";
 
 interface ProjectDetailProps {
   workspaceId: string;
@@ -44,24 +50,39 @@ export function ProjectDetail({
 }: ProjectDetailProps) {
   const [confirmingArchive, setConfirmingArchive] = useState(false);
   const [isDriftModalOpen, setIsDriftModalOpen] = useState(false);
+  const [changeOrderProposal, setChangeOrderProposal] = useState<{
+    isOpen: boolean;
+    driftAnalysisId?: string | null;
+    title?: string;
+    description?: string;
+    additionalBudget?: string;
+    additionalHours?: number;
+    timelineDeltaDays?: number;
+    deliverables?: Array<{ title: string; estimatedHours: number }>;
+  }>({ isOpen: false });
 
-  const { mutate: deleteProject, isPending: isDeleting } = useDeleteProject(workspaceId);
-  const { mutate: restoreProject, isPending: isRestoring } = useRestoreProject(workspaceId);
+  const { mutate: deleteProject, isPending: isDeleting } =
+    useDeleteProject(workspaceId);
+  const { mutate: restoreProject, isPending: isRestoring } =
+    useRestoreProject(workspaceId);
 
   // Load operational deliverables and progress
-  const { data: deliverablesData } =
-    useProjectDeliverables(workspaceId, project.id);
+  const { data: deliverablesData } = useProjectDeliverables(
+    workspaceId,
+    project.id,
+  );
 
   // Fetch linked scope analysis for in-context Scope Drift
   const { data: scopes = [] } = useQuery({
-    queryKey: ['project-scope', workspaceId, project.id],
+    queryKey: ["project-scope", workspaceId, project.id],
     queryFn: () => listScopeAnalyses(workspaceId, { projectId: project.id }),
     enabled: Boolean(workspaceId && project.id),
     staleTime: 1000 * 60 * 5,
   });
 
   const linkedScope = scopes.find((s) => s.projectId === project.id) || null;
-  const isArchived = project.status === 'archived' || Boolean(project.deletedAt);
+  const isArchived =
+    project.status === "archived" || Boolean(project.deletedAt);
 
   const deliverables = deliverablesData?.deliverables || [];
   const progress = deliverablesData?.progress || {
@@ -92,7 +113,7 @@ export function ProjectDetail({
   const handleOpenDrift = () => {
     if (!linkedScope) {
       toast.error(
-        'No confirmed AI scope linked to this project. Scope Drift requires an agreed baseline.'
+        "No confirmed AI scope linked to this project. Scope Drift requires an agreed baseline.",
       );
       return;
     }
@@ -100,8 +121,8 @@ export function ProjectDetail({
   };
 
   const formattedBudget = project.budgetAmount
-    ? `${project.budgetCurrency || 'USD'} ${Number(project.budgetAmount).toLocaleString()}`
-    : 'Not specified';
+    ? `${project.budgetCurrency || "USD"} ${Number(project.budgetAmount).toLocaleString()}`
+    : "Not specified";
 
   return (
     <div className="space-y-6 max-w-[1240px] w-full mx-auto pb-12">
@@ -209,7 +230,9 @@ export function ProjectDetail({
             <p className="text-sm font-medium text-[var(--color-slate-text)] flex flex-wrap items-center gap-2">
               <span className="flex items-center gap-1.5 text-[var(--color-ink-deep)] font-semibold">
                 <UserCheck className="h-4 w-4 text-[var(--color-yellow-dark)]" />
-                <span>{project.clientName ? project.clientName : 'Internal Project'}</span>
+                <span>
+                  {project.clientName ? project.clientName : "Internal Project"}
+                </span>
               </span>
               <span className="text-[var(--color-stone)]">•</span>
               <span className="capitalize text-[var(--color-charcoal)] flex items-center gap-1">
@@ -253,10 +276,10 @@ export function ProjectDetail({
               <span>Target Delivery</span>
             </div>
             <div className="text-2xl font-bold text-[var(--color-ink-deep)] pt-1">
-              {project.targetDate || 'Not set'}
+              {project.targetDate || "Not set"}
             </div>
             <div className="text-xs text-[var(--color-charcoal)]">
-              Start date: {project.startDate || 'Not specified'}
+              Start date: {project.startDate || "Not specified"}
             </div>
           </div>
 
@@ -268,7 +291,7 @@ export function ProjectDetail({
               <span>Hours Tracked</span>
             </div>
             <div className="text-2xl font-bold text-[var(--color-ink-deep)] pt-1">
-              {progress.totalLoggedHours}h{' '}
+              {progress.totalLoggedHours}h{" "}
               <span className="text-xs font-normal text-[var(--color-slate-text)]">
                 / {progress.totalEstimatedHours}h est.
               </span>
@@ -283,7 +306,8 @@ export function ProjectDetail({
         {project.description && (
           <div className="space-y-2 pt-4 border-t border-[var(--color-hairline-soft)] text-xs">
             <h4 className="font-bold text-[var(--color-ink-deep)] flex items-center gap-1.5">
-              <FileText className="h-4 w-4 text-[var(--color-yellow-dark)]" /> Project Scope Overview
+              <FileText className="h-4 w-4 text-[var(--color-yellow-dark)]" />{" "}
+              Project Scope Overview
             </h4>
             <div className="p-4 rounded-[var(--radius-lg)] bg-[var(--color-surface-soft)] border border-[var(--color-hairline)] text-[var(--color-charcoal)] leading-relaxed whitespace-pre-wrap">
               {project.description}
@@ -312,7 +336,17 @@ export function ProjectDetail({
         deliverables={deliverables}
       />
 
-      {/* Layer 4: AI Scope Intelligence Context */}
+      {/* Layer 4: Scope Drift → Change Order Bridge */}
+      <ProjectChangeOrdersCard
+        workspaceId={workspaceId}
+        projectId={project.id}
+        scopeAnalysisId={linkedScope?.id}
+        projectBudget={project.budgetAmount}
+        projectCurrency={project.budgetCurrency}
+        projectTargetDate={project.targetDate}
+      />
+
+      {/* Layer 5: AI Scope Intelligence Context */}
       {linkedScope && (
         <Card className="p-6 rounded-[var(--radius-xl)] bg-gradient-to-br from-white to-[var(--color-surface-yellow)]/30 border border-[var(--color-brand-yellow)]/30 shadow-[var(--shadow-card)] space-y-4">
           <div className="flex items-center justify-between">
@@ -337,9 +371,14 @@ export function ProjectDetail({
           </div>
 
           <p className="text-xs text-[var(--color-slate-text)] leading-relaxed">
-            This project is protected by an immutable confirmed AI scope baseline. If your client requests unexpected features or timeline shifts mid-delivery, use{' '}
-            <strong className="text-[var(--color-ink-deep)]">&quot;Check Scope Drift&quot;</strong>{' '}
-            to evaluate budget, timeline, and risk impact before doing unpaid work.
+            This project is protected by an immutable confirmed AI scope
+            baseline. If your client requests unexpected features or timeline
+            shifts mid-delivery, use{" "}
+            <strong className="text-[var(--color-ink-deep)]">
+              &quot;Check Scope Drift&quot;
+            </strong>{" "}
+            to evaluate budget, timeline, and risk impact before doing unpaid
+            work.
           </p>
         </Card>
       )}
@@ -352,6 +391,39 @@ export function ProjectDetail({
           workspaceId={workspaceId}
           scopeAnalysisId={linkedScope.id}
           scopeTitle={project.name}
+          onConvertToChangeOrder={(draft) => {
+            setChangeOrderProposal({
+              isOpen: true,
+              driftAnalysisId: draft.driftAnalysisId,
+              title: draft.title,
+              description: draft.description,
+              additionalBudget: draft.additionalBudget,
+              additionalHours: draft.additionalHours,
+              timelineDeltaDays: draft.timelineDeltaDays,
+              deliverables: draft.deliverables,
+            });
+          }}
+        />
+      )}
+
+      {/* Change Order Proposal Modal from Drift Conversion */}
+      {linkedScope && changeOrderProposal.isOpen && (
+        <ChangeOrderProposalModal
+          isOpen={changeOrderProposal.isOpen}
+          onClose={() => setChangeOrderProposal({ isOpen: false })}
+          workspaceId={workspaceId}
+          projectId={project.id}
+          scopeAnalysisId={linkedScope.id}
+          driftAnalysisId={changeOrderProposal.driftAnalysisId}
+          projectBudget={project.budgetAmount}
+          projectCurrency={project.budgetCurrency}
+          projectTargetDate={project.targetDate}
+          initialTitle={changeOrderProposal.title}
+          initialDescription={changeOrderProposal.description}
+          initialAdditionalBudget={changeOrderProposal.additionalBudget}
+          initialAdditionalHours={changeOrderProposal.additionalHours}
+          initialTimelineDeltaDays={changeOrderProposal.timelineDeltaDays}
+          initialDeliverables={changeOrderProposal.deliverables}
         />
       )}
     </div>

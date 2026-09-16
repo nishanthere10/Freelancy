@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Button } from '@shared/components';
-import { UserPlus } from '@phosphor-icons/react';
+import { UserPlus } from "@phosphor-icons/react";
+import { Button } from "@shared/components";
 
 interface ClientEmptyStateProps {
   onCreateClick: () => void;
@@ -18,7 +18,8 @@ export function ClientEmptyState({ onCreateClick }: ClientEmptyStateProps) {
           No clients added yet
         </h2>
         <p className="text-sm text-[var(--color-slate-text)] max-w-md mx-auto leading-relaxed">
-          Clients are the companies and individuals you work for. Add your first client to start organizing projects and invoices.
+          Clients are the companies and individuals you work for. Add your first
+          client to start organizing projects and invoices.
         </p>
       </div>
       <Button onClick={onCreateClick} className="rounded-full shadow-xs">

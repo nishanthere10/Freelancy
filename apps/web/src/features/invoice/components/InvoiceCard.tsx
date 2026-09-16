@@ -1,6 +1,6 @@
-import { Calendar, CurrencyInr, User, Folder } from '@phosphor-icons/react';
-import type { InvoiceResponse } from '../api';
-import { InvoiceStatusBadge } from './InvoiceStatusBadge';
+import { Calendar, CurrencyInr, Folder, User } from "@phosphor-icons/react";
+import type { InvoiceResponse } from "../api";
+import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
 
 interface InvoiceCardProps {
   invoice: InvoiceResponse;
@@ -16,7 +16,7 @@ export function InvoiceCard({ invoice, onSelect }: InvoiceCardProps) {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="font-mono text-xs font-semibold text-[var(--color-slate-text)] bg-[var(--color-surface-soft)] px-2 py-0.5 rounded-[var(--radius-sm)] border border-[var(--color-hairline-soft)]">
-            {invoice.invoiceNumber || 'DRAFT'}
+            {invoice.invoiceNumber || "DRAFT"}
           </span>
           <InvoiceStatusBadge status={invoice.status} />
         </div>
@@ -24,7 +24,9 @@ export function InvoiceCard({ invoice, onSelect }: InvoiceCardProps) {
         <div>
           <div className="flex items-center text-sm font-semibold text-[var(--color-ink-deep)] group-hover:text-[var(--color-brand-blue)] transition-colors">
             <User className="h-4 w-4 mr-1.5 text-[var(--color-stone)] shrink-0" />
-            <span className="truncate">{invoice.clientName || 'Unassigned Client'}</span>
+            <span className="truncate">
+              {invoice.clientName || "Unassigned Client"}
+            </span>
           </div>
 
           {invoice.projectName && (
@@ -38,18 +40,24 @@ export function InvoiceCard({ invoice, onSelect }: InvoiceCardProps) {
 
       <div className="mt-4 pt-4 border-t border-[var(--color-hairline-soft)] flex items-center justify-between">
         <div>
-          <div className="text-[10px] uppercase font-bold text-[var(--color-steel)] tracking-wider">Total Amount</div>
+          <div className="text-[10px] uppercase font-bold text-[var(--color-steel)] tracking-wider">
+            Total Amount
+          </div>
           <div className="text-lg font-bold text-[var(--color-ink-deep)] flex items-center">
             <CurrencyInr className="h-4 w-4 mr-0.5 text-[var(--color-brand-rose)]" />
-            {Number(invoice.totalAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            {Number(invoice.totalAmount).toLocaleString("en-IN", {
+              minimumFractionDigits: 2,
+            })}
           </div>
         </div>
 
         <div className="text-right">
-          <div className="text-[10px] uppercase font-bold text-[var(--color-steel)] tracking-wider">Due Date</div>
+          <div className="text-[10px] uppercase font-bold text-[var(--color-steel)] tracking-wider">
+            Due Date
+          </div>
           <div className="text-xs font-medium text-[var(--color-charcoal)] flex items-center justify-end mt-0.5">
             <Calendar className="h-3.5 w-3.5 mr-1 text-[var(--color-stone)]" />
-            {invoice.dueDate || 'Not set'}
+            {invoice.dueDate || "Not set"}
           </div>
         </div>
       </div>

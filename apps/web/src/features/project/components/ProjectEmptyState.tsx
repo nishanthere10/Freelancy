@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Button } from '@shared/components';
-import { Briefcase, Plus } from '@phosphor-icons/react';
+import { Briefcase, Plus } from "@phosphor-icons/react";
+import { Button } from "@shared/components";
 
 interface ProjectEmptyStateProps {
   onCreateClick?: () => void;
@@ -18,7 +18,8 @@ export function ProjectEmptyState({ onCreateClick }: ProjectEmptyStateProps) {
           No projects yet
         </h3>
         <p className="text-sm text-[var(--color-slate-text)] max-w-md mx-auto leading-relaxed">
-          Create your first project to track client deliverables, budgets, and deadlines.
+          Create your first project to track client deliverables, budgets, and
+          deadlines.
         </p>
       </div>
       {onCreateClick && (

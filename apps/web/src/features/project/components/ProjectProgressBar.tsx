@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { CheckCircle, Clock, Warning, TrendUp } from '@phosphor-icons/react';
-import type { ProjectProgress } from '../api';
+import { CheckCircle, Clock, TrendUp, Warning } from "@phosphor-icons/react";
+import type React from "react";
+import type { ProjectProgress } from "../api";
 
 interface ProjectProgressBarProps {
   progress: ProjectProgress;
@@ -14,7 +14,7 @@ export const ProjectProgressBar: React.FC<ProjectProgressBarProps> = ({
   const isOverrun = progress.totalLoggedHours > progress.totalEstimatedHours;
   const overrunHours = isOverrun
     ? (progress.totalLoggedHours - progress.totalEstimatedHours).toFixed(1)
-    : '0.0';
+    : "0.0";
 
   return (
     <div className="p-6 rounded-[var(--radius-xl)] bg-white border border-[var(--color-hairline-soft)] shadow-[var(--shadow-card)] space-y-5">
@@ -33,11 +33,11 @@ export const ProjectProgressBar: React.FC<ProjectProgressBarProps> = ({
               <>
                 <span className="font-semibold text-[var(--color-ink-deep)]">
                   {progress.completedCount}
-                </span>{' '}
-                of{' '}
+                </span>{" "}
+                of{" "}
                 <span className="font-semibold text-[var(--color-ink-deep)]">
                   {progress.totalCount}
-                </span>{' '}
+                </span>{" "}
                 deliverables completed
                 {progress.inProgressCount > 0 && (
                   <span className="ml-1.5 text-[var(--color-brand-blue)]">
@@ -46,7 +46,7 @@ export const ProjectProgressBar: React.FC<ProjectProgressBarProps> = ({
                 )}
               </>
             ) : (
-              'No deliverables assigned yet.'
+              "No deliverables assigned yet."
             )}
           </p>
         </div>
@@ -69,7 +69,9 @@ export const ProjectProgressBar: React.FC<ProjectProgressBarProps> = ({
           aria-valuemin={0}
           aria-valuemax={100}
           className="h-full rounded-full transition-all duration-500 ease-out bg-gradient-to-r from-[var(--color-brand-teal)] via-[var(--color-brand-blue)] to-[var(--color-brand-yellow-deep)]"
-          style={{ width: `${Math.min(100, Math.max(0, progress.completionPercentage))}%` }}
+          style={{
+            width: `${Math.min(100, Math.max(0, progress.completionPercentage))}%`,
+          }}
         />
       </div>
 
@@ -94,14 +96,18 @@ export const ProjectProgressBar: React.FC<ProjectProgressBarProps> = ({
         </div>
 
         <div className="space-y-0.5">
-          <span className="text-[var(--color-slate-text)] font-medium">Remaining</span>
+          <span className="text-[var(--color-slate-text)] font-medium">
+            Remaining
+          </span>
           <p className="font-mono font-bold text-sm text-[var(--color-ink-deep)]">
             {progress.remainingHours}h
           </p>
         </div>
 
         <div className="space-y-0.5">
-          <span className="text-[var(--color-slate-text)] font-medium">Budget Balance</span>
+          <span className="text-[var(--color-slate-text)] font-medium">
+            Budget Balance
+          </span>
           {isOverrun ? (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--color-error-bg)] text-[var(--color-error)] border border-[var(--color-error-border)]">
               <Warning className="h-3 w-3" /> +{overrunHours}h overrun

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import Link from 'next/link';
+import Link from "next/link";
+import { useEffect } from "react";
 
 export default function GlobalError({
   error,
@@ -11,7 +11,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Fatal Global Application Error:', error);
+    console.error("Fatal Global Application Error:", error);
   }, [error]);
 
   return (
@@ -23,9 +23,12 @@ export default function GlobalError({
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold tracking-tight">Application Error</h1>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Application Error
+            </h1>
             <p className="text-sm text-muted-foreground">
-              A critical system error occurred. We have logged the incident for investigation.
+              A critical system error occurred. We have logged the incident for
+              investigation.
             </p>
             {error.digest && (
               <p className="text-xs font-mono text-muted-foreground/70 bg-muted/50 py-1 px-2 rounded-md inline-block">

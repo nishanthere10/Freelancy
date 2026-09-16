@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Create workspace dialog
@@ -6,17 +6,20 @@
  * Handles mutation and dialog lifecycle
  */
 
-import { Dialog } from '@shared/components';
-import { useCreateWorkspace } from '../hooks';
-import { CreateWorkspaceForm } from './CreateWorkspaceForm';
-import type { CreateWorkspaceFormData } from '../schemas';
+import { Dialog } from "@shared/components";
+import { useCreateWorkspace } from "../hooks";
+import type { CreateWorkspaceFormData } from "../schemas";
+import { CreateWorkspaceForm } from "./CreateWorkspaceForm";
 
 interface CreateWorkspaceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDialogProps) {
+export function CreateWorkspaceDialog({
+  open,
+  onOpenChange,
+}: CreateWorkspaceDialogProps) {
   const { mutateAsync, isPending } = useCreateWorkspace();
 
   const handleSubmit = async (data: CreateWorkspaceFormData) => {

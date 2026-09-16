@@ -1,35 +1,61 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { toast } from 'sonner';
+import type { ScopeAnalysisRecord } from "@api/ai";
 import {
-  Sparkle,
-  Plus,
-  Clock,
-  CheckCircle,
-  FileText,
-  CaretRight,
   ArrowLeft,
+  CaretRight,
+  CheckCircle,
+  Clock,
   Compass,
-} from '@phosphor-icons/react';
-import type { ScopeAnalysisRecord } from '@api/ai';
-import { Button } from '@shared/components/Button';
-import { useConfirmScope, useGenerateScope, useScopeAnalyses } from '../hooks/useScopeAnalysis';
-import { DriftAnalysisModal } from './DriftAnalysisModal';
-import { ScopeGeneratorForm } from './ScopeGeneratorForm';
-import { ScopeReviewDraft } from './ScopeReviewDraft';
+  FileText,
+  Plus,
+  Sparkle,
+} from "@phosphor-icons/react";
+import { Button } from "@shared/components/Button";
+import Link from "next/link";
+import type React from "react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { ChangeOrderProposalModal } from "@features/project";
+import { useProjects } from "@features/project/hooks/useProjects";
+import {
+  useConfirmScope,
+  useGenerateScope,
+  useScopeAnalyses,
+} from "../hooks/useScopeAnalysis";
+import { DriftAnalysisModal } from "./DriftAnalysisModal";
+import { ScopeGeneratorForm } from "./ScopeGeneratorForm";
+import { ScopeReviewDraft } from "./ScopeReviewDraft";
 
 interface ScopeAnalysisPageProps {
   workspaceId: string;
 }
 
-export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceId }) => {
-  const [activeScope, setActiveScope] = useState<ScopeAnalysisRecord | null>(null);
+export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({
+  workspaceId,
+}) => {
+  const [activeScope, setActiveScope] = useState<ScopeAnalysisRecord | null>(
+    null,
+  );
   const [isCreatingNew, setIsCreatingNew] = useState(true);
-  const [driftTargetScope, setDriftTargetScope] = useState<ScopeAnalysisRecord | null>(null);
+  const [driftTargetScope, setDriftTargetScope] =
+    useState<ScopeAnalysisRecord | null>(null);
+  const [changeOrderProposal, setChangeOrderProposal] = useState<{
+    isOpen: boolean;
+    projectId?: string;
+    scopeAnalysisId?: string;
+    driftAnalysisId?: string | null;
+    title?: string;
+    description?: string;
+    additionalBudget?: string;
+    additionalHours?: number;
+    timelineDeltaDays?: number;
+    deliverables?: Array<{ title: string; estimatedHours: number }>;
+  }>({ isOpen: false });
 
-  const { data: scopes, isLoading: isHistoryLoading } = useScopeAnalyses(workspaceId);
+  const { data: projects } = useProjects(workspaceId);
+  const { data: scopes, isLoading: isHistoryLoading } =
+    useScopeAnalyses(workspaceId);
   const generateMutation = useGenerateScope(workspaceId);
   const confirmMutation = useConfirmScope(workspaceId);
 
@@ -40,9 +66,10 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
       });
       setActiveScope(generated);
       setIsCreatingNew(false);
-      toast.success('Scope analysis generated successfully!');
+      toast.success("Scope analysis generated successfully!");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to generate scope';
+      const message =
+        err instanceof Error ? err.message : "Failed to generate scope";
       toast.error(message);
     }
   };
@@ -54,9 +81,10 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
         scopeId: activeScope.id,
       });
       setActiveScope(confirmed);
-      toast.success('Project scope confirmed and activated!');
+      toast.success("Project scope confirmed and activated!");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to confirm scope';
+      const message =
+        err instanceof Error ? err.message : "Failed to confirm scope";
       toast.error(message);
     }
   };
@@ -97,14 +125,19 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
                 AI Project Scope Studio
               </h1>
               <p className="text-xs sm:text-sm text-[var(--color-slate-text)] mt-0.5">
-                Deconstruct raw briefs into deliverables, milestones, tech stacks, and timeline models.
+                Deconstruct raw briefs into deliverables, milestones, tech
+                stacks, and timeline models.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2.5 self-stretch sm:self-auto justify-end">
             <Link href={`/workspaces/${workspaceId}/projects`}>
-              <Button variant="secondary" size="md" className="rounded-full shadow-xs flex items-center gap-2">
+              <Button
+                variant="secondary"
+                size="md"
+                className="rounded-full shadow-xs flex items-center gap-2"
+              >
                 <ArrowLeft size={16} />
                 Back to Projects
               </Button>
@@ -115,7 +148,11 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
               onClick={handleStartNew}
               className="rounded-full shadow-xs flex items-center gap-2"
             >
-              <Plus size={16} weight="bold" className="text-[var(--color-brand-yellow)]" />
+              <Plus
+                size={16}
+                weight="bold"
+                className="text-[var(--color-brand-yellow)]"
+              />
               New Analysis
             </Button>
           </div>
@@ -147,7 +184,8 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
               ) : scopes && scopes.length > 0 ? (
                 <div className="max-h-[600px] space-y-2.5 overflow-y-auto pr-1 no-scrollbar">
                   {scopes.map((scope) => {
-                    const isSelected = activeScope?.id === scope.id && !isCreatingNew;
+                    const isSelected =
+                      activeScope?.id === scope.id && !isCreatingNew;
                     const isConfirmed = Boolean(scope.confirmedAt);
                     return (
                       <div
@@ -155,13 +193,15 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
                         onClick={() => handleSelectScope(scope)}
                         className={`w-full text-left transition-all rounded-[var(--radius-xl)] p-3.5 border cursor-pointer ${
                           isSelected
-                            ? 'border-2 border-[var(--color-primary)] bg-[var(--color-surface-soft)] shadow-xs'
-                            : 'border-[var(--color-hairline-soft)] bg-white hover:border-[var(--color-hairline-strong)] hover:bg-[var(--color-surface-soft)] shadow-xs'
+                            ? "border-2 border-[var(--color-primary)] bg-[var(--color-surface-soft)] shadow-xs"
+                            : "border-[var(--color-hairline-soft)] bg-white hover:border-[var(--color-hairline-strong)] hover:bg-[var(--color-surface-soft)] shadow-xs"
                         }`}
                       >
                         <div className="flex items-center justify-between gap-2">
                           <span className="line-clamp-1 text-xs font-bold text-[var(--color-ink-deep)]">
-                            {scope.result?.summary?.slice(0, 45) || 'Scope Analysis'}...
+                            {scope.result?.summary?.slice(0, 45) ||
+                              "Scope Analysis"}
+                            ...
                           </span>
                           {isConfirmed ? (
                             <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-teal-light)] px-2 py-0.5 text-[10px] font-semibold text-[var(--color-moss-dark)] border border-[var(--color-brand-teal)]/30 shrink-0">
@@ -176,8 +216,12 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
                           )}
                         </div>
                         <div className="mt-2 flex items-center justify-between text-[11px] text-[var(--color-slate-text)]">
-                          <span>{new Date(scope.createdAt).toLocaleDateString()}</span>
-                          <span className="font-medium text-[var(--color-charcoal)]">{scope.result?.timeline_weeks || 1}w duration</span>
+                          <span>
+                            {new Date(scope.createdAt).toLocaleDateString()}
+                          </span>
+                          <span className="font-medium text-[var(--color-charcoal)]">
+                            {scope.result?.timeline_weeks || 1}w duration
+                          </span>
                         </div>
 
                         {isConfirmed && (
@@ -190,7 +234,11 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
                               }}
                               className="inline-flex items-center gap-1 rounded-full border border-[var(--color-hairline-strong)] bg-white px-2.5 py-0.5 text-[11px] font-semibold text-[var(--color-ink)] hover:border-[var(--color-brand-yellow)] hover:bg-[var(--color-yellow-light)] transition-all shadow-xs"
                             >
-                              <Compass size={13} weight="bold" className="text-[var(--color-brand-yellow-deep)]" />
+                              <Compass
+                                size={13}
+                                weight="bold"
+                                className="text-[var(--color-brand-yellow-deep)]"
+                              />
                               Detect Drift
                             </button>
                           </div>
@@ -201,7 +249,10 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
                 </div>
               ) : (
                 <div className="py-8 text-center space-y-2">
-                  <FileText size={32} className="mx-auto text-[var(--color-steel)]" />
+                  <FileText
+                    size={32}
+                    className="mx-auto text-[var(--color-steel)]"
+                  />
                   <p className="text-xs font-semibold text-[var(--color-ink-deep)]">
                     No previous scope analyses
                   </p>
@@ -244,10 +295,61 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
             workspaceId={workspaceId}
             scopeAnalysisId={driftTargetScope.id}
             scopeTitle={driftTargetScope.result?.summary}
+            onConvertToChangeOrder={(draft) => {
+              if (!driftTargetScope.projectId) {
+                toast.error(
+                  "This scope has not been converted to an active project yet. Please convert it to a project first before creating a change order.",
+                );
+                return;
+              }
+
+              setChangeOrderProposal({
+                isOpen: true,
+                projectId: driftTargetScope.projectId,
+                scopeAnalysisId: driftTargetScope.id,
+                driftAnalysisId: draft.driftAnalysisId,
+                title: draft.title,
+                description: draft.description,
+                additionalBudget: draft.additionalBudget,
+                additionalHours: draft.additionalHours,
+                timelineDeltaDays: draft.timelineDeltaDays,
+                deliverables: draft.deliverables,
+              });
+              setDriftTargetScope(null);
+            }}
+          />
+        )}
+
+        {/* Change Order Proposal Modal from Scope Drift Conversion */}
+        {changeOrderProposal.isOpen && changeOrderProposal.projectId && (
+          <ChangeOrderProposalModal
+            isOpen={changeOrderProposal.isOpen}
+            onClose={() => setChangeOrderProposal({ isOpen: false })}
+            workspaceId={workspaceId}
+            projectId={changeOrderProposal.projectId}
+            scopeAnalysisId={changeOrderProposal.scopeAnalysisId || ""}
+            driftAnalysisId={changeOrderProposal.driftAnalysisId}
+            projectBudget={
+              projects?.find((p) => p.id === changeOrderProposal.projectId)
+                ?.budgetAmount
+            }
+            projectCurrency={
+              projects?.find((p) => p.id === changeOrderProposal.projectId)
+                ?.budgetCurrency
+            }
+            projectTargetDate={
+              projects?.find((p) => p.id === changeOrderProposal.projectId)
+                ?.targetDate
+            }
+            initialTitle={changeOrderProposal.title}
+            initialDescription={changeOrderProposal.description}
+            initialAdditionalBudget={changeOrderProposal.additionalBudget}
+            initialAdditionalHours={changeOrderProposal.additionalHours}
+            initialTimelineDeltaDays={changeOrderProposal.timelineDeltaDays}
+            initialDeliverables={changeOrderProposal.deliverables}
           />
         )}
       </div>
     </div>
   );
 };
-

@@ -1,13 +1,17 @@
-'use client';
+"use client";
 
 /**
  * Hook to create workspace
  * Handles mutation + automatic query invalidation
  */
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { createWorkspace, workspaceKeys, type CreateWorkspaceInput } from '../api';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  type CreateWorkspaceInput,
+  createWorkspace,
+  workspaceKeys,
+} from "../api";
 
 export function useCreateWorkspace() {
   const queryClient = useQueryClient();
@@ -24,7 +28,8 @@ export function useCreateWorkspace() {
       toast.success(`Workspace "${workspace.name}" created`);
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : 'Failed to create workspace';
+      const message =
+        error instanceof Error ? error.message : "Failed to create workspace";
       toast.error(message);
     },
   });

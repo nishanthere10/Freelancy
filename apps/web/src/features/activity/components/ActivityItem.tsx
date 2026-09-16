@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
 import {
   Briefcase,
   Buildings,
   CreditCard,
   FileText,
   FolderPlus,
+  type Icon as PhosphorIcon,
   Receipt,
   UserPlus,
   Users,
-  type Icon as PhosphorIcon,
-} from '@phosphor-icons/react';
-import type { ActivityItemDTO } from '../api/activity.types';
+} from "@phosphor-icons/react";
+import Link from "next/link";
+import type { ActivityItemDTO } from "../api/activity.types";
 
 interface ActivityItemProps {
   activity: ActivityItemDTO;
@@ -28,44 +28,56 @@ function formatRelativeTime(dateString: string): string {
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-  if (diffSecs < 60) return 'Just now';
+  if (diffSecs < 60) return "Just now";
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays === 1) return 'Yesterday';
+  if (diffDays === 1) return "Yesterday";
   if (diffDays < 7) return `${diffDays}d ago`;
 
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
   });
 }
 
-function getEventStyling(eventType: string, entityType: string): {
+function getEventStyling(
+  eventType: string,
+  entityType: string,
+): {
   icon: PhosphorIcon;
   badgeClass: string;
 } {
   switch (entityType) {
-    case 'client':
+    case "client":
       return {
-        icon: eventType === 'client.created' ? UserPlus : Buildings,
-        badgeClass: 'bg-[var(--color-teal-light)] text-[var(--color-brand-teal)] border-[var(--color-brand-teal)]/20',
+        icon: eventType === "client.created" ? UserPlus : Buildings,
+        badgeClass:
+          "bg-[var(--color-teal-light)] text-[var(--color-brand-teal)] border-[var(--color-brand-teal)]/20",
       };
-    case 'project':
+    case "project":
       return {
-        icon: eventType === 'project.created' ? FolderPlus : Briefcase,
-        badgeClass: 'bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/30',
+        icon: eventType === "project.created" ? FolderPlus : Briefcase,
+        badgeClass:
+          "bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border-[var(--color-brand-yellow)]/30",
       };
-    case 'invoice':
+    case "invoice":
       return {
-        icon: eventType === 'invoice.paid' ? CreditCard : eventType === 'invoice.created' ? FileText : Receipt,
-        badgeClass: 'bg-[var(--color-rose-light)] text-[var(--color-brand-rose)] border-[var(--color-brand-rose)]/20',
+        icon:
+          eventType === "invoice.paid"
+            ? CreditCard
+            : eventType === "invoice.created"
+              ? FileText
+              : Receipt,
+        badgeClass:
+          "bg-[var(--color-rose-light)] text-[var(--color-brand-rose)] border-[var(--color-brand-rose)]/20",
       };
-    case 'member':
-    case 'workspace':
+    case "member":
+    case "workspace":
     default:
       return {
         icon: Users,
-        badgeClass: 'bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20',
+        badgeClass:
+          "bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] border-[var(--color-brand-blue)]/20",
       };
   }
 }
@@ -73,16 +85,16 @@ function getEventStyling(eventType: string, entityType: string): {
 function getEntityHref(
   workspaceId: string,
   entityType: string,
-  entityId: string | null
+  entityId: string | null,
 ): string | null {
   if (!entityId) return null;
 
   switch (entityType) {
-    case 'client':
+    case "client":
       return `/workspaces/${workspaceId}/clients`;
-    case 'project':
+    case "project":
       return `/workspaces/${workspaceId}/projects`;
-    case 'invoice':
+    case "invoice":
       return `/workspaces/${workspaceId}/invoices`;
     default:
       return null;
@@ -92,9 +104,13 @@ function getEntityHref(
 export function ActivityItem({ activity, workspaceId }: ActivityItemProps) {
   const { icon: Icon, badgeClass } = getEventStyling(
     activity.eventType,
-    activity.entityType
+    activity.entityType,
   );
-  const href = getEntityHref(workspaceId, activity.entityType, activity.entityId);
+  const href = getEntityHref(
+    workspaceId,
+    activity.entityType,
+    activity.entityId,
+  );
   const relativeTime = formatRelativeTime(activity.createdAt);
 
   const content = (
@@ -126,7 +142,10 @@ export function ActivityItem({ activity, workspaceId }: ActivityItemProps) {
 
   if (href) {
     return (
-      <Link href={href} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] rounded-[var(--radius-lg)]">
+      <Link
+        href={href}
+        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)] rounded-[var(--radius-lg)]"
+      >
         {content}
       </Link>
     );

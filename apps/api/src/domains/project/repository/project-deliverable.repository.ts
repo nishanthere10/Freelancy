@@ -3,7 +3,7 @@ import {
   type ProjectDeliverable,
   projectDeliverablesTable,
 } from "@repo/database";
-import { and, asc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "../../../db/client";
 
 export class ProjectDeliverableRepository {
@@ -188,6 +188,44 @@ export class ProjectDeliverableRepository {
       .returning();
 
     return updated.length;
+  }
+
+  async getMaxPosition(
+    projectId: string,
+    workspaceId: string,
+  ): Promise<number> {
+    const [result] = await db
+      .select({
+        maxPos: sql<number>`COALESCE(MAX(${projectDeliverablesTable.position}), 0)::int`,
+      })
+      .from(projectDeliverablesTable)
+      .where(
+        and(
+          eq(projectDeliverablesTable.projectId, projectId),
+          eq(projectDeliverablesTable.workspaceId, workspaceId),
+        ),
+      );
+
+    return result?.maxPos ?? 0;
+  }
+
+  async deleteByChangeOrderId(
+    changeOrderId: string,
+    projectId: string,
+    workspaceId: string,
+  ): Promise<number> {
+    const deleted = await db
+      .delete(projectDeliverablesTable)
+      .where(
+        and(
+          eq(projectDeliverablesTable.changeOrderId, changeOrderId),
+          eq(projectDeliverablesTable.projectId, projectId),
+          eq(projectDeliverablesTable.workspaceId, workspaceId),
+        ),
+      )
+      .returning();
+
+    return deleted.length;
   }
 }
 

@@ -3,9 +3,9 @@
  * Returns debounced value after specified delay
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-export function useDebounce<T>(value: T, delay: number = 500): T {
+export function useDebounce<T>(value: T, delay = 500): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {

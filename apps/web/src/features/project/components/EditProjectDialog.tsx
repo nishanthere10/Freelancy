@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { Dialog } from '@shared/components';
-import type { ProjectResponse } from '../api';
-import { CreateProjectForm } from './CreateProjectForm';
+import { Dialog } from "@shared/components";
+import type { ProjectResponse } from "../api";
+import { CreateProjectForm } from "./CreateProjectForm";
 
 interface EditProjectDialogProps {
   workspaceId: string;

@@ -301,12 +301,26 @@ export class ActivityEventConsumer implements IWorkspaceEventEmitter {
   private mapProjectEvent(
     event: ProjectDomainEvent,
   ): CreateActivityInput | null {
-    const metadata: ActivityMetadata = {
-      entityName: event.project?.name,
-      status: event.project?.status,
-      amount: event.project?.budgetAmount || undefined,
-      currency: event.project?.budgetCurrency || "INR",
-    };
+    const isChangeOrder = event.type.startsWith("project.change_order.");
+    const metadata: ActivityMetadata = isChangeOrder
+      ? {
+          entityName: "title" in event ? event.title : undefined,
+          changeOrderNumber:
+            "changeOrderNumber" in event ? event.changeOrderNumber : undefined,
+          amount:
+            "additionalBudget" in event ? event.additionalBudget : undefined,
+          invoiceId: "invoiceId" in event ? event.invoiceId : undefined,
+        }
+      : {
+          entityName: "project" in event ? event.project?.name : undefined,
+          status: "project" in event ? event.project?.status : undefined,
+          amount:
+            "project" in event
+              ? event.project?.budgetAmount || undefined
+              : undefined,
+          currency:
+            "project" in event ? event.project?.budgetCurrency || "INR" : "INR",
+        };
 
     if (event.type === "project.status_changed") {
       metadata.fromStatus = event.fromStatus;
@@ -317,8 +331,11 @@ export class ActivityEventConsumer implements IWorkspaceEventEmitter {
       workspaceId: event.workspaceId,
       actorUserId: event.actorId,
       eventType: event.type as ActivityEventType,
-      entityType: "project",
-      entityId: event.projectId,
+      entityType: isChangeOrder ? "change_order" : "project",
+      entityId:
+        isChangeOrder && "changeOrderId" in event
+          ? event.changeOrderId
+          : event.projectId,
       metadata,
       createdAt: event.occurredAt ? new Date(event.occurredAt) : new Date(),
     };

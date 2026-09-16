@@ -1,5 +1,20 @@
 import { type Router as ExpressRouter, Router } from "express";
 import {
+  approveChangeOrder,
+  cancelChangeOrder,
+  createChangeOrder,
+  getChangeOrder,
+  listChangeOrders,
+  rejectChangeOrder,
+  updateChangeOrderDraft,
+} from "./change-order.controller";
+import {
+  approveChangeOrderSchema,
+  changeOrderIdParamSchema,
+  createChangeOrderSchema,
+  updateChangeOrderDraftSchema,
+} from "./change-order.schema";
+import {
   backfillProjectDeliverables,
   createProgressInvoice,
   createProjectDeliverable,
@@ -106,6 +121,46 @@ router.post(
   "/:projectId/deliverables/backfill",
   validateParams(projectParamsSchema),
   backfillProjectDeliverables,
+);
+
+// Change Order Bridge Subroutes
+router.get(
+  "/:projectId/change-orders",
+  validateParams(projectParamsSchema),
+  listChangeOrders,
+);
+router.post(
+  "/:projectId/change-orders",
+  validateParams(projectParamsSchema),
+  validateBody(createChangeOrderSchema),
+  createChangeOrder,
+);
+router.get(
+  "/:projectId/change-orders/:changeOrderId",
+  validateParams(changeOrderIdParamSchema),
+  getChangeOrder,
+);
+router.patch(
+  "/:projectId/change-orders/:changeOrderId",
+  validateParams(changeOrderIdParamSchema),
+  validateBody(updateChangeOrderDraftSchema),
+  updateChangeOrderDraft,
+);
+router.post(
+  "/:projectId/change-orders/:changeOrderId/approve",
+  validateParams(changeOrderIdParamSchema),
+  validateBody(approveChangeOrderSchema),
+  approveChangeOrder,
+);
+router.post(
+  "/:projectId/change-orders/:changeOrderId/reject",
+  validateParams(changeOrderIdParamSchema),
+  rejectChangeOrder,
+);
+router.post(
+  "/:projectId/change-orders/:changeOrderId/cancel",
+  validateParams(changeOrderIdParamSchema),
+  cancelChangeOrder,
 );
 
 export default router;

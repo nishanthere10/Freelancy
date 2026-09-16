@@ -1,30 +1,44 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button, Input, Skeleton } from '@shared/components';
-import { Plus, MagnifyingGlass, Briefcase, Sparkle } from '@phosphor-icons/react';
-import { ScopeAnalysisModal } from '@features/ai';
-import { useProjects } from '../hooks';
-import type { ProjectResponse, ProjectStatus } from '../api';
-import { ProjectList } from './ProjectList';
-import { ProjectDetail } from './ProjectDetail';
-import { ProjectEmptyState } from './ProjectEmptyState';
-import { CreateProjectDialog } from './CreateProjectDialog';
-import { EditProjectDialog } from './EditProjectDialog';
+import { ScopeAnalysisModal } from "@features/ai";
+import {
+  Briefcase,
+  MagnifyingGlass,
+  Plus,
+  Sparkle,
+} from "@phosphor-icons/react";
+import { Button, Input, Skeleton } from "@shared/components";
+import { useState } from "react";
+import type { ProjectResponse, ProjectStatus } from "../api";
+import { useProjects } from "../hooks";
+import { CreateProjectDialog } from "./CreateProjectDialog";
+import { EditProjectDialog } from "./EditProjectDialog";
+import { ProjectDetail } from "./ProjectDetail";
+import { ProjectEmptyState } from "./ProjectEmptyState";
+import { ProjectList } from "./ProjectList";
 
 interface ProjectPageProps {
   workspaceId: string;
 }
 
 export function ProjectPage({ workspaceId }: ProjectPageProps) {
-  const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'all'>('active');
-  const [search, setSearch] = useState('');
-  const [selectedProject, setSelectedProject] = useState<ProjectResponse | null>(null);
+  const [statusFilter, setStatusFilter] = useState<ProjectStatus | "all">(
+    "active",
+  );
+  const [search, setSearch] = useState("");
+  const [selectedProject, setSelectedProject] =
+    useState<ProjectResponse | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editingProject, setEditingProject] = useState<ProjectResponse | null>(null);
+  const [editingProject, setEditingProject] = useState<ProjectResponse | null>(
+    null,
+  );
   const [aiScopeModalOpen, setAiScopeModalOpen] = useState(false);
 
-  const { data: projects, isLoading, error } = useProjects(workspaceId, {
+  const {
+    data: projects,
+    isLoading,
+    error,
+  } = useProjects(workspaceId, {
     status: statusFilter,
     search,
   });
@@ -64,7 +78,8 @@ export function ProjectPage({ workspaceId }: ProjectPageProps) {
                 Projects
               </h1>
               <p className="text-xs sm:text-sm text-[var(--color-slate-text)]">
-                Track active deliverables, client scopes, timelines, and financial models.
+                Track active deliverables, client scopes, timelines, and
+                financial models.
               </p>
             </div>
           </div>
@@ -75,9 +90,16 @@ export function ProjectPage({ workspaceId }: ProjectPageProps) {
               onClick={() => setAiScopeModalOpen(true)}
               className="shadow-xs rounded-full"
             >
-              <Sparkle className="h-4 w-4 mr-1.5 text-[var(--color-brand-yellow-deep)]" weight="fill" /> AI Scope Studio
+              <Sparkle
+                className="h-4 w-4 mr-1.5 text-[var(--color-brand-yellow-deep)]"
+                weight="fill"
+              />{" "}
+              AI Scope Studio
             </Button>
-            <Button onClick={() => setCreateDialogOpen(true)} className="shadow-xs rounded-full">
+            <Button
+              onClick={() => setCreateDialogOpen(true)}
+              className="shadow-xs rounded-full"
+            >
               <Plus className="h-4 w-4 mr-1.5" /> Add Project
             </Button>
           </div>
@@ -96,18 +118,20 @@ export function ProjectPage({ workspaceId }: ProjectPageProps) {
           </div>
 
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-            {(['active', 'draft', 'completed', 'archived', 'all'] as const).map((st) => (
-              <button
-                key={st}
-                type="button"
-                onClick={() => setStatusFilter(st)}
-                className={`pill-tab capitalize ${
-                  statusFilter === st ? 'pill-tab-active' : ''
-                }`}
-              >
-                {st}
-              </button>
-            ))}
+            {(["active", "draft", "completed", "archived", "all"] as const).map(
+              (st) => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setStatusFilter(st)}
+                  className={`pill-tab capitalize ${
+                    statusFilter === st ? "pill-tab-active" : ""
+                  }`}
+                >
+                  {st}
+                </button>
+              ),
+            )}
           </div>
         </div>
 
@@ -122,7 +146,9 @@ export function ProjectPage({ workspaceId }: ProjectPageProps) {
           <div className="p-8 text-center text-[var(--color-error)] bg-[var(--color-error-bg)] rounded-[var(--radius-xl)] border border-[var(--color-error-border)] max-w-lg mx-auto">
             <p className="text-sm font-semibold">Failed to load projects</p>
             <p className="text-xs text-[var(--color-error)] opacity-90 mt-1">
-              {error instanceof Error ? error.message : 'Unknown error occurred'}
+              {error instanceof Error
+                ? error.message
+                : "Unknown error occurred"}
             </p>
           </div>
         ) : !projects || projects.length === 0 ? (

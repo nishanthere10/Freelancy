@@ -1,21 +1,22 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import type { DriftAnalysisRecord } from "@api/ai";
 import {
-  Sparkle,
-  SpinnerGap,
+  ArrowsClockwise,
   CheckCircle,
-  WarningCircle,
-  XCircle,
   Clock,
   CurrencyDollar,
-  ArrowsClockwise,
-} from '@phosphor-icons/react';
-import { toast } from 'sonner';
-import type { DriftAnalysisRecord } from '@api/ai';
-import { Button } from '@shared/components/Button';
-import { Dialog } from '@shared/components/Dialog';
-import { useAnalyzeDrift } from '../hooks/useDriftAnalysis';
+  Sparkle,
+  SpinnerGap,
+  WarningCircle,
+  XCircle,
+} from "@phosphor-icons/react";
+import { Button } from "@shared/components/Button";
+import { Dialog } from "@shared/components/Dialog";
+import type React from "react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useAnalyzeDrift } from "../hooks/useDriftAnalysis";
 
 interface DriftAnalysisModalProps {
   isOpen: boolean;
@@ -23,6 +24,15 @@ interface DriftAnalysisModalProps {
   workspaceId: string;
   scopeAnalysisId: string;
   scopeTitle?: string;
+  onConvertToChangeOrder?: (draftData: {
+    driftAnalysisId: string;
+    title: string;
+    description: string;
+    additionalBudget: string;
+    additionalHours: number;
+    timelineDeltaDays: number;
+    deliverables: Array<{ title: string; estimatedHours: number }>;
+  }) => void;
 }
 
 export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
@@ -31,9 +41,11 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
   workspaceId,
   scopeAnalysisId,
   scopeTitle,
+  onConvertToChangeOrder,
 }) => {
-  const [changeRequestText, setChangeRequestText] = useState('');
-  const [analysisRecord, setAnalysisRecord] = useState<DriftAnalysisRecord | null>(null);
+  const [changeRequestText, setChangeRequestText] = useState("");
+  const [analysisRecord, setAnalysisRecord] =
+    useState<DriftAnalysisRecord | null>(null);
 
   const analyzeMutation = useAnalyzeDrift(workspaceId);
 
@@ -47,17 +59,17 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
         changeRequestText: changeRequestText.trim(),
       });
       setAnalysisRecord(result);
-      toast.success('Scope drift analysis complete!');
+      toast.success("Scope drift analysis complete!");
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : 'Failed to analyze scope drift';
+        err instanceof Error ? err.message : "Failed to analyze scope drift";
       toast.error(message);
     }
   };
 
   const handleReset = () => {
     setAnalysisRecord(null);
-    setChangeRequestText('');
+    setChangeRequestText("");
   };
 
   const handleClose = () => {
@@ -78,7 +90,7 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
       description={
         scopeTitle
           ? `Evaluating change request against: ${scopeTitle}`
-          : 'Compare a client change request against the confirmed scope.'
+          : "Compare a client change request against the confirmed scope."
       }
       className="max-w-2xl max-h-[88vh] overflow-y-auto no-scrollbar p-6 sm:p-8 rounded-[var(--radius-feature)] shadow-[var(--shadow-modal)]"
     >
@@ -96,7 +108,8 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
               Evaluating Scope Drift Impact...
             </p>
             <p className="mt-1 text-xs text-[var(--color-slate-text)]">
-              Cross-referencing change request against confirmed deliverables and timeline.
+              Cross-referencing change request against confirmed deliverables
+              and timeline.
             </p>
           </div>
         ) : result ? (
@@ -104,7 +117,7 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
             {/* Recommendation Banner */}
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-[var(--color-surface-soft)] p-4 shadow-xs">
               <div className="flex items-center gap-2.5">
-                {result.recommendation === 'accept' && (
+                {result.recommendation === "accept" && (
                   <span
                     data-testid="recommendation-badge"
                     className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-brand-teal)]/30 bg-[var(--color-teal-light)] px-3 py-1 text-xs font-semibold text-[var(--color-moss-dark)]"
@@ -113,7 +126,7 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
                     Accept Recommended
                   </span>
                 )}
-                {result.recommendation === 'decline' && (
+                {result.recommendation === "decline" && (
                   <span
                     data-testid="recommendation-badge"
                     className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-brand-coral)]/30 bg-[var(--color-coral-light)] px-3 py-1 text-xs font-semibold text-[var(--color-coral-dark)]"
@@ -122,7 +135,7 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
                     Decline Recommended
                   </span>
                 )}
-                {result.recommendation === 'negotiate' && (
+                {result.recommendation === "negotiate" && (
                   <span
                     data-testid="recommendation-badge"
                     className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-brand-yellow)]/40 bg-[var(--color-yellow-light)] px-3 py-1 text-xs font-semibold text-[var(--color-yellow-dark)]"
@@ -133,7 +146,10 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
                 )}
               </div>
               <span className="text-xs font-medium text-[var(--color-slate-text)]">
-                Confidence: <strong className="text-[var(--color-ink-deep)] font-bold">{result.confidence_score}%</strong>
+                Confidence:{" "}
+                <strong className="text-[var(--color-ink-deep)] font-bold">
+                  {result.confidence_score}%
+                </strong>
               </span>
             </div>
 
@@ -151,7 +167,10 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
 
               <div className="rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-white p-3.5 shadow-xs">
                 <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-slate-text)]">
-                  <CurrencyDollar size={14} className="text-[var(--color-moss-dark)]" />
+                  <CurrencyDollar
+                    size={14}
+                    className="text-[var(--color-moss-dark)]"
+                  />
                   Budget Delta
                 </div>
                 <div className="mt-1.5 text-lg font-bold text-[var(--color-ink-deep)]">
@@ -161,7 +180,11 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
 
               <div className="rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-white p-3.5 shadow-xs">
                 <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-slate-text)]">
-                  <Sparkle size={14} className="text-[var(--color-brand-yellow-deep)]" weight="fill" />
+                  <Sparkle
+                    size={14}
+                    className="text-[var(--color-brand-yellow-deep)]"
+                    weight="fill"
+                  />
                   Affected Items
                 </div>
                 <div className="mt-1.5 text-lg font-bold text-[var(--color-ink-deep)]">
@@ -245,7 +268,63 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
                 <ArrowsClockwise size={14} />
                 Analyze Another Request
               </Button>
-              <Button variant="primary" size="sm" onClick={handleClose} className="rounded-full shadow-xs">
+              {onConvertToChangeOrder && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => {
+                    const totalExtraHours = (
+                      result.affected_deliverables || []
+                    ).reduce(
+                      (sum, d) => sum + (Number(d.additional_hours) || 0),
+                      0,
+                    );
+                    const newDelivs =
+                      (result.new_deliverables_required || []).length > 0
+                        ? (result.new_deliverables_required || []).map((d) => ({
+                            title: d,
+                            estimatedHours: Math.max(
+                              2,
+                              Math.round(
+                                (totalExtraHours || 4) /
+                                  Math.max(
+                                    1,
+                                    (result.new_deliverables_required || [])
+                                      .length,
+                                  ),
+                              ),
+                            ),
+                          }))
+                        : (result.affected_deliverables || []).map((d) => ({
+                            title: d.title,
+                            estimatedHours: d.additional_hours || 4,
+                          }));
+
+                    onConvertToChangeOrder({
+                      driftAnalysisId: analysisRecord.id,
+                      title: `Scope Adjustment: ${changeRequestText.slice(0, 50)}`,
+                      description: result.summary || changeRequestText,
+                      additionalBudget: "0.00",
+                      additionalHours: totalExtraHours,
+                      timelineDeltaDays: Number(
+                        result.timeline_delta_days || 0,
+                      ),
+                      deliverables: newDelivs,
+                    });
+                    handleClose();
+                  }}
+                  className="rounded-full shadow-sm flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-colors"
+                >
+                  <Sparkle size={14} weight="bold" />
+                  Convert to Change Order
+                </Button>
+              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleClose}
+                className="rounded-full shadow-xs"
+              >
                 Done
               </Button>
             </div>
@@ -260,7 +339,8 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
                 Client Change Request / Message
               </label>
               <p className="mt-0.5 text-[11px] text-[var(--color-slate-text)]">
-                Paste the client’s Slack message, email, or brief requesting new features or changes.
+                Paste the client’s Slack message, email, or brief requesting new
+                features or changes.
               </p>
               <textarea
                 id="change-request-input"
@@ -272,7 +352,9 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
               />
               <div className="mt-1 flex items-center justify-between text-[11px] text-[var(--color-slate-text)]">
                 <span>Minimum 10 characters</span>
-                <span className="font-medium text-[var(--color-charcoal)]">{changeRequestText.length} characters</span>
+                <span className="font-medium text-[var(--color-charcoal)]">
+                  {changeRequestText.length} characters
+                </span>
               </div>
             </div>
 
@@ -293,7 +375,11 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
                 disabled={!isTextValid || analyzeMutation.isPending}
                 className="rounded-full shadow-xs flex items-center gap-1.5"
               >
-                <Sparkle size={14} weight="fill" className="text-[var(--color-brand-yellow)]" />
+                <Sparkle
+                  size={14}
+                  weight="fill"
+                  className="text-[var(--color-brand-yellow)]"
+                />
                 Analyze Scope Drift
               </Button>
             </div>

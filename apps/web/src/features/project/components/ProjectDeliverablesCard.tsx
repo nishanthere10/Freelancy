@@ -1,30 +1,31 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
 import {
   CheckCircle,
   Circle,
   Clock,
-  Plus,
-  Trash,
   Hourglass,
+  Plus,
   Receipt,
   Sparkle,
   SpinnerGap,
-} from '@phosphor-icons/react';
-import { Button } from '@shared/components/Button';
-import { Dialog } from '@shared/components/Dialog';
-import {
-  useCreateProjectDeliverable,
-  useDeleteProjectDeliverable,
-  useUpdateProjectDeliverable,
-  useBackfillProjectDeliverables,
-} from '../hooks';
+  Trash,
+} from "@phosphor-icons/react";
+import { Button } from "@shared/components/Button";
+import { Dialog } from "@shared/components/Dialog";
+import type React from "react";
+import { useState } from "react";
 import type {
   DeliverableComplexity,
   DeliverableStatus,
   ProjectDeliverable,
-} from '../api';
+} from "../api";
+import {
+  useBackfillProjectDeliverables,
+  useCreateProjectDeliverable,
+  useDeleteProjectDeliverable,
+  useUpdateProjectDeliverable,
+} from "../hooks";
 
 interface ProjectDeliverablesCardProps {
   workspaceId: string;
@@ -33,22 +34,23 @@ interface ProjectDeliverablesCardProps {
   hasLinkedScope?: boolean;
 }
 
-export const ProjectDeliverablesCard: React.FC<ProjectDeliverablesCardProps> = ({
-  workspaceId,
-  projectId,
-  deliverables,
-  hasLinkedScope = false,
-}) => {
+export const ProjectDeliverablesCard: React.FC<
+  ProjectDeliverablesCardProps
+> = ({ workspaceId, projectId, deliverables, hasLinkedScope = false }) => {
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newDescription, setNewDescription] = useState('');
-  const [newHours, setNewHours] = useState('8');
-  const [newComplexity, setNewComplexity] = useState<DeliverableComplexity>('medium');
+  const [newTitle, setNewTitle] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newHours, setNewHours] = useState("8");
+  const [newComplexity, setNewComplexity] =
+    useState<DeliverableComplexity>("medium");
 
   const createMutation = useCreateProjectDeliverable(workspaceId, projectId);
   const updateMutation = useUpdateProjectDeliverable(workspaceId, projectId);
   const deleteMutation = useDeleteProjectDeliverable(workspaceId, projectId);
-  const backfillMutation = useBackfillProjectDeliverables(workspaceId, projectId);
+  const backfillMutation = useBackfillProjectDeliverables(
+    workspaceId,
+    projectId,
+  );
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,21 +64,27 @@ export const ProjectDeliverablesCard: React.FC<ProjectDeliverablesCardProps> = (
       position: deliverables.length + 1,
     });
 
-    setNewTitle('');
-    setNewDescription('');
-    setNewHours('8');
-    setNewComplexity('medium');
+    setNewTitle("");
+    setNewDescription("");
+    setNewHours("8");
+    setNewComplexity("medium");
     setIsAddOpen(false);
   };
 
-  const handleStatusChange = (deliverable: ProjectDeliverable, newStatus: DeliverableStatus) => {
+  const handleStatusChange = (
+    deliverable: ProjectDeliverable,
+    newStatus: DeliverableStatus,
+  ) => {
     updateMutation.mutate({
       deliverableId: deliverable.id,
       data: { status: newStatus },
     });
   };
 
-  const handleLogHours = (deliverable: ProjectDeliverable, deltaHours: number) => {
+  const handleLogHours = (
+    deliverable: ProjectDeliverable,
+    deltaHours: number,
+  ) => {
     const current = Number(deliverable.loggedHours || 0);
     const updated = Math.max(0, current + deltaHours);
     updateMutation.mutate({
@@ -87,13 +95,13 @@ export const ProjectDeliverablesCard: React.FC<ProjectDeliverablesCardProps> = (
 
   const getStatusBadge = (status: DeliverableStatus) => {
     switch (status) {
-      case 'completed':
+      case "completed":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-[var(--color-teal-light)] text-[var(--color-brand-teal)] border border-[var(--color-brand-teal)]/20">
             <CheckCircle className="h-3.5 w-3.5" weight="fill" /> Completed
           </span>
         );
-      case 'in_progress':
+      case "in_progress":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-[var(--color-surface-pricing-featured)] text-[var(--color-brand-blue)] border border-[var(--color-brand-blue)]/20">
             <Hourglass className="h-3.5 w-3.5" weight="bold" /> In Progress
@@ -110,13 +118,13 @@ export const ProjectDeliverablesCard: React.FC<ProjectDeliverablesCardProps> = (
 
   const getComplexityBadge = (complexity: DeliverableComplexity) => {
     switch (complexity) {
-      case 'high':
+      case "high":
         return (
           <span className="text-[11px] font-bold text-[var(--color-error)] bg-[var(--color-error-bg)] px-2 py-0.5 rounded-md border border-[var(--color-error-border)]">
             High complexity
           </span>
         );
-      case 'low':
+      case "low":
         return (
           <span className="text-[11px] font-bold text-[var(--color-moss-dark)] bg-[var(--color-teal-light)] px-2 py-0.5 rounded-md border border-[var(--color-brand-teal)]/20">
             Low complexity
@@ -143,7 +151,8 @@ export const ProjectDeliverablesCard: React.FC<ProjectDeliverablesCardProps> = (
             </span>
           </h2>
           <p className="text-xs text-[var(--color-slate-text)] mt-0.5">
-            Operational work items derived from your confirmed Scope Studio baseline.
+            Operational work items derived from your confirmed Scope Studio
+            baseline.
           </p>
         </div>
 
@@ -188,13 +197,13 @@ export const ProjectDeliverablesCard: React.FC<ProjectDeliverablesCardProps> = (
           <p className="text-xs text-[var(--color-slate-text)] max-w-sm mx-auto">
             {hasLinkedScope
               ? 'This project has a confirmed AI scope. Click "Import from Confirmed Scope" to materialize your deliverables.'
-              : 'Add custom deliverables or convert an AI scope to populate your project execution checklist.'}
+              : "Add custom deliverables or convert an AI scope to populate your project execution checklist."}
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {deliverables.map((d, index) => {
-            const isCompleted = d.status === 'completed';
+            const isCompleted = d.status === "completed";
             const isBilled = Boolean(d.billedAt);
 
             return (
@@ -202,8 +211,8 @@ export const ProjectDeliverablesCard: React.FC<ProjectDeliverablesCardProps> = (
                 key={d.id}
                 className={`p-4 sm:p-5 rounded-[var(--radius-lg)] border transition-all duration-200 space-y-3 ${
                   isCompleted
-                    ? 'bg-[var(--color-teal-light)]/20 border-[var(--color-brand-teal)]/30'
-                    : 'bg-white border-[var(--color-hairline-soft)] hover:border-[var(--color-brand-yellow)]/60'
+                    ? "bg-[var(--color-teal-light)]/20 border-[var(--color-brand-teal)]/30"
+                    : "bg-white border-[var(--color-hairline-soft)] hover:border-[var(--color-brand-yellow)]/60"
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -238,7 +247,7 @@ export const ProjectDeliverablesCard: React.FC<ProjectDeliverablesCardProps> = (
                         {d.loggedHours}h
                       </span>
                       <span className="text-[var(--color-slate-text)] font-mono">
-                        {' '}
+                        {" "}
                         / {d.estimatedHours}h
                       </span>
                     </div>
@@ -264,33 +273,33 @@ export const ProjectDeliverablesCard: React.FC<ProjectDeliverablesCardProps> = (
                     </span>
                     <button
                       type="button"
-                      onClick={() => handleStatusChange(d, 'pending')}
+                      onClick={() => handleStatusChange(d, "pending")}
                       className={`px-2 py-0.5 rounded text-[11px] font-semibold transition-colors ${
-                        d.status === 'pending'
-                          ? 'bg-[var(--color-charcoal)] text-white'
-                          : 'bg-[var(--color-surface-soft)] text-[var(--color-charcoal)] hover:bg-[var(--color-hairline)]'
+                        d.status === "pending"
+                          ? "bg-[var(--color-charcoal)] text-white"
+                          : "bg-[var(--color-surface-soft)] text-[var(--color-charcoal)] hover:bg-[var(--color-hairline)]"
                       }`}
                     >
                       Pending
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleStatusChange(d, 'in_progress')}
+                      onClick={() => handleStatusChange(d, "in_progress")}
                       className={`px-2 py-0.5 rounded text-[11px] font-semibold transition-colors ${
-                        d.status === 'in_progress'
-                          ? 'bg-[var(--color-brand-blue)] text-white'
-                          : 'bg-[var(--color-surface-soft)] text-[var(--color-charcoal)] hover:bg-[var(--color-hairline)]'
+                        d.status === "in_progress"
+                          ? "bg-[var(--color-brand-blue)] text-white"
+                          : "bg-[var(--color-surface-soft)] text-[var(--color-charcoal)] hover:bg-[var(--color-hairline)]"
                       }`}
                     >
                       In Progress
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleStatusChange(d, 'completed')}
+                      onClick={() => handleStatusChange(d, "completed")}
                       className={`px-2 py-0.5 rounded text-[11px] font-semibold transition-colors ${
-                        d.status === 'completed'
-                          ? 'bg-[var(--color-brand-teal)] text-white'
-                          : 'bg-[var(--color-surface-soft)] text-[var(--color-charcoal)] hover:bg-[var(--color-hairline)]'
+                        d.status === "completed"
+                          ? "bg-[var(--color-brand-teal)] text-white"
+                          : "bg-[var(--color-surface-soft)] text-[var(--color-charcoal)] hover:bg-[var(--color-hairline)]"
                       }`}
                     >
                       Completed
@@ -345,7 +354,8 @@ export const ProjectDeliverablesCard: React.FC<ProjectDeliverablesCardProps> = (
         <form onSubmit={handleCreate} className="space-y-4 pt-2">
           <div>
             <label className="block text-xs font-bold text-[var(--color-ink-deep)] mb-1">
-              Deliverable Title <span className="text-[var(--color-error)]">*</span>
+              Deliverable Title{" "}
+              <span className="text-[var(--color-error)]">*</span>
             </label>
             <input
               type="text"
@@ -391,7 +401,9 @@ export const ProjectDeliverablesCard: React.FC<ProjectDeliverablesCardProps> = (
               </label>
               <select
                 value={newComplexity}
-                onChange={(e) => setNewComplexity(e.target.value as DeliverableComplexity)}
+                onChange={(e) =>
+                  setNewComplexity(e.target.value as DeliverableComplexity)
+                }
                 className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--color-hairline)] focus:outline-none focus:border-[var(--color-brand-yellow)]"
               >
                 <option value="low">Low</option>
@@ -416,7 +428,7 @@ export const ProjectDeliverablesCard: React.FC<ProjectDeliverablesCardProps> = (
               size="sm"
               disabled={createMutation.isPending || !newTitle.trim()}
             >
-              {createMutation.isPending ? 'Adding...' : 'Create Deliverable'}
+              {createMutation.isPending ? "Adding..." : "Create Deliverable"}
             </Button>
           </div>
         </form>

@@ -1,16 +1,24 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Sparkle, SpinnerGap, FileText, ArrowRight } from '@phosphor-icons/react';
-import { Button } from '@shared/components/Button';
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ArrowRight,
+  FileText,
+  Sparkle,
+  SpinnerGap,
+} from "@phosphor-icons/react";
+import { Button } from "@shared/components/Button";
+import type React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const scopeFormSchema = z.object({
   inputText: z
     .string()
-    .min(15, 'Please provide at least 15 characters of detail for the AI to analyze.'),
+    .min(
+      15,
+      "Please provide at least 15 characters of detail for the AI to analyze.",
+    ),
 });
 
 type ScopeFormValues = z.infer<typeof scopeFormSchema>;
@@ -23,16 +31,16 @@ interface ScopeGeneratorFormProps {
 
 const EXAMPLE_BRIEFS = [
   {
-    title: 'E-Commerce Marketplace',
-    text: 'Build a multi-vendor marketplace for artisan goods with customer accounts, Stripe Connect payouts, search filters, and an admin dashboard.',
+    title: "E-Commerce Marketplace",
+    text: "Build a multi-vendor marketplace for artisan goods with customer accounts, Stripe Connect payouts, search filters, and an admin dashboard.",
   },
   {
-    title: 'SaaS Invoicing Platform',
-    text: 'Develop a subscription SaaS application with recurring invoice generation, PDF tax receipts, client portals, and automated overdue email reminders.',
+    title: "SaaS Invoicing Platform",
+    text: "Develop a subscription SaaS application with recurring invoice generation, PDF tax receipts, client portals, and automated overdue email reminders.",
   },
   {
-    title: 'Mobile Delivery App',
-    text: 'Create a cross-platform food delivery app for iOS and Android with live GPS courier tracking, push notifications, and restaurant menu management.',
+    title: "Mobile Delivery App",
+    text: "Create a cross-platform food delivery app for iOS and Android with live GPS courier tracking, push notifications, and restaurant menu management.",
   },
 ];
 
@@ -49,12 +57,12 @@ export const ScopeGeneratorForm: React.FC<ScopeGeneratorFormProps> = ({
   } = useForm<ScopeFormValues>({
     resolver: zodResolver(scopeFormSchema),
     defaultValues: {
-      inputText: '',
+      inputText: "",
     },
   });
 
   const handleQuickFill = (text: string) => {
-    setValue('inputText', text, {
+    setValue("inputText", text, {
       shouldValidate: true,
       shouldDirty: true,
       shouldTouch: true,
@@ -79,8 +87,9 @@ export const ScopeGeneratorForm: React.FC<ScopeGeneratorFormProps> = ({
               </span>
             </div>
             <p className="mt-1.5 text-xs sm:text-sm text-[var(--color-charcoal)] leading-relaxed">
-              Paste raw client emails, project briefs, or rough requirement specs. The AI will
-              deconstruct it into structured milestones, hour estimates, timeline durations, and tech stacks.
+              Paste raw client emails, project briefs, or rough requirement
+              specs. The AI will deconstruct it into structured milestones, hour
+              estimates, timeline durations, and tech stacks.
             </p>
           </div>
         </div>
@@ -102,7 +111,11 @@ export const ScopeGeneratorForm: React.FC<ScopeGeneratorFormProps> = ({
               disabled={isLoading}
               className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-hairline-strong)] bg-white px-3.5 py-1.5 text-xs font-medium text-[var(--color-ink)] transition-all hover:border-[var(--color-brand-yellow)] hover:bg-[var(--color-yellow-light)] hover:text-[var(--color-ink-deep)] active:scale-[0.98] shadow-xs disabled:pointer-events-none disabled:opacity-50"
             >
-              <FileText size={14} className="text-[var(--color-brand-yellow-deep)]" weight="bold" />
+              <FileText
+                size={14}
+                className="text-[var(--color-brand-yellow-deep)]"
+                weight="bold"
+              />
               {brief.title}
             </button>
           ))}
@@ -120,13 +133,15 @@ export const ScopeGeneratorForm: React.FC<ScopeGeneratorFormProps> = ({
         <textarea
           id="inputText"
           rows={7}
-          {...register('inputText')}
+          {...register("inputText")}
           disabled={isLoading}
           placeholder="e.g. Need a customer portal for managing freelance contracts. Clients should be able to view projects, approve milestone invoices, and download tax statements..."
           className="w-full resize-y rounded-[var(--radius-xl)] border border-[var(--color-hairline-strong)] bg-white p-4 text-sm text-[var(--color-ink-deep)] placeholder:text-[var(--color-steel)] focus:border-[var(--color-brand-blue)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-blue)]/20 disabled:opacity-60 transition-all leading-relaxed"
         />
         {errors.inputText && (
-          <p className="text-xs font-medium text-[var(--color-error)]">{errors.inputText.message}</p>
+          <p className="text-xs font-medium text-[var(--color-error)]">
+            {errors.inputText.message}
+          </p>
         )}
       </div>
 
@@ -134,7 +149,9 @@ export const ScopeGeneratorForm: React.FC<ScopeGeneratorFormProps> = ({
       {error && (
         <div className="rounded-[var(--radius-xl)] border border-[var(--color-error-border)] bg-[var(--color-error-bg)] p-4 text-sm text-[var(--color-error)]">
           <p className="font-bold">Analysis Failed</p>
-          <p className="mt-0.5 text-xs opacity-90">{error.message || 'An unexpected error occurred.'}</p>
+          <p className="mt-0.5 text-xs opacity-90">
+            {error.message || "An unexpected error occurred."}
+          </p>
         </div>
       )}
 
@@ -149,7 +166,10 @@ export const ScopeGeneratorForm: React.FC<ScopeGeneratorFormProps> = ({
         >
           {isLoading ? (
             <span className="flex items-center gap-2">
-              <SpinnerGap size={18} className="animate-spin text-[var(--color-brand-yellow)]" />
+              <SpinnerGap
+                size={18}
+                className="animate-spin text-[var(--color-brand-yellow)]"
+              />
               Analyzing with AI...
             </span>
           ) : (

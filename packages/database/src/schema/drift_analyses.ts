@@ -33,7 +33,9 @@ export const driftAnalysesTable = pgTable(
       .notNull(),
   },
   (table) => ({
-    workspaceIdx: index("idx_drift_analyses_workspace_id").on(table.workspaceId),
+    workspaceIdx: index("idx_drift_analyses_workspace_id").on(
+      table.workspaceId,
+    ),
     scopeIdx: index("idx_drift_analyses_scope_analysis_id").on(
       table.scopeAnalysisId,
     ),

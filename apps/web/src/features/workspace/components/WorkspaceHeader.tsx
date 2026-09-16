@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
 /**
  * Workspace page header
  * Title, description, and create button
  */
 
-import { Button } from '@shared/components';
-import { Plus } from '@phosphor-icons/react';
+import { Plus } from "@phosphor-icons/react";
+import { Button } from "@shared/components";
 
 interface WorkspaceHeaderProps {
   onCreateClick: () => void;
@@ -18,7 +18,7 @@ export function WorkspaceHeader({ onCreateClick }: WorkspaceHeaderProps) {
       <div>
         <h1
           className="text-3xl font-bold leading-tight text-[var(--color-ink-deep)]"
-          style={{ letterSpacing: '-0.5px' }}
+          style={{ letterSpacing: "-0.5px" }}
         >
           Workspaces
         </h1>
@@ -27,7 +27,11 @@ export function WorkspaceHeader({ onCreateClick }: WorkspaceHeaderProps) {
         </p>
       </div>
 
-      <Button variant="primary" onClick={onCreateClick} className="flex items-center gap-2">
+      <Button
+        variant="primary"
+        onClick={onCreateClick}
+        className="flex items-center gap-2"
+      >
         <Plus size={16} />
         Create Workspace
       </Button>

@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { FileQuestion, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, FileQuestion } from "lucide-react";
+import Link from "next/link";
 
 export default function NotFound() {
   return (
@@ -14,7 +14,8 @@ export default function NotFound() {
             Page Not Found
           </h1>
           <p className="text-sm text-muted-foreground">
-            The page or resource you are looking for does not exist or has been moved.
+            The page or resource you are looking for does not exist or has been
+            moved.
           </p>
         </div>
 

@@ -1,10 +1,10 @@
-import { apiGet, apiPatch, apiPost } from './client';
+import { apiGet, apiPatch, apiPost } from "./client";
 
 export interface ScopeDeliverable {
   title: string;
   description: string;
   estimated_hours: number;
-  complexity?: 'low' | 'medium' | 'high';
+  complexity?: "low" | "medium" | "high";
   skills_required?: string[];
 }
 
@@ -33,7 +33,7 @@ export interface ConvertScopeToProjectData {
   name: string;
   description?: string;
   clientId?: string;
-  status?: 'lead' | 'proposal' | 'active' | 'completed' | 'cancelled';
+  status?: "lead" | "proposal" | "active" | "completed" | "cancelled";
   startDate?: string;
   targetDate?: string;
   budget?: number;
@@ -67,7 +67,7 @@ export interface ConvertScopeResponse {
 export async function generateScopeAnalysis(
   workspaceId: string,
   inputText: string,
-  projectId?: string
+  projectId?: string,
 ): Promise<ScopeAnalysisRecord> {
   return apiPost<ScopeAnalysisRecord>(`/workspaces/${workspaceId}/ai/scope`, {
     inputText,
@@ -81,11 +81,11 @@ export async function generateScopeAnalysis(
 export async function refineScopeAnalysis(
   workspaceId: string,
   scopeId: string,
-  revisionPrompt: string
+  revisionPrompt: string,
 ): Promise<ScopeAnalysisRecord> {
   return apiPost<ScopeAnalysisRecord>(
     `/workspaces/${workspaceId}/ai/scope/${scopeId}/refine`,
-    { revisionPrompt }
+    { revisionPrompt },
   );
 }
 
@@ -95,11 +95,11 @@ export async function refineScopeAnalysis(
 export async function updateScopeAnalysisResult(
   workspaceId: string,
   scopeId: string,
-  result: ScopeAnalysisResult
+  result: ScopeAnalysisResult,
 ): Promise<ScopeAnalysisRecord> {
   return apiPatch<ScopeAnalysisRecord>(
     `/workspaces/${workspaceId}/ai/scope/${scopeId}`,
-    result
+    result,
   );
 }
 
@@ -109,11 +109,11 @@ export async function updateScopeAnalysisResult(
 export async function convertScopeToProject(
   workspaceId: string,
   scopeId: string,
-  projectData: ConvertScopeToProjectData
+  projectData: ConvertScopeToProjectData,
 ): Promise<ConvertScopeResponse> {
   return apiPost<ConvertScopeResponse>(
     `/workspaces/${workspaceId}/ai/scope/${scopeId}/convert`,
-    projectData
+    projectData,
   );
 }
 
@@ -122,23 +122,22 @@ export async function convertScopeToProject(
  */
 export async function confirmScopeAnalysis(
   workspaceId: string,
-  scopeId: string
+  scopeId: string,
 ): Promise<ScopeAnalysisRecord> {
   return apiPost<ScopeAnalysisRecord>(
-    `/workspaces/${workspaceId}/ai/scope/${scopeId}/confirm`
+    `/workspaces/${workspaceId}/ai/scope/${scopeId}/confirm`,
   );
 }
-
 
 /**
  * Get a specific scope analysis by ID
  */
 export async function getScopeAnalysis(
   workspaceId: string,
-  scopeId: string
+  scopeId: string,
 ): Promise<ScopeAnalysisRecord> {
   return apiGet<ScopeAnalysisRecord>(
-    `/workspaces/${workspaceId}/ai/scope/${scopeId}`
+    `/workspaces/${workspaceId}/ai/scope/${scopeId}`,
   );
 }
 
@@ -147,16 +146,16 @@ export async function getScopeAnalysis(
  */
 export async function listScopeAnalyses(
   workspaceId: string,
-  params?: { projectId?: string; limit?: number; offset?: number }
+  params?: { projectId?: string; limit?: number; offset?: number },
 ): Promise<ScopeAnalysisRecord[]> {
   const query = new URLSearchParams();
-  if (params?.projectId) query.set('projectId', params.projectId);
-  if (params?.limit) query.set('limit', String(params.limit));
-  if (params?.offset) query.set('offset', String(params.offset));
+  if (params?.projectId) query.set("projectId", params.projectId);
+  if (params?.limit) query.set("limit", String(params.limit));
+  if (params?.offset) query.set("offset", String(params.offset));
 
-  const queryString = query.toString() ? `?${query.toString()}` : '';
+  const queryString = query.toString() ? `?${query.toString()}` : "";
   return apiGet<ScopeAnalysisRecord[]>(
-    `/workspaces/${workspaceId}/ai/scope${queryString}`
+    `/workspaces/${workspaceId}/ai/scope${queryString}`,
   );
 }
 
@@ -168,7 +167,7 @@ export interface AffectedDeliverable {
 
 export interface DriftAnalysisResult {
   summary: string;
-  recommendation: 'accept' | 'decline' | 'negotiate';
+  recommendation: "accept" | "decline" | "negotiate";
   recommendation_rationale: string;
   affected_deliverables: AffectedDeliverable[];
   timeline_delta_days: number;
@@ -194,7 +193,7 @@ export interface DriftAnalysisRecord {
 export async function analyzeScopeDrift(
   workspaceId: string,
   scopeAnalysisId: string,
-  changeRequestText: string
+  changeRequestText: string,
 ): Promise<DriftAnalysisRecord> {
   return apiPost<DriftAnalysisRecord>(`/workspaces/${workspaceId}/ai/drift`, {
     scopeAnalysisId,
@@ -207,10 +206,9 @@ export async function analyzeScopeDrift(
  */
 export async function listScopeDriftAnalyses(
   workspaceId: string,
-  scopeAnalysisId: string
+  scopeAnalysisId: string,
 ): Promise<DriftAnalysisRecord[]> {
   return apiGet<DriftAnalysisRecord[]>(
-    `/workspaces/${workspaceId}/ai/scope/${scopeAnalysisId}/drift`
+    `/workspaces/${workspaceId}/ai/scope/${scopeAnalysisId}/drift`,
   );
 }
-

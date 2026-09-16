@@ -1,15 +1,12 @@
-'use client';
+"use client";
 
-import React, { useCallback, useMemo, useState } from 'react';
-import {
-  Receipt,
-  WarningCircle,
-  SpinnerGap,
-} from '@phosphor-icons/react';
-import { Button } from '@shared/components/Button';
-import { Dialog } from '@shared/components/Dialog';
-import { useCreateProgressInvoice } from '../hooks';
-import type { ProjectDeliverable } from '../api';
+import { Receipt, SpinnerGap, WarningCircle } from "@phosphor-icons/react";
+import { Button } from "@shared/components/Button";
+import { Dialog } from "@shared/components/Dialog";
+import type React from "react";
+import { useCallback, useMemo, useState } from "react";
+import type { ProjectDeliverable } from "../api";
+import { useCreateProgressInvoice } from "../hooks";
 
 interface CreateProgressInvoiceModalProps {
   isOpen: boolean;
@@ -33,27 +30,30 @@ export const CreateProgressInvoiceModal: React.FC<
   deliverables,
 }) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [taxRate, setTaxRate] = useState('18.00');
-  const [discountRate, setDiscountRate] = useState('0.00');
+  const [taxRate, setTaxRate] = useState("18.00");
+  const [discountRate, setDiscountRate] = useState("0.00");
   const [dueDate, setDueDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() + 14);
-    return d.toISOString().split('T')[0];
+    return d.toISOString().split("T")[0];
   });
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState("");
 
-  const createInvoiceMutation = useCreateProgressInvoice(workspaceId, projectId);
+  const createInvoiceMutation = useCreateProgressInvoice(
+    workspaceId,
+    projectId,
+  );
 
   // Filter deliverables eligible for progress invoicing: status === 'completed' && !billedAt
   const eligibleDeliverables = useMemo(() => {
-    return deliverables.filter((d) => d.status === 'completed' && !d.billedAt);
+    return deliverables.filter((d) => d.status === "completed" && !d.billedAt);
   }, [deliverables]);
 
   // Calculate proportional value for each deliverable
   const totalProjectHours = useMemo(() => {
     return deliverables.reduce(
       (sum, d) => sum + Math.max(1, Number(d.estimatedHours || 1)),
-      0
+      0,
     );
   }, [deliverables]);
 
@@ -61,9 +61,11 @@ export const CreateProgressInvoiceModal: React.FC<
     (d: ProjectDeliverable) => {
       if (projectBudget <= 0 || totalProjectHours <= 0) return 0;
       const hours = Math.max(1, Number(d.estimatedHours || 1));
-      return Math.round((hours / totalProjectHours) * projectBudget * 100) / 100;
+      return (
+        Math.round((hours / totalProjectHours) * projectBudget * 100) / 100
+      );
     },
-    [projectBudget, totalProjectHours]
+    [projectBudget, totalProjectHours],
   );
 
   // Preview financial totals
@@ -90,7 +92,7 @@ export const CreateProgressInvoiceModal: React.FC<
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
   };
 
@@ -111,8 +113,8 @@ export const CreateProgressInvoiceModal: React.FC<
         deliverableIds: selectedIds,
         dueDate: dueDate || null,
         notes: notes.trim() || undefined,
-        discountRate: discountRate || '0.00',
-        taxRate: taxRate || '18.00',
+        discountRate: discountRate || "0.00",
+        taxRate: taxRate || "18.00",
       });
       setSelectedIds([]);
       onClose();
@@ -139,8 +141,11 @@ export const CreateProgressInvoiceModal: React.FC<
               No Completed Deliverables to Bill
             </p>
             <p className="text-xs text-[var(--color-slate-text)] max-w-sm mx-auto">
-              Progress invoices can only be generated for deliverables that are marked as{' '}
-              <span className="font-semibold text-[var(--color-brand-teal)]">Completed</span>{' '}
+              Progress invoices can only be generated for deliverables that are
+              marked as{" "}
+              <span className="font-semibold text-[var(--color-brand-teal)]">
+                Completed
+              </span>{" "}
               and have not been previously billed.
             </p>
           </div>
@@ -148,14 +153,17 @@ export const CreateProgressInvoiceModal: React.FC<
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-[var(--color-ink-deep)]">
-                Completed Milestones ({selectedIds.length} of {eligibleDeliverables.length} selected)
+                Completed Milestones ({selectedIds.length} of{" "}
+                {eligibleDeliverables.length} selected)
               </span>
               <button
                 type="button"
                 onClick={handleSelectAll}
                 className="text-xs font-semibold text-[var(--color-brand-blue)] hover:underline"
               >
-                {selectedIds.length === eligibleDeliverables.length ? 'Deselect All' : 'Select All'}
+                {selectedIds.length === eligibleDeliverables.length
+                  ? "Deselect All"
+                  : "Select All"}
               </button>
             </div>
 
@@ -168,7 +176,9 @@ export const CreateProgressInvoiceModal: React.FC<
                   <label
                     key={d.id}
                     className={`flex items-center justify-between p-3 cursor-pointer transition-colors text-xs ${
-                      isSelected ? 'bg-[var(--color-teal-light)]/30' : 'hover:bg-[var(--color-surface-soft)]'
+                      isSelected
+                        ? "bg-[var(--color-teal-light)]/30"
+                        : "hover:bg-[var(--color-surface-soft)]"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -179,15 +189,21 @@ export const CreateProgressInvoiceModal: React.FC<
                         className="rounded border-[var(--color-hairline)] text-[var(--color-brand-teal)] focus:ring-[var(--color-brand-teal)]"
                       />
                       <div>
-                        <p className="font-bold text-[var(--color-ink-deep)]">{d.title}</p>
+                        <p className="font-bold text-[var(--color-ink-deep)]">
+                          {d.title}
+                        </p>
                         <p className="text-[11px] text-[var(--color-slate-text)]">
-                          {d.estimatedHours}h estimated · {d.loggedHours}h logged
+                          {d.estimatedHours}h estimated · {d.loggedHours}h
+                          logged
                         </p>
                       </div>
                     </div>
 
                     <span className="font-mono font-bold text-[var(--color-ink-deep)]">
-                      {projectCurrency} {value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      {projectCurrency}{" "}
+                      {value.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                      })}
                     </span>
                   </label>
                 );
@@ -306,11 +322,13 @@ export const CreateProgressInvoiceModal: React.FC<
           >
             {createInvoiceMutation.isPending ? (
               <>
-                <SpinnerGap className="h-4 w-4 animate-spin" /> Creating Invoice...
+                <SpinnerGap className="h-4 w-4 animate-spin" /> Creating
+                Invoice...
               </>
             ) : (
               <>
-                <Receipt className="h-4 w-4" weight="bold" /> Generate Progress Invoice
+                <Receipt className="h-4 w-4" weight="bold" /> Generate Progress
+                Invoice
               </>
             )}
           </Button>

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Button } from '@shared/components';
-import { ChartPie, Plus, Briefcase } from '@phosphor-icons/react';
+import { Briefcase, ChartPie, Plus } from "@phosphor-icons/react";
+import { Button } from "@shared/components";
+import Link from "next/link";
 
 interface DashboardHeaderProps {
   workspaceId: string;
@@ -21,7 +21,8 @@ export function DashboardHeader({ workspaceId }: DashboardHeaderProps) {
             Dashboard
           </h1>
           <p className="text-xs sm:text-sm text-[var(--color-slate-text)]">
-            Business overview, cash flow metrics, active deliverables, and invoice status.
+            Business overview, cash flow metrics, active deliverables, and
+            invoice status.
           </p>
         </div>
       </div>

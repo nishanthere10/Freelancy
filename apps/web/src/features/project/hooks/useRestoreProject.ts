@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { restoreProject, projectKeys } from '../api';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { projectKeys, restoreProject } from "../api";
 
 export function useRestoreProject(workspaceId: string) {
   const queryClient = useQueryClient();
@@ -13,12 +13,13 @@ export function useRestoreProject(workspaceId: string) {
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
       queryClient.setQueryData(
         projectKeys.detail(workspaceId, project.id),
-        project
+        project,
       );
       toast.success(`Project "${project.name}" restored`);
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : 'Failed to restore project';
+      const message =
+        error instanceof Error ? error.message : "Failed to restore project";
       toast.error(message);
     },
   });

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { ClientPage } from '@features/client';
-import { useWorkspaces } from '@features/workspace/hooks';
+import { ClientPage } from "@features/client";
+import { useWorkspaces } from "@features/workspace/hooks";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function ClientsDefaultRoute() {
   const router = useRouter();
@@ -12,7 +12,7 @@ export default function ClientsDefaultRoute() {
   useEffect(() => {
     if (!isLoading && workspaces) {
       if (workspaces.length === 0) {
-        router.push('/onboarding/workspace');
+        router.push("/onboarding/workspace");
       }
     }
   }, [isLoading, workspaces, router]);

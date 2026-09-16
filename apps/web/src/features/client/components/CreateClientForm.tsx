@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { FormProvider, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, FormField } from '@shared/components';
-import { clientFormSchema, type ClientFormValues } from '../schemas';
-import type { CreateClientInput } from '../api';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, FormField } from "@shared/components";
+import { FormProvider, useForm } from "react-hook-form";
+import type { CreateClientInput } from "../api";
+import { type ClientFormValues, clientFormSchema } from "../schemas";
 
 interface CreateClientFormProps {
   onSubmit: (data: CreateClientInput) => void;
@@ -17,24 +17,24 @@ export function CreateClientForm({
   onSubmit,
   isSubmitting = false,
   defaultValues,
-  submitLabel = 'Create Client',
+  submitLabel = "Create Client",
 }: CreateClientFormProps) {
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientFormSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      phone: '',
-      website: '',
-      companyName: '',
-      gstNumber: '',
-      contactPerson: '',
-      department: '',
-      address: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      country: 'IN',
+      name: "",
+      email: "",
+      phone: "",
+      website: "",
+      companyName: "",
+      gstNumber: "",
+      contactPerson: "",
+      department: "",
+      address: "",
+      city: "",
+      state: "",
+      postalCode: "",
+      country: "IN",
       ...defaultValues,
     },
   });
@@ -53,14 +53,17 @@ export function CreateClientForm({
       city: values.city || undefined,
       state: values.state || undefined,
       postalCode: values.postalCode || undefined,
-      country: values.country || 'IN',
+      country: values.country || "IN",
     };
     onSubmit(cleaned);
   };
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className="space-y-4"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             name="name"
@@ -154,7 +157,7 @@ export function CreateClientForm({
 
         <div className="flex justify-end gap-3 pt-4 border-t border-[var(--color-hairline)]">
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : submitLabel}
+            {isSubmitting ? "Saving..." : submitLabel}
           </Button>
         </div>
       </form>

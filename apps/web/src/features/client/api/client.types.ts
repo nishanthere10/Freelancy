@@ -1,4 +1,4 @@
-export type ClientStatus = 'active' | 'inactive' | 'archived';
+export type ClientStatus = "active" | "inactive" | "archived";
 
 export interface ClientResponse {
   id: string;
@@ -58,7 +58,7 @@ export interface UpdateClientInput {
 }
 
 export interface ListClientsFilters {
-  status?: ClientStatus | 'all';
+  status?: ClientStatus | "all";
   excludeDeleted?: boolean;
   search?: string;
 }

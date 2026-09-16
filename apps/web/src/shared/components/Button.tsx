@@ -1,19 +1,19 @@
-import { forwardRef, type ButtonHTMLAttributes } from 'react';
-import { cn } from '@shared/utils/cn';
+import { cn } from "@shared/utils/cn";
+import { type ButtonHTMLAttributes, forwardRef } from "react";
 
 type ButtonVariant =
-  | 'primary'
-  | 'default'
-  | 'yellow'
-  | 'blue'
-  | 'secondary'
-  | 'outline'
-  | 'ghost'
-  | 'link'
-  | 'on-dark'
-  | 'icon';
+  | "primary"
+  | "default"
+  | "yellow"
+  | "blue"
+  | "secondary"
+  | "outline"
+  | "ghost"
+  | "link"
+  | "on-dark"
+  | "icon";
 
-type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
+type ButtonSize = "sm" | "md" | "lg" | "icon";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -23,50 +23,50 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-[var(--color-primary)] text-[var(--color-on-primary)] hover:bg-[var(--color-charcoal)] rounded-[var(--radius-full)]',
+    "bg-[var(--color-primary)] text-[var(--color-on-primary)] hover:bg-[var(--color-charcoal)] rounded-[var(--radius-full)]",
   default:
-    'bg-[var(--color-primary)] text-[var(--color-on-primary)] hover:bg-[var(--color-charcoal)] rounded-[var(--radius-full)]',
+    "bg-[var(--color-primary)] text-[var(--color-on-primary)] hover:bg-[var(--color-charcoal)] rounded-[var(--radius-full)]",
   yellow:
-    'bg-[var(--color-brand-yellow)] text-[var(--color-primary)] hover:bg-[var(--color-brand-yellow-deep)] rounded-[var(--radius-full)]',
-  blue:
-    'bg-[var(--color-brand-blue)] text-[var(--color-on-primary)] hover:bg-[var(--color-blue-pressed)] rounded-[var(--radius-full)]',
+    "bg-[var(--color-brand-yellow)] text-[var(--color-primary)] hover:bg-[var(--color-brand-yellow-deep)] rounded-[var(--radius-full)]",
+  blue: "bg-[var(--color-brand-blue)] text-[var(--color-on-primary)] hover:bg-[var(--color-blue-pressed)] rounded-[var(--radius-full)]",
   secondary:
-    'bg-transparent text-[var(--color-ink)] border border-[var(--color-hairline-strong)] hover:bg-[var(--color-surface-soft)] rounded-[var(--radius-full)]',
+    "bg-transparent text-[var(--color-ink)] border border-[var(--color-hairline-strong)] hover:bg-[var(--color-surface-soft)] rounded-[var(--radius-full)]",
   outline:
-    'bg-transparent text-[var(--color-ink)] border border-[var(--color-hairline-strong)] hover:bg-[var(--color-surface-soft)] rounded-[var(--radius-full)]',
+    "bg-transparent text-[var(--color-ink)] border border-[var(--color-hairline-strong)] hover:bg-[var(--color-surface-soft)] rounded-[var(--radius-full)]",
   ghost:
-    'bg-transparent text-[var(--color-ink)] hover:bg-[var(--color-surface)] rounded-[var(--radius-md)]',
-  link:
-    'bg-transparent text-[var(--color-brand-blue)] underline-offset-4 hover:underline p-0 h-auto rounded-none',
-  'on-dark':
-    'bg-[var(--color-on-dark)] text-[var(--color-primary)] hover:bg-[var(--color-surface-soft)] rounded-[var(--radius-full)]',
-  icon:
-    'bg-[var(--color-canvas)] text-[var(--color-ink)] border border-[var(--color-hairline)] hover:bg-[var(--color-surface)] rounded-[var(--radius-full)] h-9 w-9 p-0',
+    "bg-transparent text-[var(--color-ink)] hover:bg-[var(--color-surface)] rounded-[var(--radius-md)]",
+  link: "bg-transparent text-[var(--color-brand-blue)] underline-offset-4 hover:underline p-0 h-auto rounded-none",
+  "on-dark":
+    "bg-[var(--color-on-dark)] text-[var(--color-primary)] hover:bg-[var(--color-surface-soft)] rounded-[var(--radius-full)]",
+  icon: "bg-[var(--color-canvas)] text-[var(--color-ink)] border border-[var(--color-hairline)] hover:bg-[var(--color-surface)] rounded-[var(--radius-full)] h-9 w-9 p-0",
 };
 
-const sizeStyles: Record<Exclude<ButtonSize, 'icon'>, string> = {
-  sm: 'h-9 px-4 text-xs',
-  md: 'h-11 px-6 text-sm',
-  lg: 'h-14 px-8 text-base',
+const sizeStyles: Record<Exclude<ButtonSize, "icon">, string> = {
+  sm: "h-9 px-4 text-xs",
+  md: "h-11 px-6 text-sm",
+  lg: "h-14 px-8 text-base",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       className,
-      variant = 'primary',
-      size = 'md',
+      variant = "primary",
+      size = "md",
       isLoading = false,
       disabled,
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const base =
-      'inline-flex items-center justify-center font-medium text-sm transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-brand-blue)] disabled:opacity-50 disabled:pointer-events-none';
+      "inline-flex items-center justify-center font-medium text-sm transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-brand-blue)] disabled:opacity-50 disabled:pointer-events-none";
 
-    const sizeClass = variant === 'link' || variant === 'icon' ? '' : sizeStyles[size as Exclude<ButtonSize, 'icon'>] ?? sizeStyles.md;
+    const sizeClass =
+      variant === "link" || variant === "icon"
+        ? ""
+        : (sizeStyles[size as Exclude<ButtonSize, "icon">] ?? sizeStyles.md);
 
     return (
       <button
@@ -85,7 +85,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       </button>
     );
-  }
+  },
 );
 
-Button.displayName = 'Button';
+Button.displayName = "Button";

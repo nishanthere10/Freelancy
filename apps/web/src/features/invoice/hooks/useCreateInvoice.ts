@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { createInvoice, invoiceKeys, type CreateInvoiceInput } from '../api';
-import { dashboardKeys } from '@features/dashboard/api/dashboard.keys';
+import { dashboardKeys } from "@features/dashboard/api/dashboard.keys";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { type CreateInvoiceInput, createInvoice, invoiceKeys } from "../api";
 
 export function useCreateInvoice(workspaceId: string) {
   const queryClient = useQueryClient();
@@ -12,11 +12,14 @@ export function useCreateInvoice(workspaceId: string) {
     mutationFn: (data: CreateInvoiceInput) => createInvoice(workspaceId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.all(workspaceId) });
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.detail(workspaceId) });
-      toast.success('Draft invoice created');
+      queryClient.invalidateQueries({
+        queryKey: dashboardKeys.detail(workspaceId),
+      });
+      toast.success("Draft invoice created");
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : 'Failed to create invoice';
+      const message =
+        error instanceof Error ? error.message : "Failed to create invoice";
       toast.error(message);
     },
   });

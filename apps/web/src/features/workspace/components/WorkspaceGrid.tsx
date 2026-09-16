@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 /**
  * Workspace grid layout
  * Displays workspace cards in responsive grid with skeleton loading state
  */
 
-import { Skeleton } from '@shared/components';
-import type { WorkspaceResponse } from '../api';
-import { WorkspaceCard } from './WorkspaceCard';
+import { Skeleton } from "@shared/components";
+import type { WorkspaceResponse } from "../api";
+import { WorkspaceCard } from "./WorkspaceCard";
 
 interface WorkspaceGridProps {
   workspaces: WorkspaceResponse[];
@@ -15,7 +15,11 @@ interface WorkspaceGridProps {
   onEditWorkspace?: (workspace: WorkspaceResponse) => void;
 }
 
-export function WorkspaceGrid({ workspaces, isLoading, onEditWorkspace }: WorkspaceGridProps) {
+export function WorkspaceGrid({
+  workspaces,
+  isLoading,
+  onEditWorkspace,
+}: WorkspaceGridProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

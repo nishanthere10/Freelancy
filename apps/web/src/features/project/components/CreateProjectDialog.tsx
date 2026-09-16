@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Dialog } from '@shared/components';
-import { CreateProjectForm } from './CreateProjectForm';
+import { Dialog } from "@shared/components";
+import { CreateProjectForm } from "./CreateProjectForm";
 
 interface CreateProjectDialogProps {
   workspaceId: string;

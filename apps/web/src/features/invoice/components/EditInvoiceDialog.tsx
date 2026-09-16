@@ -1,10 +1,15 @@
-'use client';
+"use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@shared/components';
-import { toast } from 'sonner';
-import { useUpdateInvoice } from '../hooks';
-import type { CreateInvoiceInput, InvoiceResponse } from '../api';
-import { CreateInvoiceForm } from './CreateInvoiceForm';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@shared/components";
+import { toast } from "sonner";
+import type { CreateInvoiceInput, InvoiceResponse } from "../api";
+import { useUpdateInvoice } from "../hooks";
+import { CreateInvoiceForm } from "./CreateInvoiceForm";
 
 interface EditInvoiceDialogProps {
   workspaceId: string;
@@ -28,8 +33,8 @@ export function EditInvoiceDialog({
     projectId: invoice.projectId || undefined,
     issueDate: invoice.issueDate || undefined,
     dueDate: invoice.dueDate || undefined,
-    taxRate: invoice.taxRate || '18.00',
-    discountRate: invoice.discountRate || '0.00',
+    taxRate: invoice.taxRate || "18.00",
+    discountRate: invoice.discountRate || "0.00",
     notes: invoice.notes || undefined,
     terms: invoice.terms || undefined,
     items: invoice.items.map((it) => ({
@@ -43,10 +48,11 @@ export function EditInvoiceDialog({
   const handleSubmit = async (data: CreateInvoiceInput) => {
     try {
       await updateInvoiceMutation.mutateAsync({ id: invoice.id, data });
-      toast.success('Invoice updated successfully');
+      toast.success("Invoice updated successfully");
       onOpenChange(false);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to update invoice';
+      const message =
+        err instanceof Error ? err.message : "Failed to update invoice";
       toast.error(message);
     }
   };
@@ -59,9 +65,12 @@ export function EditInvoiceDialog({
     >
       <DialogContent className="space-y-6">
         <DialogHeader className="pb-4 border-b border-[var(--color-hairline-soft)]">
-          <DialogTitle className="text-xl font-bold text-[var(--color-ink-deep)]">Edit Draft Invoice</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-[var(--color-ink-deep)]">
+            Edit Draft Invoice
+          </DialogTitle>
           <p className="text-xs text-[var(--color-slate-text)]">
-            Update invoice details, line items, or payment terms. Only draft invoices can be edited.
+            Update invoice details, line items, or payment terms. Only draft
+            invoices can be edited.
           </p>
         </DialogHeader>
         <CreateInvoiceForm
