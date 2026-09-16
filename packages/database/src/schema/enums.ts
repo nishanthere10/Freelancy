@@ -10,5 +10,11 @@ export const invoiceStatusEnum = pgEnum('invoice_status', [
   'overdue',
   'cancelled',
 ]);
+export const projectDeliverableStatusEnum = pgEnum('project_deliverable_status', [
+  'pending',
+  'in_progress',
+  'completed',
+]);
+
 
 

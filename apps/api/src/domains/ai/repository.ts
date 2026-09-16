@@ -3,7 +3,7 @@ import {
   type ScopeAnalysis,
   scopeAnalysesTable,
 } from "@repo/database";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
 import { db } from "../../db/client";
 
 export class ScopeAnalysisRepository {
@@ -48,6 +48,104 @@ export class ScopeAnalysisRepository {
       .update(scopeAnalysesTable)
       .set({
         confirmedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(scopeAnalysesTable.id, id),
+          eq(scopeAnalysesTable.workspaceId, workspaceId),
+        ),
+      )
+      .returning();
+    return record || null;
+  }
+
+  /**
+   * Update the result JSON payload (manual edits or AI refinement)
+   */
+  async updateResult(
+    id: string,
+    workspaceId: string,
+    result: unknown,
+  ): Promise<ScopeAnalysis | null> {
+    const [record] = await db
+      .update(scopeAnalysesTable)
+      .set({
+        result: result as Record<string, unknown>,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(scopeAnalysesTable.id, id),
+          eq(scopeAnalysesTable.workspaceId, workspaceId),
+        ),
+      )
+      .returning();
+    return record || null;
+  }
+
+  /**
+   * Link a scope analysis to a created project
+   */
+  async linkProject(
+    id: string,
+    workspaceId: string,
+    projectId: string,
+  ): Promise<ScopeAnalysis | null> {
+    const [record] = await db
+      .update(scopeAnalysesTable)
+      .set({
+        projectId,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(scopeAnalysesTable.id, id),
+          eq(scopeAnalysesTable.workspaceId, workspaceId),
+        ),
+      )
+      .returning();
+    return record || null;
+  }
+
+  /**
+   * Concurrency Guard: Atomically links a scope to a created project.
+   * Only succeeds if projectId is currently null and scope is confirmed.
+   */
+  async linkProjectAtomic(
+    id: string,
+    workspaceId: string,
+    projectId: string,
+  ): Promise<ScopeAnalysis | null> {
+    const [record] = await db
+      .update(scopeAnalysesTable)
+      .set({
+        projectId,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(scopeAnalysesTable.id, id),
+          eq(scopeAnalysesTable.workspaceId, workspaceId),
+          isNull(scopeAnalysesTable.projectId),
+          isNotNull(scopeAnalysesTable.confirmedAt),
+        ),
+      )
+      .returning();
+    return record || null;
+  }
+
+  /**
+   * Unlink a project from a scope analysis (used during compensating rollbacks)
+   */
+  async unlinkProject(
+    id: string,
+    workspaceId: string,
+  ): Promise<ScopeAnalysis | null> {
+    const [record] = await db
+      .update(scopeAnalysesTable)
+      .set({
+        projectId: null,
         updatedAt: new Date(),
       })
       .where(

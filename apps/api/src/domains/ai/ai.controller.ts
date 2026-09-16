@@ -5,8 +5,11 @@ import { createError, createSuccess } from "../../utils/response";
 import { WorkspaceMemberRepository } from "../workspace/repository";
 import type {
   AnalyzeDriftInput,
+  ConvertScopeToProjectInput,
   GenerateScopeInput,
   ListScopesQuery,
+  RefineScopeInput,
+  UpdateScopeResultInput,
 } from "./ai.schema";
 import { aiService } from "./ai.service";
 
@@ -101,6 +104,17 @@ export async function confirmScopeAnalysis(
           createError(
             "FORBIDDEN",
             "User is not a member of the specified workspace",
+          ),
+        );
+    }
+
+    if (membership.role !== "owner" && membership.role !== "editor") {
+      return res
+        .status(403)
+        .json(
+          createError(
+            "FORBIDDEN",
+            "Only workspace owner or editor can confirm scope analysis",
           ),
         );
     }
@@ -373,6 +387,193 @@ export async function listScopeDriftAnalyses(
     });
 
     return res.status(200).json(createSuccess(records));
+  } catch (err: unknown) {
+    return next(err);
+  }
+}
+
+/**
+ * Controller to refine an existing AI Scope Analysis using conversational instructions.
+ */
+export async function refineScopeAnalysis(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { workspaceId, scopeId } = req.params as {
+      workspaceId: string;
+      scopeId: string;
+    };
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res
+        .status(401)
+        .json(createError("UNAUTHORIZED", "Authentication required"));
+    }
+
+    const membership = await workspaceMemberRepo.getByWorkspaceAndUser(
+      workspaceId,
+      userId,
+    );
+    if (!membership) {
+      return res
+        .status(403)
+        .json(
+          createError(
+            "FORBIDDEN",
+            "User is not a member of the specified workspace",
+          ),
+        );
+    }
+
+    if (membership.role !== "owner" && membership.role !== "editor") {
+      return res
+        .status(403)
+        .json(
+          createError(
+            "FORBIDDEN",
+            "Only workspace owner or editor can refine scope analysis",
+          ),
+        );
+    }
+
+    const { revisionPrompt } = req.body as RefineScopeInput;
+    const requestId =
+      req.id || (req.headers["x-request-id"] as string) || `req_${Date.now()}`;
+
+    const refinedRecord = await aiService.refineScope({
+      workspaceId,
+      actorId: userId,
+      actorRole: membership.role,
+      scopeId,
+      revisionPrompt,
+      requestId,
+    });
+
+    return res.status(200).json(createSuccess(refinedRecord));
+  } catch (err: unknown) {
+    return next(err);
+  }
+}
+
+/**
+ * Controller to manually update an AI Scope Analysis deliverable details.
+ */
+export async function updateScopeAnalysisResult(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { workspaceId, scopeId } = req.params as {
+      workspaceId: string;
+      scopeId: string;
+    };
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res
+        .status(401)
+        .json(createError("UNAUTHORIZED", "Authentication required"));
+    }
+
+    const membership = await workspaceMemberRepo.getByWorkspaceAndUser(
+      workspaceId,
+      userId,
+    );
+    if (!membership) {
+      return res
+        .status(403)
+        .json(
+          createError(
+            "FORBIDDEN",
+            "User is not a member of the specified workspace",
+          ),
+        );
+    }
+
+    if (membership.role !== "owner" && membership.role !== "editor") {
+      return res
+        .status(403)
+        .json(
+          createError(
+            "FORBIDDEN",
+            "Only workspace owner or editor can update scope analysis",
+          ),
+        );
+    }
+
+    const updatedRecord = await aiService.updateScopeResult({
+      workspaceId,
+      scopeId,
+      result: req.body,
+    });
+
+    return res.status(200).json(createSuccess(updatedRecord));
+  } catch (err: unknown) {
+    return next(err);
+  }
+}
+
+/**
+ * Controller to convert a confirmed Scope Analysis into a live Project and optional Deposit Invoice.
+ */
+export async function convertScopeToProject(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { workspaceId, scopeId } = req.params as {
+      workspaceId: string;
+      scopeId: string;
+    };
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res
+        .status(401)
+        .json(createError("UNAUTHORIZED", "Authentication required"));
+    }
+
+    const membership = await workspaceMemberRepo.getByWorkspaceAndUser(
+      workspaceId,
+      userId,
+    );
+    if (!membership) {
+      return res
+        .status(403)
+        .json(
+          createError(
+            "FORBIDDEN",
+            "User is not a member of the specified workspace",
+          ),
+        );
+    }
+
+    if (membership.role !== "owner" && membership.role !== "editor") {
+      return res
+        .status(403)
+        .json(
+          createError(
+            "FORBIDDEN",
+            "Only workspace owner or editor can convert scope to project",
+          ),
+        );
+    }
+
+    const projectData = req.body as ConvertScopeToProjectInput;
+
+    const result = await aiService.convertScopeToProject({
+      workspaceId,
+      actorId: userId,
+      scopeId,
+      projectData,
+    });
+
+    return res.status(201).json(createSuccess(result));
   } catch (err: unknown) {
     return next(err);
   }

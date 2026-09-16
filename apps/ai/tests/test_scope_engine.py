@@ -178,3 +178,105 @@ def test_post_ingest_endpoint(client: TestClient, auth_headers: dict[str, str]):
         assert data["success"] is True
         assert data["data"]["workspaceId"] == "ws_target_123"
         assert data["data"]["indexedCount"] == 5
+
+
+@pytest.mark.asyncio
+async def test_llm_service_refine_scope():
+    base_result = ScopeAnalysisResult(
+        summary="Initial MVP Scope",
+        deliverables=[
+            Deliverable(
+                title="Frontend App",
+                description="Next.js app",
+                estimated_hours=20,
+            ),
+            Deliverable(
+                title="Backend API",
+                description="Node.js API",
+                estimated_hours=20,
+            ),
+        ],
+        timeline_weeks=2,
+        risks_and_dependencies=["API rate limits"],
+        recommended_tech_stack=["Next.js", "Express"],
+        confidence_score=90,
+    )
+
+    refined = await llm_scope_engine.refine_scope(
+        current_scope=base_result,
+        revision_prompt="Add automated end-to-end testing suite",
+    )
+
+    assert isinstance(refined, ScopeAnalysisResult)
+    assert len(refined.deliverables) >= 2
+    assert "Refined" in refined.summary or "Custom" in str(refined.deliverables)
+
+
+def test_post_scope_refine_endpoint_success(client: TestClient, auth_headers: dict[str, str]):
+    payload = {
+        "workspaceId": "ws_1111_1111_1111",
+        "actorId": "usr_2222_2222_2222",
+        "actorRole": "owner",
+        "requestId": "req_scope_refine_123",
+        "input": {
+            "current_scope": {
+                "summary": "Initial MVP Scope",
+                "deliverables": [
+                    {
+                        "title": "Frontend App",
+                        "description": "Next.js app",
+                        "estimated_hours": 20,
+                        "complexity": "medium",
+                        "skills_required": ["Next.js"],
+                    }
+                ],
+                "timeline_weeks": 1,
+                "risks_and_dependencies": [],
+                "recommended_tech_stack": ["Next.js"],
+                "confidence_score": 90,
+            },
+            "revision_prompt": "Add automated end-to-end testing suite with Playwright",
+        },
+    }
+
+    response = client.post("/api/v1/scope/refine", json=payload, headers=auth_headers)
+    assert response.status_code == 200
+    data = response.json()
+
+    assert data["success"] is True
+    assert data["requestId"] == "req_scope_refine_123"
+    assert "summary" in data["data"]
+    assert "deliverables" in data["data"]
+    assert len(data["data"]["deliverables"]) >= 1
+
+
+def test_post_scope_refine_endpoint_validation_error(client: TestClient, auth_headers: dict[str, str]):
+    payload = {
+        "workspaceId": "ws_1111",
+        "actorId": "usr_2222",
+        "actorRole": "owner",
+        "requestId": "req_val_err_refine",
+        "input": {
+            "current_scope": {
+                "summary": "Initial Scope",
+                "deliverables": [
+                    {
+                        "title": "Frontend",
+                        "description": "UI",
+                        "estimated_hours": 10,
+                        "complexity": "low",
+                        "skills_required": [],
+                    }
+                ],
+                "timeline_weeks": 1,
+                "confidence_score": 80,
+            },
+            "revision_prompt": "no",  # less than 5 characters
+        },
+    }
+    response = client.post("/api/v1/scope/refine", json=payload, headers=auth_headers)
+    assert response.status_code == 422
+    data = response.json()
+    assert data["success"] is False
+    assert data["error"] == "VALIDATION_ERROR"
+

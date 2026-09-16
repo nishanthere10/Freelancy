@@ -1,9 +1,48 @@
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ScopeAnalysisRecord } from '@api/ai';
 import { ScopeReviewDraft } from '../components/ScopeReviewDraft';
+
+// Mock next/navigation
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+  }),
+}));
+
+// Mock hooks
+const mockRefineMutateAsync = vi.fn();
+const mockUpdateMutateAsync = vi.fn();
+const mockConvertMutateAsync = vi.fn();
+
+vi.mock('../hooks/useScopeRefinement', () => ({
+  useRefineScope: () => ({
+    mutateAsync: mockRefineMutateAsync,
+    isPending: false,
+  }),
+  useUpdateScopeResult: () => ({
+    mutateAsync: mockUpdateMutateAsync,
+    isPending: false,
+  }),
+  useConvertScope: () => ({
+    mutateAsync: mockConvertMutateAsync,
+    isPending: false,
+  }),
+}));
+
+vi.mock('@features/client', () => ({
+  useClients: () => ({
+    data: [
+      { id: 'client-1', name: 'Acme Corp', companyName: 'Acme Inc' },
+    ],
+    isLoading: false,
+  }),
+}));
 
 const mockScopeRecord: ScopeAnalysisRecord = {
   id: 'scope_1111_2222_3333',
@@ -39,9 +78,22 @@ const mockScopeRecord: ScopeAnalysisRecord = {
   updatedAt: '2026-08-30T12:00:00Z',
 };
 
+function renderWithClient(ui: React.ReactElement) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+  );
+}
+
 describe('ScopeReviewDraft', () => {
-  it('renders summary, confidence, and total calculated hours', () => {
-    render(
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('renders summary, confidence, metrics, and conversational prompt bar', () => {
+    renderWithClient(
       <ScopeReviewDraft
         scopeRecord={mockScopeRecord}
         onConfirm={vi.fn()}
@@ -57,10 +109,14 @@ describe('ScopeReviewDraft', () => {
     expect(screen.getByText('45 hrs')).toBeDefined(); // 15 + 30
     expect(screen.getByText('3 weeks')).toBeDefined();
     expect(screen.getByText('2 items')).toBeDefined();
+
+    // Refine with AI section
+    expect(screen.getByText('Refine Scope with AI')).toBeDefined();
+    expect(screen.getByPlaceholderText(/shift stack to react native/i)).toBeDefined();
   });
 
-  it('renders deliverable milestones with complexity badges and required skills', () => {
-    render(
+  it('renders editable deliverable titles and descriptions in input elements', () => {
+    renderWithClient(
       <ScopeReviewDraft
         scopeRecord={mockScopeRecord}
         onConfirm={vi.fn()}
@@ -69,16 +125,16 @@ describe('ScopeReviewDraft', () => {
       />
     );
 
-    expect(screen.getByText('Architecture & Database Design')).toBeDefined();
-    expect(screen.getByText('Stripe Billing & Subscriptions')).toBeDefined();
-    expect(screen.getByText('medium Complexity')).toBeDefined();
-    expect(screen.getByText('high Complexity')).toBeDefined();
+    expect(screen.getByDisplayValue('Architecture & Database Design')).toBeDefined();
+    expect(screen.getByDisplayValue('Stripe Billing & Subscriptions')).toBeDefined();
+    expect(screen.getByDisplayValue('PostgreSQL schema and API specifications.')).toBeDefined();
     expect(screen.getByText('Drizzle')).toBeDefined();
     expect(screen.getByText('Stripe')).toBeDefined();
   });
 
-  it('renders risks and recommended tech stack items', () => {
-    render(
+  it('allows adding a custom deliverable and updates total hours live', async () => {
+    const user = userEvent.setup();
+    renderWithClient(
       <ScopeReviewDraft
         scopeRecord={mockScopeRecord}
         onConfirm={vi.fn()}
@@ -87,11 +143,66 @@ describe('ScopeReviewDraft', () => {
       />
     );
 
-    expect(
-      screen.getByText('Stripe webhook latency during traffic spikes')
-    ).toBeDefined();
-    expect(screen.getByText('Next.js 16')).toBeDefined();
-    expect(screen.getByText('Neon PostgreSQL')).toBeDefined();
+    const addBtn = screen.getByRole('button', {
+      name: /add custom deliverable milestone/i,
+    });
+    await user.click(addBtn);
+
+    // Initial 45 hrs + default 12 hrs = 57 hrs
+    expect(screen.getByText('57 hrs')).toBeDefined();
+    expect(screen.getByText('3 items')).toBeDefined();
+    expect(screen.getByText('Unsaved changes')).toBeDefined();
+  });
+
+  it('submits conversational AI revision when user enters prompt', async () => {
+    const user = userEvent.setup();
+    mockRefineMutateAsync.mockResolvedValueOnce({
+      ...mockScopeRecord,
+      result: {
+        ...mockScopeRecord.result,
+        summary: 'Refined mobile app scope',
+      },
+    });
+
+    renderWithClient(
+      <ScopeReviewDraft
+        scopeRecord={mockScopeRecord}
+        onConfirm={vi.fn()}
+        onDiscard={vi.fn()}
+        isConfirming={false}
+      />
+    );
+
+    const promptInput = screen.getByPlaceholderText(/shift stack to react native/i);
+    await user.type(promptInput, 'Add mobile notifications and reduce timeline');
+
+    const refineBtn = screen.getByRole('button', { name: /^refine$/i });
+    await user.click(refineBtn);
+
+    expect(mockRefineMutateAsync).toHaveBeenCalledWith({
+      scopeId: mockScopeRecord.id,
+      revisionPrompt: 'Add mobile notifications and reduce timeline',
+    });
+  });
+
+  it('opens ConvertScopeModal when Convert to Live Project is clicked', async () => {
+    const user = userEvent.setup();
+    renderWithClient(
+      <ScopeReviewDraft
+        scopeRecord={mockScopeRecord}
+        onConfirm={vi.fn()}
+        onDiscard={vi.fn()}
+        isConfirming={false}
+      />
+    );
+
+    const convertBtn = screen.getByRole('button', {
+      name: /convert to live project/i,
+    });
+    await user.click(convertBtn);
+
+    expect(screen.getByText('Convert Scope to Live Project')).toBeDefined();
+    expect(screen.getByText('50% Deposit (Recommended)')).toBeDefined();
   });
 
   it('handles approve and discard user actions', async () => {
@@ -99,7 +210,7 @@ describe('ScopeReviewDraft', () => {
     const handleConfirm = vi.fn();
     const handleDiscard = vi.fn();
 
-    render(
+    renderWithClient(
       <ScopeReviewDraft
         scopeRecord={mockScopeRecord}
         onConfirm={handleConfirm}
@@ -109,7 +220,7 @@ describe('ScopeReviewDraft', () => {
     );
 
     const approveBtn = screen.getByRole('button', {
-      name: /approve & confirm scope/i,
+      name: /approve & confirm/i,
     });
     await user.click(approveBtn);
     expect(handleConfirm).toHaveBeenCalledTimes(1);

@@ -90,24 +90,24 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
           >
             <SpinnerGap
               size={36}
-              className="animate-spin text-blue-600 dark:text-blue-400"
+              className="animate-spin text-[var(--color-brand-yellow)]"
             />
-            <p className="mt-4 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+            <p className="mt-4 text-sm font-bold text-[var(--color-ink-deep)]">
               Evaluating Scope Drift Impact...
             </p>
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1 text-xs text-[var(--color-slate-text)]">
               Cross-referencing change request against confirmed deliverables and timeline.
             </p>
           </div>
         ) : result ? (
           <div data-testid="drift-results" className="space-y-5">
             {/* Recommendation Banner */}
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200/80 bg-neutral-50/60 p-4 dark:border-neutral-800 dark:bg-neutral-950/40">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-[var(--color-surface-soft)] p-4 shadow-xs">
               <div className="flex items-center gap-2.5">
                 {result.recommendation === 'accept' && (
                   <span
                     data-testid="recommendation-badge"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-brand-teal)]/30 bg-[var(--color-teal-light)] px-3 py-1 text-xs font-semibold text-[var(--color-moss-dark)]"
                   >
                     <CheckCircle size={15} weight="fill" />
                     Accept Recommended
@@ -116,7 +116,7 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
                 {result.recommendation === 'decline' && (
                   <span
                     data-testid="recommendation-badge"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-brand-coral)]/30 bg-[var(--color-coral-light)] px-3 py-1 text-xs font-semibold text-[var(--color-coral-dark)]"
                   >
                     <XCircle size={15} weight="fill" />
                     Decline Recommended
@@ -125,67 +125,67 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
                 {result.recommendation === 'negotiate' && (
                   <span
                     data-testid="recommendation-badge"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-brand-yellow)]/40 bg-[var(--color-yellow-light)] px-3 py-1 text-xs font-semibold text-[var(--color-yellow-dark)]"
                   >
                     <WarningCircle size={15} weight="fill" />
                     Negotiation Required
                   </span>
                 )}
               </div>
-              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                Confidence: <strong className="text-neutral-900 dark:text-neutral-100">{result.confidence_score}%</strong>
+              <span className="text-xs font-medium text-[var(--color-slate-text)]">
+                Confidence: <strong className="text-[var(--color-ink-deep)] font-bold">{result.confidence_score}%</strong>
               </span>
             </div>
 
             {/* Impact Metric Cards */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-xl border border-neutral-200/80 bg-white p-3.5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                  <Clock size={14} className="text-blue-500" />
+              <div className="rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-white p-3.5 shadow-xs">
+                <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-slate-text)]">
+                  <Clock size={14} className="text-[var(--color-brand-blue)]" />
                   Timeline Delta
                 </div>
-                <div className="mt-1.5 text-lg font-bold text-neutral-900 dark:text-neutral-100">
+                <div className="mt-1.5 text-lg font-bold text-[var(--color-ink-deep)]">
                   +{result.timeline_delta_days} days
                 </div>
               </div>
 
-              <div className="rounded-xl border border-neutral-200/80 bg-white p-3.5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                  <CurrencyDollar size={14} className="text-emerald-500" />
+              <div className="rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-white p-3.5 shadow-xs">
+                <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-slate-text)]">
+                  <CurrencyDollar size={14} className="text-[var(--color-moss-dark)]" />
                   Budget Delta
                 </div>
-                <div className="mt-1.5 text-lg font-bold text-neutral-900 dark:text-neutral-100">
+                <div className="mt-1.5 text-lg font-bold text-[var(--color-ink-deep)]">
                   +{result.budget_delta_percentage}%
                 </div>
               </div>
 
-              <div className="rounded-xl border border-neutral-200/80 bg-white p-3.5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                  <Sparkle size={14} className="text-purple-500" />
+              <div className="rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-white p-3.5 shadow-xs">
+                <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-slate-text)]">
+                  <Sparkle size={14} className="text-[var(--color-brand-yellow-deep)]" weight="fill" />
                   Affected Items
                 </div>
-                <div className="mt-1.5 text-lg font-bold text-neutral-900 dark:text-neutral-100">
+                <div className="mt-1.5 text-lg font-bold text-[var(--color-ink-deep)]">
                   {result.affected_deliverables.length}
                 </div>
               </div>
             </div>
 
             {/* Summary & Rationale */}
-            <div className="space-y-3 rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+            <div className="space-y-3 rounded-[var(--radius-xl)] border border-[var(--color-hairline-soft)] bg-white p-4 shadow-xs">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-slate-text)]">
                   Executive Assessment
                 </h4>
-                <p className="mt-1 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300">
+                <p className="mt-1 text-xs leading-relaxed text-[var(--color-charcoal)]">
                   {result.summary}
                 </p>
               </div>
 
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-slate-text)]">
                   Recommendation Rationale
                 </h4>
-                <p className="mt-1 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300">
+                <p className="mt-1 text-xs leading-relaxed text-[var(--color-charcoal)]">
                   {result.recommendation_rationale}
                 </p>
               </div>
@@ -194,24 +194,24 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
             {/* Affected Deliverables Breakdown */}
             {result.affected_deliverables.length > 0 && (
               <div className="space-y-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-slate-text)]">
                   Affected Deliverables
                 </h4>
                 <div className="space-y-2">
                   {result.affected_deliverables.map((item, idx) => (
                     <div
                       key={idx}
-                      className="flex items-start justify-between gap-3 rounded-lg border border-neutral-200/60 bg-neutral-50/50 p-3 dark:border-neutral-800 dark:bg-neutral-900/50"
+                      className="flex items-start justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--color-hairline-soft)] bg-[var(--color-surface-soft)] p-3"
                     >
                       <div className="space-y-0.5">
-                        <span className="text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+                        <span className="text-xs font-bold text-[var(--color-ink-deep)]">
                           {item.title}
                         </span>
-                        <p className="text-[11px] text-neutral-600 dark:text-neutral-400">
+                        <p className="text-[11px] text-[var(--color-slate-text)]">
                           {item.impact_description}
                         </p>
                       </div>
-                      <span className="shrink-0 rounded-md bg-neutral-200/60 px-2 py-0.5 text-[11px] font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                      <span className="shrink-0 rounded-full bg-[var(--color-surface)] border border-[var(--color-hairline)] px-2.5 py-0.5 text-[11px] font-bold text-[var(--color-ink-deep)]">
                         +{item.additional_hours}h
                       </span>
                     </div>
@@ -223,10 +223,10 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
             {/* New Deliverables Required */}
             {result.new_deliverables_required.length > 0 && (
               <div className="space-y-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-slate-text)]">
                   New Scope Items Required
                 </h4>
-                <ul className="list-inside list-disc space-y-1 text-xs text-neutral-700 dark:text-neutral-300">
+                <ul className="list-inside list-disc space-y-1 text-xs text-[var(--color-charcoal)]">
                   {result.new_deliverables_required.map((item, idx) => (
                     <li key={idx}>{item}</li>
                   ))}
@@ -235,17 +235,17 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
             )}
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-end gap-2.5 pt-2">
+            <div className="flex items-center justify-end gap-2.5 border-t border-[var(--color-hairline-soft)] pt-4 mt-2">
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={handleReset}
-                className="flex items-center gap-1.5"
+                className="rounded-full shadow-xs flex items-center gap-1.5"
               >
                 <ArrowsClockwise size={14} />
                 Analyze Another Request
               </Button>
-              <Button variant="primary" size="sm" onClick={handleClose}>
+              <Button variant="primary" size="sm" onClick={handleClose} className="rounded-full shadow-xs">
                 Done
               </Button>
             </div>
@@ -255,11 +255,11 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
             <div>
               <label
                 htmlFor="change-request-input"
-                className="block text-xs font-semibold text-neutral-800 dark:text-neutral-200"
+                className="block text-xs font-bold text-[var(--color-ink-deep)]"
               >
                 Client Change Request / Message
               </label>
-              <p className="mt-0.5 text-[11px] text-neutral-500 dark:text-neutral-400">
+              <p className="mt-0.5 text-[11px] text-[var(--color-slate-text)]">
                 Paste the client’s Slack message, email, or brief requesting new features or changes.
               </p>
               <textarea
@@ -268,20 +268,21 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
                 value={changeRequestText}
                 onChange={(e) => setChangeRequestText(e.target.value)}
                 placeholder="e.g. Can we also add automated recurring invoices and an export-to-PDF button before launch next Friday?"
-                className="mt-2 w-full rounded-xl border border-neutral-200 bg-white p-3 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100"
+                className="mt-2 w-full rounded-[var(--radius-xl)] border border-[var(--color-hairline-strong)] bg-white p-3 text-xs text-[var(--color-ink-deep)] placeholder:text-[var(--color-steel)] focus:border-[var(--color-brand-blue)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-blue)]/20 transition-all leading-relaxed"
               />
-              <div className="mt-1 flex items-center justify-between text-[11px] text-neutral-400">
+              <div className="mt-1 flex items-center justify-between text-[11px] text-[var(--color-slate-text)]">
                 <span>Minimum 10 characters</span>
-                <span>{changeRequestText.length} characters</span>
+                <span className="font-medium text-[var(--color-charcoal)]">{changeRequestText.length} characters</span>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2.5 pt-2">
+            <div className="flex items-center justify-end gap-2.5 border-t border-[var(--color-hairline-soft)] pt-4">
               <Button
                 type="button"
                 variant="secondary"
                 size="sm"
                 onClick={handleClose}
+                className="rounded-full shadow-xs"
               >
                 Cancel
               </Button>
@@ -290,9 +291,9 @@ export const DriftAnalysisModal: React.FC<DriftAnalysisModalProps> = ({
                 variant="primary"
                 size="sm"
                 disabled={!isTextValid || analyzeMutation.isPending}
-                className="flex items-center gap-1.5 shadow-sm shadow-blue-500/20"
+                className="rounded-full shadow-xs flex items-center gap-1.5"
               >
-                <Sparkle size={14} weight="fill" />
+                <Sparkle size={14} weight="fill" className="text-[var(--color-brand-yellow)]" />
                 Analyze Scope Drift
               </Button>
             </div>

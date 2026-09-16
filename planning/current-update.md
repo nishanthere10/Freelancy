@@ -1,8 +1,7 @@
 # Freelance OS — Current System Update & Reasoning Agent Context
 
-**Date:** September 7, 2026  
-**Status:** Sprints 1–12 COMPLETE + AI Subsystem Phases 1–11 COMPLETE (FastAPI Skeleton, Security Gateway Bridge, Scope Persistence & Schema, Core API Scope Service & Controller, Groq LLM Scope Engine, Frontend Scope Studio UI, Multi-Tenant Chroma RAG Foundation, Jina Cross-Encoder Reranker, Data Ingestion Pipeline & Historical RAG Memory, Deep RAG Memory Pipeline & Event-Driven Vector Sync, Production Observability & Render CI/CD Deployment, Scope Drift Detection Engine) + Comprehensive Deep Security Audit & Hardening COMPLETE (SEC-01 – SEC-06 Patched). Edge Runtime Architecture Hardened with Stateless Neon HTTP Driver, SQL Aggregations, Non-Blocking Activity Bus, Cross-Platform Unified `.venv` Test Runner, and 282 API Vitest + 32 Web Vitest + 39 Pytest Unit Tests Passing (353 / 353 tests total).
-
+**Date:** September 13, 2026  
+**Status:** Sprints 1–12 COMPLETE + AI Subsystem Phases 1–11 COMPLETE + Sprint 16 ("Collaborative AI Scope Studio & Operational Bridge") COMPLETE, AUDITED, HARDENED & VERIFIED. Monorepo Quality Gate: 367 / 367 tests passing across API, Web, and AI with 0 TypeScript/linter errors (Biome & ESLint clean). Hardening defects DEF-01 to DEF-05 resolved (pre-conversion auto-confirmation, idempotency 409 guard, strict invoice error propagation, prompt length constraints, and modal state resets). `/deep` architectural analysis skill added.
 
 ---
 
@@ -22,12 +21,12 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 
 | Domain | Status | Key Features & Endpoints | UI / Code Location |
 | :--- | :--- | :--- | :--- |
-| **Auth & Security** | COMPLETE ✅ | Clerk IdP integration, RSA JWT validation, JIT user provisioning, `clerk_id` → `users.id` UUID identity mapping. Full Sprint 11 adversarial hardening (Rate limiting, CORS, Input sanitization). | `apps/api/src/middleware/`, `apps/web/middleware.ts` |
-| **Workspace** | COMPLETE ✅ | Multi-tenant isolation, RBAC (`owner`, `editor`, `viewer`), membership management, `max-w-[1400px]` fluid widescreen layout. | `apps/web/src/features/workspace` |
+| **Auth & Security** | COMPLETE ✅ | Clerk IdP integration, RSA JWT validation, JIT user provisioning, `clerk_id` → `users.id` UUID identity mapping. Full Sprint 11 adversarial hardening (Rate limiting, CORS, Input sanitization). Clerk v6 handshake pass-through in `middleware.ts`. | `apps/api/src/middleware/`, `apps/web/middleware.ts` |
+| **Workspace** | COMPLETE ✅ | Multi-tenant isolation, RBAC (`owner`, `editor`, `viewer`), membership management, `max-w-[1400px]` fluid widescreen layout. Automatic index redirect route. | `apps/web/src/features/workspace`, `apps/web/app/workspaces/` |
 | **Client** | COMPLETE ✅ | Client CRM, unique email constraint per workspace, contact details, linked client projects fetching (`useProjects`), Teal domain top-accent cards. | `apps/web/src/features/client` |
 | **Project** | COMPLETE ✅ | Project lifecycle (`planning`, `in_progress`, `on_hold`, `completed`), budget & timeline stat cards, pricing tags, Yellow domain top-accent cards, direct AI Scope Studio launcher. | `apps/web/src/features/project` |
 | **Invoice** | COMPLETE ✅ | Invoice draft creation, serial generator (`INV-2026-XXXX`), payment recording, PDF view with GST tax breakdown, Rose domain top-accent cards. Atomic batch multi-row item inserts. | `apps/web/src/features/invoice` |
-| **Dashboard** | COMPLETE ✅ | Financial metrics overview (`Total Invoiced`, `Total Collected`, `Outstanding`, `Overdue Alerts`), revenue analytics, project summary, gradient metric cards. Fully optimized with single-query PostgreSQL SQL aggregation (`SUM`/`COUNT` with `FILTER`), $O(1)$ memory usage. | `apps/web/src/features/dashboard`, `apps/api/src/domains/dashboard/` |
+| **Dashboard** | COMPLETE ✅ | Financial metrics overview (`Total Invoiced`, `Total Collected`, `Outstanding`, `Overdue Alerts`), revenue analytics, project summary, gradient metric cards. Fully optimized with single-query PostgreSQL SQL aggregation (`SUM`/`COUNT` with `FILTER`), $O(1)$ memory usage. Resilient route params resolution. | `apps/web/src/features/dashboard`, `apps/api/src/domains/dashboard/` |
 | **Activity & Audit Trail** | COMPLETE ✅ | Automated domain event tracking (`workspace.*`, `client.*`, `project.*`, `invoice.*`), deterministic server-side message formatting, cursor pagination, feed UI with date grouping and Phosphor icons. Non-blocking asynchronous event emission bus. | `apps/api/src/domains/activity/`, `apps/web/src/features/activity/` |
 | **Observability & SRE** | COMPLETE ✅ | Structured JSON logger with credential sanitization, `x-request-id` correlation tracing, request latency logging, rate limiters, health/readiness/version probes, frontend error boundaries. | `apps/api/src/utils/logger.ts`, `apps/api/src/middleware/`, `apps/web/app/error.tsx` |
 | **Cloudflare Workers API** | COMPLETE ✅ | Decoupled Express app (`src/app.ts`), Node `http` stream bridge (`src/worker.ts`), stateless `@neondatabase/serverless` HTTP transport, Wrangler config (`wrangler.jsonc`). | `apps/api/src/worker.ts`, `apps/api/src/db/client.ts`, `apps/api/wrangler.jsonc` |
@@ -42,6 +41,7 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 | **Deep RAG Memory Pipeline & Event-Driven Vector Sync (Phase 9 cont.)** | COMPLETE ✅ | `RagMemoryPipeline` module (`rag_memory.py`) consolidating vector retrieval, reranking, and token-budgeted prompt formatting. `LlmScopeEngine` decoupled to consume `RagContext` dataclasses. `triggerWorkspaceIngest` integrated into non-blocking Activity Bus — auto-reindexes ChromaDB on project/invoice mutations. | `apps/ai/app/services/rag_memory.py`, `apps/ai/app/services/llm_service.py`, `apps/api/src/ai/client.ts`, `apps/api/src/domains/activity/activity.consumer.ts` |
 | **Production Observability & Render CI/CD Deployment (Phase 10)** | COMPLETE ✅ | LangSmith tracing (`LANGCHAIN_TRACING_V2`, `LANGCHAIN_API_KEY`, `LANGCHAIN_PROJECT`) wired into `config.py`. Production multi-stage Dockerfile on `python:3.13-slim` with non-root user, native `HEALTHCHECK`, graceful shutdown. `render.yaml` Infrastructure-as-Code blueprint. GitHub Actions CI/CD extended with Python 3.13 + `uv` Pytest gate and Render deploy webhook on `main` merge. | `apps/ai/Dockerfile`, `apps/ai/.dockerignore`, `render.yaml`, `.github/workflows/ci-cd.yml`, `apps/ai/app/core/config.py` |
 | **Scope Drift Detection Engine (Phase 11)** | COMPLETE ✅ | Full-stack scope drift impact assessment comparing mid-project client change requests against confirmed scopes. Drizzle `drift_analyses` table (`0007_boring_snowbird.sql`), Python FastAPI engine (`POST /api/v1/drift/analyze`), Express controller (`POST /drift`, `GET /scope/:scopeAnalysisId/drift`), `DriftAnalysisModal` UI and history integration. 19 new tests across Python, API, and Web. | `apps/ai/app/services/drift_service.py`, `apps/api/src/domains/ai/drift.repository.ts`, `apps/web/src/features/ai/components/DriftAnalysisModal.tsx` |
+| **Scope-to-Project & Invoicing Bridge (Sprint 16)** | COMPLETE ✅ | 1-Click conversion of confirmed AI scope into active Project and draft initial deposit invoice. Line items auto-generated from deliverables, bidirectional project linking, `ConvertScopeModal` UI, inline deliverable editor, conversational "Refine with AI", and complete RBAC hardening. | `apps/api/src/domains/ai/`, `apps/web/src/features/ai/components/ConvertScopeModal.tsx`, `apps/web/src/features/ai/components/ScopeReviewDraft.tsx`, `planning/sprint-16.md` |
 | **Deep Security Hardening & Edge Protection** | COMPLETE ✅ | Full-spectrum audit across 7 dimensions (SEC-01 to SEC-06 resolved): project-scoped Vercel CORS regex, Cloudflare Workers dynamic AI secrets & URL injection, LLM prompt injection defenses with XML boundary markers, FastAPI CORS restriction, connection pool leak elimination in historical ingestion, and pnpm supply chain overrides (qs, postcss). | `apps/api/src/app.ts`, `apps/ai/app/services/`, `apps/ai/scripts/`, `package.json`, `.github/workflows/ci-cd.yml` |
 | **Database Migrations & Seed** | COMPLETE ✅ | Automated Node/ESM migration runner applying pending Drizzle SQL migrations safely against Neon PostgreSQL over stateless HTTP transport; Comprehensive demo data seeding script (`db:seed`). | `packages/database/src/migrate.ts`, `packages/database/src/seed.ts` |
 | **CI/CD Automation** | COMPLETE ✅ | Multi-stage GitHub Actions workflow enforcing quality gates (`lint`, `typecheck`, `test`, `build`), automated release, post-deployment live API health check, concurrency handling, timeouts, Python 3.13 + `uv` pytest gate, dynamic Cloudflare secrets injection, Render deploy webhook. | `.github/workflows/ci-cd.yml` |
@@ -181,19 +181,48 @@ Freelance OS is a production-grade monorepo application for managing freelance o
   - Solution: Built a Node.js runner script in `apps/ai/run_tests.js` that checks for `.venv/Scripts/pytest.exe` (Windows) or `.venv/bin/pytest` (POSIX) and falls back to system `pytest`.
   - Result: Developers and CI run `pnpm test` once from the root directory to execute all 353 tests across TypeScript and Python seamlessly in < 10 seconds.
 
+### T. End-to-End Environment Stability & Runtime Hardening (September 9, 2026)
+- **Zero-Config Local AI Dev Runner (`apps/ai/run_dev.js`)**: Added Node.js wrapper that detects `.venv/Scripts/uvicorn.exe` (Windows) or `.venv/bin/uvicorn` (Linux/macOS), allowing `pnpm dev` from monorepo root to launch the AI service seamlessly alongside Web and API.
+- **Groq Model Sync (`apps/ai/.env`)**: Synchronized active Groq inference key with `GROQ_MODEL=openai/gpt-oss-120b`, ensuring guaranteed access to fast structured outputs on live API tiers.
+- **Clerk v6 Handshake Pass-Through (`apps/web/middleware.ts`)**: Bypassed non-`GET` requests and Clerk handshake query parameters (`__clerk_handshake`) in Next.js middleware, eliminating the `POST ... 404` authentication loop and ensuring persistent session cookie issuance.
+- **Next.js 16 Route Params Normalization (`apps/web/app/workspaces/`)**: Made route parameter resolution in `dashboard/page.tsx` resilient against synchronous client objects via `useParams()` fallback, and created index redirect route in `[workspaceId]/page.tsx`.
+
+### U. Sprint 16: Collaborative AI Scope Studio & Operational Bridge (Completed & Audited)
+- **Manual Inline Deliverable Editing**: Direct client-side editing of deliverable title, description, estimated hours, and complexity rating. Dynamic recalculation of total hours and project duration as changes occur. Add custom milestones or remove unwanted items with live updates.
+- **Conversational "Refine with AI" Prompt Bar**: High-level conversational steering (powered by Groq LLaMA 3.3 70B) via `POST /api/v1/scope/refine`. Freelancers type natural instructions (*"Shift stack to React Native, remove backend scope, and cap timeline at 3 weeks"*), preserving unaffected deliverables while recalculating duration and stack.
+- **1-Click Operational Conversion Bridge**: Convert confirmed scope drafts into a live **Project** (`POST /api/v1/workspaces/:workspaceId/ai/scope/:scopeId/convert`) and an optional **Upfront Deposit Invoice** (0%, 25%, 50% default, or 100%) with itemized deliverables. Links `scope_analyses.project_id` for bidirectional navigation.
+- **Comprehensive Code Review & Hardening Audit (September 13, 2026)**:
+  - **RBAC Policy Hardening (`ai.controller.ts`)**: Enforced `owner` or `editor` role checks across `confirm`, `refine`, `update`, and `convert` routes, preventing unauthorized modifications from `viewer` members.
+  - **LLM Variation Resilience (`scope.py` & `ai.schema.ts`)**: Added case-insensitive pre-validation for `complexity` (`"Medium"`, `"HIGH"`, `"low"`), clamped confidence scores (1–100), and rounded numeric hours/timeline to prevent 422/400 validation traps from model outputs.
+  - **Frontend State Isolation & Data Loss Prevention (`ScopeReviewDraft.tsx`)**: Decoupled `scopeRecord` synchronization using `currentScopeId` tracking, guaranteeing background cache refetches never wipe out in-progress edits.
+  - **Input Ergonomics & Skill Tags (`ScopeReviewDraft.tsx`)**: Enabled smooth backspacing on hours input with `onBlur` fallback, added interactive `×` tag deletion, and inline `+ Skill` tag adder.
+  - **Exact Penny Itemization (`ai.service.ts`)**: Implemented rounding cents absorption on deposit deliverable lines, ensuring line items match total project budget to the exact penny.
+  - **Type Safety & Result<T> Harmonization (`ai.service.ts`)**: Unified response handlers for `ProjectService` and `InvoiceService` to consume `{ success: true, data }` and supplied required `discountRate` / `taxRate` fields, ensuring clean 0-error `pnpm typecheck` execution across all 7 packages.
+- **Specification Document**: Fully defined in `planning/sprint-16.md`.
+
+### V. Sprint 16 Post-Audit Production Hardening & Bug Fixes (September 13, 2026)
+- **DEF-01: Biome Linter & TypeScript Hardening**: Resolved 15 Biome errors in `apps/api` (`ai.schema.ts`, `ai.service.ts`, `ai.controller.ts`, `repository.ts`, `client.ts`), eliminating unsafe `any` typings and unused imports. Fixed React 19 / Compiler state-in-effect warnings in `apps/web`.
+- **DEF-02: Idempotency Guard (409 ALREADY_CONVERTED)**: In `apps/api/src/domains/ai/ai.service.ts`, added explicit check `if (existing.projectId) throw 409 ALREADY_CONVERTED` to prevent duplicate project creation from the same scope.
+- **DEF-03: Financial Error Propagation**: In `ai.service.ts`, if upfront deposit invoice creation fails when `depositPercentage > 0`, an explicit HTTP 400 `INVOICE_CREATION_FAILED` error is raised instead of silently ignoring the failure.
+- **DEF-04: Scope Confirmation Precondition & Auto-Bridge**: Backend strictly validates `existing.confirmedAt` with HTTP 422 `UNCONFIRMED_SCOPE`. In `ConvertScopeModal.tsx`, if a scope is unconfirmed when the user initiates conversion, `confirmScopeAnalysis()` is automatically called before `convertScopeToProject()`. In `ScopeReviewDraft.tsx`, clicking "Convert to Live Project" automatically flushes dirty milestone edits to the database first.
+- **DEF-05: AI Prompt Length Bounds**: Constrained conversational refinement input to `min(5).max(1000)` in both Zod (`apps/api/src/domains/ai/ai.schema.ts`) and Pydantic (`apps/ai/app/schemas/scope.py`), preventing token exhaustion and prompt-injection flood vectors.
+- **Integration Test Expansion**: Added 4 Vitest integration tests in `apps/api/src/domains/ai/__tests__/scope-refine.test.ts` validating 409 conflict, 422 precondition, and 1000-char boundary behavior.
+- **`/deep` Architectural Analysis Skill**: Created `.agents/skills/deep/SKILL.md` to provide structured, plain-language architectural breakdowns covering root cause, fixes, advantages, tradeoffs, and alternative approaches.
+
 ---
 
 ## 4. Monorepo Quality & Verification Summary
 
 | Package | Test Suite | Tests Passing | Linter / Typecheck | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **`apps/ai`** | Pytest | **39 / 39 passed** | 0 errors | VERIFIED ✅ |
-| **`apps/api`** | Vitest | **282 / 282 passed** | Biome: 0 errors | VERIFIED ✅ |
-| **`apps/web`** | Vitest | **32 / 32 passed** | ESLint + TSC: 0 errors | VERIFIED ✅ |
+| **`apps/ai`** | Pytest | **42 / 42 passed** | 0 errors | VERIFIED ✅ |
+| **`apps/api`** | Vitest | **291 / 291 passed** (32 test files) | Biome + TSC: 0 errors | VERIFIED ✅ |
+| **`apps/web`** | Vitest | **34 / 34 passed** (8 test files) | ESLint + TSC: 0 errors | VERIFIED ✅ |
 | **`packages/database`** | Drizzle Migrations | 10 tables applied | TSC: 0 errors | VERIFIED ✅ |
-| **TOTAL** | **All Suites** | **353 / 353 passed** | **0 errors across monorepo** | **ALL GREEN ✅** |
+| **TOTAL** | **All Suites** | **367 / 367 passed** | **0 errors across monorepo** | **ALL GREEN ✅** |
 
-> **Last verified:** September 7, 2026 · Full Monorepo Quality Gate Passing (Sprint 12 + AI Phases 1–11 + Deep Security Hardening)
+> **Last verified:** September 13, 2026 · Post-Sprint-16 Production Hardening & Bug Fixes Verified (367 / 367 tests passing)
+
 
 ---
 

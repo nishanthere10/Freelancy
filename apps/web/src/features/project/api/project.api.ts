@@ -19,7 +19,7 @@ export async function getProjects(
   if (filters?.search) params.append('search', filters.search);
 
   const queryString = params.toString();
-  const url = `/workspaces/${workspaceId}/projects${queryString ? `?${queryString}` : ''}`;
+  const url = `workspaces/${workspaceId}/projects${queryString ? `?${queryString}` : ''}`;
   return apiGet<ProjectResponse[]>(url);
 }
 
@@ -27,14 +27,14 @@ export async function getProject(
   workspaceId: string,
   projectId: string
 ): Promise<ProjectResponse> {
-  return apiGet<ProjectResponse>(`/workspaces/${workspaceId}/projects/${projectId}`);
+  return apiGet<ProjectResponse>(`workspaces/${workspaceId}/projects/${projectId}`);
 }
 
 export async function createProject(
   workspaceId: string,
   data: CreateProjectInput
 ): Promise<ProjectResponse> {
-  return apiPost<ProjectResponse>(`/workspaces/${workspaceId}/projects`, data);
+  return apiPost<ProjectResponse>(`workspaces/${workspaceId}/projects`, data);
 }
 
 export async function updateProject(
@@ -42,7 +42,7 @@ export async function updateProject(
   projectId: string,
   data: UpdateProjectInput
 ): Promise<ProjectResponse> {
-  return apiPatch<ProjectResponse>(`/workspaces/${workspaceId}/projects/${projectId}`, data);
+  return apiPatch<ProjectResponse>(`workspaces/${workspaceId}/projects/${projectId}`, data);
 }
 
 export async function updateProjectStatus(
@@ -50,19 +50,19 @@ export async function updateProjectStatus(
   projectId: string,
   status: ProjectStatus
 ): Promise<ProjectResponse> {
-  return apiPatch<ProjectResponse>(`/workspaces/${workspaceId}/projects/${projectId}/status`, { status });
+  return apiPatch<ProjectResponse>(`workspaces/${workspaceId}/projects/${projectId}/status`, { status });
 }
 
 export async function deleteProject(
   workspaceId: string,
   projectId: string
 ): Promise<ProjectResponse> {
-  return apiDelete<ProjectResponse>(`/workspaces/${workspaceId}/projects/${projectId}`);
+  return apiDelete<ProjectResponse>(`workspaces/${workspaceId}/projects/${projectId}`);
 }
 
 export async function restoreProject(
   workspaceId: string,
   projectId: string
 ): Promise<ProjectResponse> {
-  return apiPost<ProjectResponse>(`/workspaces/${workspaceId}/projects/${projectId}/restore`, {});
+  return apiPost<ProjectResponse>(`workspaces/${workspaceId}/projects/${projectId}/restore`, {});
 }

@@ -21,6 +21,10 @@ export type ActivityEventType =
   | "project.status_changed"
   | "project.deleted"
   | "project.restored"
+  | "project.deliverable.created"
+  | "project.deliverable.updated"
+  | "project.deliverable.completed"
+  | "project.deliverable.deleted"
   // Invoice events
   | "invoice.created"
   | "invoice.updated"
@@ -33,6 +37,7 @@ export type ActivityEntityType =
   | "workspace"
   | "client"
   | "project"
+  | "deliverable"
   | "invoice"
   | "member";
 

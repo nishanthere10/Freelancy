@@ -5,3 +5,4 @@ export * from './useUpdateProject';
 export * from './useUpdateProjectStatus';
 export * from './useDeleteProject';
 export * from './useRestoreProject';
+export * from './useProjectDeliverables';

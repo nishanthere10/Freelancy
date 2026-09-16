@@ -66,6 +66,14 @@ export function formatActivityMessage(
       return `Deleted project "${name || projectName || ""}"`;
     case "project.restored":
       return `Restored project "${name || projectName || ""}"`;
+    case "project.deliverable.created":
+      return `Added deliverable "${name || "New Deliverable"}"`;
+    case "project.deliverable.updated":
+      return `Updated deliverable "${name || ""}"`;
+    case "project.deliverable.completed":
+      return `Completed deliverable "${name || ""}"`;
+    case "project.deliverable.deleted":
+      return `Deleted deliverable "${name || ""}"`;
 
     // Invoice events
     case "invoice.created":

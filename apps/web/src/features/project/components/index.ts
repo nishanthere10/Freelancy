@@ -7,3 +7,7 @@ export * from './ProjectStatusControl';
 export * from './CreateProjectForm';
 export * from './CreateProjectDialog';
 export * from './EditProjectDialog';
+export * from './ProjectProgressBar';
+export * from './ProjectDeliverablesCard';
+export * from './ProjectFinancialsCard';
+export * from './CreateProgressInvoiceModal';

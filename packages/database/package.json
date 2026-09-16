@@ -10,6 +10,7 @@
     "db:studio": "drizzle-kit studio",
     "db:migrate": "tsx src/migrate.ts",
     "db:seed": "tsx src/seed.ts",
+    "backfill:deliverables": "tsx src/scripts/backfill-deliverables.ts",
     "typecheck": "tsc --noEmit"
   },
   "exports": {

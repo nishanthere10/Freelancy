@@ -10,6 +10,7 @@ const isPublicRoute = createRouteMatcher([
   '/login(.*)',
   '/register(.*)',
   '/api/(.*)',
+  '/__clerk(.*)',
 ]);
 
 const isAuthRoute = createRouteMatcher([
@@ -22,25 +23,37 @@ const isAuthRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
-  const { userId } = await auth();
+  // Let Clerk dev-browser handshakes and non-GET pass through untouched
+  if (request.method !== 'GET') {
+    return NextResponse.next();
+  }
 
+  if (
+    request.nextUrl.searchParams.has('__clerk_handshake') ||
+    request.nextUrl.pathname.startsWith('/__clerk')
+  ) {
+    return NextResponse.next();
+  }
+
+  const { userId, redirectToSignIn } = await auth();
+
+  // Authenticated user hitting an auth page → bounce to /workspaces
   if (userId && isAuthRoute(request)) {
     return NextResponse.redirect(new URL('/workspaces', request.url));
   }
 
+  // Unauthenticated user hitting a protected page → redirect to /sign-in
   if (!isPublicRoute(request) && !userId) {
-    const signInUrl = new URL('/sign-in', request.url);
-    signInUrl.searchParams.set('redirect_url', request.url);
-    return NextResponse.redirect(signInUrl);
+    return redirectToSignIn({ returnBackUrl: request.url });
   }
-});
 
+  return NextResponse.next();
+});
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|json|png|jpg|jpeg|webp|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
     '/(api|trpc)(.*)',
   ],
 };
+

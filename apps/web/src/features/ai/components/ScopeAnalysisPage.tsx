@@ -72,164 +72,181 @@ export const ScopeAnalysisPage: React.FC<ScopeAnalysisPageProps> = ({ workspaceI
   };
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-      {/* Top Header & Breadcrumbs */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
-            <Link
-              href={`/workspaces/${workspaceId}/dashboard`}
-              className="hover:text-neutral-900 dark:hover:text-neutral-200"
-            >
-              Workspace
-            </Link>
-            <CaretRight size={12} />
-            <span className="font-medium text-neutral-900 dark:text-neutral-100">
-              AI Scope Studio
-            </span>
-          </div>
-          <h1 className="mt-1 flex items-center gap-2.5 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-            <Sparkle size={26} className="text-blue-600 dark:text-blue-400" weight="fill" />
-            AI Project Scope Studio
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Link href={`/workspaces/${workspaceId}/projects`}>
-            <Button variant="secondary" size="md" className="flex items-center gap-2">
-              <ArrowLeft size={16} />
-              Back to Projects
-            </Button>
-          </Link>
-          <Button
-            variant="primary"
-            size="md"
-            onClick={handleStartNew}
-            className="flex items-center gap-2 shadow-md shadow-blue-500/20"
-          >
-            <Plus size={16} weight="bold" />
-            New Analysis
-          </Button>
-        </div>
-      </div>
-
-      {/* Main Grid: Sidebar History + Content Panel */}
-      <div className="grid gap-6 lg:grid-cols-12">
-        {/* Left History Sidebar */}
-        <div className="space-y-4 lg:col-span-4">
-          <div className="rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-            <div className="mb-3 flex items-center justify-between border-b border-neutral-100 pb-3 dark:border-neutral-800">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-                Analysis History
-              </h3>
-              <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
-                {scopes?.length || 0}
-              </span>
+    <div className="w-full min-h-screen bg-[var(--color-surface-soft)]">
+      <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-10 sm:py-14 lg:py-16 pb-24 space-y-8">
+        {/* Top Header & Breadcrumbs */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="h-11 w-11 rounded-[var(--radius-xl)] bg-[var(--color-yellow-light)] text-[var(--color-yellow-dark)] border border-[var(--color-brand-yellow)]/30 flex items-center justify-center font-semibold shadow-xs">
+              <Sparkle size={24} weight="fill" />
             </div>
-
-            {isHistoryLoading ? (
-              <div className="space-y-2.5 py-4">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="h-16 animate-pulse rounded-xl bg-neutral-100 dark:bg-neutral-800"
-                  />
-                ))}
+            <div>
+              <div className="flex items-center gap-2 text-xs text-[var(--color-slate-text)] mb-0.5">
+                <Link
+                  href={`/workspaces/${workspaceId}/dashboard`}
+                  className="hover:text-[var(--color-ink)] transition-colors"
+                >
+                  Workspace
+                </Link>
+                <CaretRight size={11} className="text-[var(--color-steel)]" />
+                <span className="font-medium text-[var(--color-ink-deep)]">
+                  AI Scope Studio
+                </span>
               </div>
-            ) : scopes && scopes.length > 0 ? (
-              <div className="max-h-[600px] space-y-2 overflow-y-auto pr-1">
-                {scopes.map((scope) => {
-                  const isSelected = activeScope?.id === scope.id && !isCreatingNew;
-                  const isConfirmed = Boolean(scope.confirmedAt);
-                  return (
+              <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink-deep)] tracking-tight">
+                AI Project Scope Studio
+              </h1>
+              <p className="text-xs sm:text-sm text-[var(--color-slate-text)] mt-0.5">
+                Deconstruct raw briefs into deliverables, milestones, tech stacks, and timeline models.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 self-stretch sm:self-auto justify-end">
+            <Link href={`/workspaces/${workspaceId}/projects`}>
+              <Button variant="secondary" size="md" className="rounded-full shadow-xs flex items-center gap-2">
+                <ArrowLeft size={16} />
+                Back to Projects
+              </Button>
+            </Link>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={handleStartNew}
+              className="rounded-full shadow-xs flex items-center gap-2"
+            >
+              <Plus size={16} weight="bold" className="text-[var(--color-brand-yellow)]" />
+              New Analysis
+            </Button>
+          </div>
+        </div>
+
+        {/* Main Grid: Sidebar History + Content Panel */}
+        <div className="grid gap-6 lg:grid-cols-12">
+          {/* Left History Sidebar */}
+          <div className="space-y-4 lg:col-span-4">
+            <div className="rounded-[var(--radius-xxl)] border border-[var(--color-hairline-soft)] bg-white p-5 shadow-[var(--shadow-card)] space-y-4">
+              <div className="flex items-center justify-between border-b border-[var(--color-hairline-soft)] pb-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-slate-text)]">
+                  Analysis History
+                </h3>
+                <span className="rounded-full bg-[var(--color-surface)] border border-[var(--color-hairline)] px-2.5 py-0.5 text-xs font-bold text-[var(--color-ink-deep)]">
+                  {scopes?.length || 0}
+                </span>
+              </div>
+
+              {isHistoryLoading ? (
+                <div className="space-y-2.5 py-2">
+                  {[1, 2, 3].map((i) => (
                     <div
-                      key={scope.id}
-                      onClick={() => handleSelectScope(scope)}
-                      className={`w-full text-left transition rounded-xl p-3 border cursor-pointer ${
-                        isSelected
-                          ? 'border-blue-500 bg-blue-50/60 dark:border-blue-500/80 dark:bg-blue-950/40'
-                          : 'border-neutral-100 bg-neutral-50/60 hover:border-neutral-200 hover:bg-neutral-100/60 dark:border-neutral-800/80 dark:bg-neutral-950/40 dark:hover:border-neutral-700'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="line-clamp-1 text-xs font-semibold text-neutral-900 dark:text-neutral-100">
-                          {scope.result?.summary?.slice(0, 45) || 'Scope Analysis'}...
-                        </span>
-                        {isConfirmed ? (
-                          <CheckCircle size={14} className="shrink-0 text-emerald-500" weight="fill" />
-                        ) : (
-                          <Clock size={14} className="shrink-0 text-amber-500" weight="fill" />
+                      key={i}
+                      className="h-16 animate-pulse rounded-[var(--radius-xl)] bg-[var(--color-surface-soft)] border border-[var(--color-hairline-soft)]"
+                    />
+                  ))}
+                </div>
+              ) : scopes && scopes.length > 0 ? (
+                <div className="max-h-[600px] space-y-2.5 overflow-y-auto pr-1 no-scrollbar">
+                  {scopes.map((scope) => {
+                    const isSelected = activeScope?.id === scope.id && !isCreatingNew;
+                    const isConfirmed = Boolean(scope.confirmedAt);
+                    return (
+                      <div
+                        key={scope.id}
+                        onClick={() => handleSelectScope(scope)}
+                        className={`w-full text-left transition-all rounded-[var(--radius-xl)] p-3.5 border cursor-pointer ${
+                          isSelected
+                            ? 'border-2 border-[var(--color-primary)] bg-[var(--color-surface-soft)] shadow-xs'
+                            : 'border-[var(--color-hairline-soft)] bg-white hover:border-[var(--color-hairline-strong)] hover:bg-[var(--color-surface-soft)] shadow-xs'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="line-clamp-1 text-xs font-bold text-[var(--color-ink-deep)]">
+                            {scope.result?.summary?.slice(0, 45) || 'Scope Analysis'}...
+                          </span>
+                          {isConfirmed ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-teal-light)] px-2 py-0.5 text-[10px] font-semibold text-[var(--color-moss-dark)] border border-[var(--color-brand-teal)]/30 shrink-0">
+                              <CheckCircle size={12} weight="fill" />
+                              Active
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-yellow-light)] px-2 py-0.5 text-[10px] font-semibold text-[var(--color-yellow-dark)] border border-[var(--color-brand-yellow)]/40 shrink-0">
+                              <Clock size={12} weight="fill" />
+                              Draft
+                            </span>
+                          )}
+                        </div>
+                        <div className="mt-2 flex items-center justify-between text-[11px] text-[var(--color-slate-text)]">
+                          <span>{new Date(scope.createdAt).toLocaleDateString()}</span>
+                          <span className="font-medium text-[var(--color-charcoal)]">{scope.result?.timeline_weeks || 1}w duration</span>
+                        </div>
+
+                        {isConfirmed && (
+                          <div className="mt-2.5 flex items-center justify-end border-t border-[var(--color-hairline-soft)] pt-2">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDriftTargetScope(scope);
+                              }}
+                              className="inline-flex items-center gap-1 rounded-full border border-[var(--color-hairline-strong)] bg-white px-2.5 py-0.5 text-[11px] font-semibold text-[var(--color-ink)] hover:border-[var(--color-brand-yellow)] hover:bg-[var(--color-yellow-light)] transition-all shadow-xs"
+                            >
+                              <Compass size={13} weight="bold" className="text-[var(--color-brand-yellow-deep)]" />
+                              Detect Drift
+                            </button>
+                          </div>
                         )}
                       </div>
-                      <div className="mt-2 flex items-center justify-between text-[11px] text-neutral-500 dark:text-neutral-400">
-                        <span>{new Date(scope.createdAt).toLocaleDateString()}</span>
-                        <span>{scope.result?.timeline_weeks || 1}w duration</span>
-                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="py-8 text-center space-y-2">
+                  <FileText size={32} className="mx-auto text-[var(--color-steel)]" />
+                  <p className="text-xs font-semibold text-[var(--color-ink-deep)]">
+                    No previous scope analyses
+                  </p>
+                  <p className="text-[11px] text-[var(--color-slate-text)]">
+                    Generate your first scope from a client brief.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
 
-                      {isConfirmed && (
-                        <div className="mt-2.5 flex items-center justify-end border-t border-neutral-200/50 pt-2 dark:border-neutral-800/60">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDriftTargetScope(scope);
-                            }}
-                            className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950/60 dark:hover:text-blue-300"
-                          >
-                            <Compass size={13} weight="bold" />
-                            Detect Drift
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="py-8 text-center">
-                <FileText size={32} className="mx-auto text-neutral-400 dark:text-neutral-600" />
-                <p className="mt-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
-                  No previous scope analyses.
-                </p>
-                <p className="mt-0.5 text-[11px] text-neutral-400">
-                  Generate your first scope from a client brief.
-                </p>
-              </div>
-            )}
+          {/* Right Active Work Area */}
+          <div className="lg:col-span-8">
+            <div className="rounded-[var(--radius-xxl)] border border-[var(--color-hairline-soft)] bg-white p-6 sm:p-8 lg:p-10 shadow-[var(--shadow-card)]">
+              {isCreatingNew || !activeScope ? (
+                <ScopeGeneratorForm
+                  onGenerate={handleGenerate}
+                  isLoading={generateMutation.isPending}
+                  error={generateMutation.error}
+                />
+              ) : (
+                <ScopeReviewDraft
+                  scopeRecord={activeScope}
+                  workspaceId={workspaceId}
+                  onConfirm={handleConfirm}
+                  onDiscard={handleStartNew}
+                  isConfirming={confirmMutation.isPending}
+                  onScopeUpdated={(updated) => setActiveScope(updated)}
+                />
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Right Active Work Area */}
-        <div className="lg:col-span-8">
-          <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-            {isCreatingNew || !activeScope ? (
-              <ScopeGeneratorForm
-                onGenerate={handleGenerate}
-                isLoading={generateMutation.isPending}
-                error={generateMutation.error}
-              />
-            ) : (
-              <ScopeReviewDraft
-                scopeRecord={activeScope}
-                onConfirm={handleConfirm}
-                onDiscard={handleStartNew}
-                isConfirming={confirmMutation.isPending}
-              />
-            )}
-          </div>
-        </div>
+        {/* Scope Drift Detection Modal */}
+        {driftTargetScope && (
+          <DriftAnalysisModal
+            isOpen={Boolean(driftTargetScope)}
+            onClose={() => setDriftTargetScope(null)}
+            workspaceId={workspaceId}
+            scopeAnalysisId={driftTargetScope.id}
+            scopeTitle={driftTargetScope.result?.summary}
+          />
+        )}
       </div>
-
-      {/* Scope Drift Detection Modal */}
-      {driftTargetScope && (
-        <DriftAnalysisModal
-          isOpen={Boolean(driftTargetScope)}
-          onClose={() => setDriftTargetScope(null)}
-          workspaceId={workspaceId}
-          scopeAnalysisId={driftTargetScope.id}
-          scopeTitle={driftTargetScope.result?.summary}
-        />
-      )}
     </div>
   );
 };

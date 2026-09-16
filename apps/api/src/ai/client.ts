@@ -142,6 +142,38 @@ export class AiServiceClient {
   }
 
   /**
+   * Refines an existing scope analysis draft by sending current scope + revision prompt
+   */
+  async refineScope<TOutput = Record<string, unknown>>(
+    workspaceId: string,
+    actorId: string,
+    actorRole: string,
+    requestId: string,
+    currentScope: unknown,
+    revisionPrompt: string,
+    options?: { timeoutMs?: number },
+  ): Promise<TOutput> {
+    const payload: AiRequestPayload<{
+      current_scope: unknown;
+      revision_prompt: string;
+    }> = {
+      workspaceId,
+      actorId,
+      actorRole,
+      requestId,
+      input: {
+        current_scope: currentScope,
+        revision_prompt: revisionPrompt,
+      },
+    };
+
+    return this.post<
+      { current_scope: unknown; revision_prompt: string },
+      TOutput
+    >("/api/v1/scope/refine", payload, options);
+  }
+
+  /**
    * Triggers background ingestion of workspace projects into Chroma RAG store
    */
   async triggerWorkspaceIngest(

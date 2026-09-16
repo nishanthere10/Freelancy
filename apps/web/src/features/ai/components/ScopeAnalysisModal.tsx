@@ -82,9 +82,11 @@ export const ScopeAnalysisModal: React.FC<ScopeAnalysisModalProps> = ({
         {draftScope ? (
           <ScopeReviewDraft
             scopeRecord={draftScope}
+            workspaceId={workspaceId}
             onConfirm={handleConfirm}
             onDiscard={handleDiscard}
             isConfirming={confirmMutation.isPending}
+            onScopeUpdated={(updated) => setDraftScope(updated)}
           />
         ) : (
           <ScopeGeneratorForm

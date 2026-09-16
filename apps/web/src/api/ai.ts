@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from './client';
+import { apiGet, apiPatch, apiPost } from './client';
 
 export interface ScopeDeliverable {
   title: string;
@@ -29,6 +29,38 @@ export interface ScopeAnalysisRecord {
   updatedAt: string;
 }
 
+export interface ConvertScopeToProjectData {
+  name: string;
+  description?: string;
+  clientId?: string;
+  status?: 'lead' | 'proposal' | 'active' | 'completed' | 'cancelled';
+  startDate?: string;
+  targetDate?: string;
+  budget?: number;
+  currency?: string;
+  depositPercentage?: number;
+  depositDueDays?: number;
+}
+
+export interface ConvertScopeResponse {
+  project: {
+    id: string;
+    workspaceId: string;
+    name: string;
+    status: string;
+    [key: string]: unknown;
+  };
+  invoice: {
+    id: string;
+    workspaceId: string;
+    subtotal: string;
+    total: string;
+    status?: string;
+    [key: string]: unknown;
+  } | null;
+  scope: ScopeAnalysisRecord;
+}
+
 /**
  * Generate AI Scope Analysis draft from project brief
  */
@@ -44,6 +76,48 @@ export async function generateScopeAnalysis(
 }
 
 /**
+ * Refine existing scope analysis draft with conversational instructions
+ */
+export async function refineScopeAnalysis(
+  workspaceId: string,
+  scopeId: string,
+  revisionPrompt: string
+): Promise<ScopeAnalysisRecord> {
+  return apiPost<ScopeAnalysisRecord>(
+    `/workspaces/${workspaceId}/ai/scope/${scopeId}/refine`,
+    { revisionPrompt }
+  );
+}
+
+/**
+ * Manually update deliverable details of a scope analysis draft
+ */
+export async function updateScopeAnalysisResult(
+  workspaceId: string,
+  scopeId: string,
+  result: ScopeAnalysisResult
+): Promise<ScopeAnalysisRecord> {
+  return apiPatch<ScopeAnalysisRecord>(
+    `/workspaces/${workspaceId}/ai/scope/${scopeId}`,
+    result
+  );
+}
+
+/**
+ * Convert confirmed scope analysis into a live project & optional deposit invoice
+ */
+export async function convertScopeToProject(
+  workspaceId: string,
+  scopeId: string,
+  projectData: ConvertScopeToProjectData
+): Promise<ConvertScopeResponse> {
+  return apiPost<ConvertScopeResponse>(
+    `/workspaces/${workspaceId}/ai/scope/${scopeId}/convert`,
+    projectData
+  );
+}
+
+/**
  * Confirm an existing AI Scope Analysis draft
  */
 export async function confirmScopeAnalysis(
@@ -54,6 +128,7 @@ export async function confirmScopeAnalysis(
     `/workspaces/${workspaceId}/ai/scope/${scopeId}/confirm`
   );
 }
+
 
 /**
  * Get a specific scope analysis by ID

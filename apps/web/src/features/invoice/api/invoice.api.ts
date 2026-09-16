@@ -19,7 +19,7 @@ export async function getInvoices(
   if (filters?.search) params.append('search', filters.search);
 
   const queryString = params.toString();
-  const url = `/workspaces/${workspaceId}/invoices${queryString ? `?${queryString}` : ''}`;
+  const url = `workspaces/${workspaceId}/invoices${queryString ? `?${queryString}` : ''}`;
   return apiGet<InvoiceResponse[]>(url);
 }
 
@@ -27,14 +27,14 @@ export async function getInvoice(
   workspaceId: string,
   id: string,
 ): Promise<InvoiceResponse> {
-  return apiGet<InvoiceResponse>(`/workspaces/${workspaceId}/invoices/${id}`);
+  return apiGet<InvoiceResponse>(`workspaces/${workspaceId}/invoices/${id}`);
 }
 
 export async function createInvoice(
   workspaceId: string,
   data: CreateInvoiceInput,
 ): Promise<InvoiceResponse> {
-  return apiPost<InvoiceResponse>(`/workspaces/${workspaceId}/invoices`, data);
+  return apiPost<InvoiceResponse>(`workspaces/${workspaceId}/invoices`, data);
 }
 
 export async function updateInvoice(
@@ -42,7 +42,7 @@ export async function updateInvoice(
   id: string,
   data: UpdateInvoiceInput,
 ): Promise<InvoiceResponse> {
-  return apiPatch<InvoiceResponse>(`/workspaces/${workspaceId}/invoices/${id}`, data);
+  return apiPatch<InvoiceResponse>(`workspaces/${workspaceId}/invoices/${id}`, data);
 }
 
 export async function sendInvoice(
@@ -50,7 +50,7 @@ export async function sendInvoice(
   id: string,
   data: SendInvoiceInput = {},
 ): Promise<InvoiceResponse> {
-  return apiPost<InvoiceResponse>(`/workspaces/${workspaceId}/invoices/${id}/send`, data);
+  return apiPost<InvoiceResponse>(`workspaces/${workspaceId}/invoices/${id}/send`, data);
 }
 
 export async function recordPayment(
@@ -58,19 +58,19 @@ export async function recordPayment(
   id: string,
   data: RecordPaymentInput,
 ): Promise<InvoiceResponse> {
-  return apiPost<InvoiceResponse>(`/workspaces/${workspaceId}/invoices/${id}/pay`, data);
+  return apiPost<InvoiceResponse>(`workspaces/${workspaceId}/invoices/${id}/pay`, data);
 }
 
 export async function cancelInvoice(
   workspaceId: string,
   id: string,
 ): Promise<InvoiceResponse> {
-  return apiPost<InvoiceResponse>(`/workspaces/${workspaceId}/invoices/${id}/cancel`, {});
+  return apiPost<InvoiceResponse>(`workspaces/${workspaceId}/invoices/${id}/cancel`, {});
 }
 
 export async function deleteInvoice(
   workspaceId: string,
   id: string,
 ): Promise<{ id: string; deleted: boolean }> {
-  return apiDelete<{ id: string; deleted: boolean }>(`/workspaces/${workspaceId}/invoices/${id}`);
+  return apiDelete<{ id: string; deleted: boolean }>(`workspaces/${workspaceId}/invoices/${id}`);
 }

@@ -12,3 +12,4 @@ export * from './invoices';
 export * from './activity';
 export * from './scope_analyses';
 export * from './drift_analyses';
+export * from './project_deliverables';

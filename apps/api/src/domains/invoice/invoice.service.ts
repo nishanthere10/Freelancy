@@ -45,7 +45,7 @@ function err<T>(error: InvoiceDomainError): Result<T> {
   return { success: false, error };
 }
 
-function formatMoney(num: number): string {
+export function formatMoney(num: number): string {
   return (Math.round(num * 100) / 100).toFixed(2);
 }
 
