@@ -1,7 +1,7 @@
 # Freelance OS — Current System Update & Reasoning Agent Context
 
-**Date:** September 13, 2026  
-**Status:** Sprints 1–12 COMPLETE + AI Subsystem Phases 1–11 COMPLETE + Sprint 16 COMPLETE + Sprint 17 ("Project Hub & Deliverables Execution Engine") COMPLETE, AUDITED, HARDENED & VERIFIED. Monorepo Quality Gate: 386 / 386 tests passing across API, Web, and AI with 0 TypeScript/linter errors (Biome & ESLint clean). Hardening defects DEF-01 to DEF-06 resolved (including Axios leading slash routing fixes). `/deep` architectural analysis skill added.
+**Date:** September 18, 2026  
+**Status:** Sprints 1–12 COMPLETE + AI Subsystem Phases 1–11 COMPLETE + Sprint 16 COMPLETE + Sprint 17 COMPLETE + Sprint 18 ("Scope Drift → Change Order Bridge") COMPLETE, AUDITED, HARDENED & VERIFIED. Monorepo Quality Gate: All suites passing across API, Web, and AI with 0 TypeScript/linter errors (Biome & ESLint clean). Hardening defects DEF-01 to DEF-06 resolved (including Axios leading slash routing fixes). Change order lifecycle fully operational.
 
 ---
 
@@ -42,6 +42,8 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 | **Production Observability & Render CI/CD Deployment (Phase 10)** | COMPLETE ✅ | LangSmith tracing (`LANGCHAIN_TRACING_V2`, `LANGCHAIN_API_KEY`, `LANGCHAIN_PROJECT`) wired into `config.py`. Production multi-stage Dockerfile on `python:3.13-slim` with non-root user, native `HEALTHCHECK`, graceful shutdown. `render.yaml` Infrastructure-as-Code blueprint. GitHub Actions CI/CD extended with Python 3.13 + `uv` Pytest gate and Render deploy webhook on `main` merge. | `apps/ai/Dockerfile`, `apps/ai/.dockerignore`, `render.yaml`, `.github/workflows/ci-cd.yml`, `apps/ai/app/core/config.py` |
 | **Scope Drift Detection Engine (Phase 11)** | COMPLETE ✅ | Full-stack scope drift impact assessment comparing mid-project client change requests against confirmed scopes. Drizzle `drift_analyses` table (`0007_boring_snowbird.sql`), Python FastAPI engine (`POST /api/v1/drift/analyze`), Express controller (`POST /drift`, `GET /scope/:scopeAnalysisId/drift`), `DriftAnalysisModal` UI and history integration. 19 new tests across Python, API, and Web. | `apps/ai/app/services/drift_service.py`, `apps/api/src/domains/ai/drift.repository.ts`, `apps/web/src/features/ai/components/DriftAnalysisModal.tsx` |
 | **Scope-to-Project & Invoicing Bridge (Sprint 16)** | COMPLETE ✅ | 1-Click conversion of confirmed AI scope into active Project and draft initial deposit invoice. Line items auto-generated from deliverables, bidirectional project linking, `ConvertScopeModal` UI, inline deliverable editor, conversational "Refine with AI", and complete RBAC hardening. | `apps/api/src/domains/ai/`, `apps/web/src/features/ai/components/ConvertScopeModal.tsx`, `apps/web/src/features/ai/components/ScopeReviewDraft.tsx`, `planning/sprint-16.md` |
+| **Project Hub & Deliverables Engine (Sprint 17)** | COMPLETE ✅ | Relational project deliverables (`project_deliverables`), status lifecycle (`pending`, `in_progress`, `completed`), deterministic progress tracking, itemized progress billing, and in-context drift launcher. | `packages/database/src/schema/project_deliverables.ts`, `apps/api/src/domains/project/`, `apps/web/src/features/project/` |
+| **Change Orders & Scope Governance (Sprint 18)** | COMPLETE ✅ | Controlled scope drift → change order execution bridge. Audit-trail change orders table (`0009_add_change_orders.sql`), proposal lifecycle (`draft` → `proposed` → `approved` / `rejected` / `cancelled`), automated project budget/deadline mutation, deliverable materialization, dedicated change-order invoicing, and interactive Project Hub UI. | `packages/database/src/schema/change_orders.ts`, `apps/api/src/domains/project/change-order.*`, `apps/web/src/features/project/components/ChangeOrderProposalModal.tsx`, `apps/web/src/features/project/components/ProjectChangeOrdersCard.tsx` |
 | **Deep Security Hardening & Edge Protection** | COMPLETE ✅ | Full-spectrum audit across 7 dimensions (SEC-01 to SEC-06 resolved): project-scoped Vercel CORS regex, Cloudflare Workers dynamic AI secrets & URL injection, LLM prompt injection defenses with XML boundary markers, FastAPI CORS restriction, connection pool leak elimination in historical ingestion, and pnpm supply chain overrides (qs, postcss). | `apps/api/src/app.ts`, `apps/ai/app/services/`, `apps/ai/scripts/`, `package.json`, `.github/workflows/ci-cd.yml` |
 | **Database Migrations & Seed** | COMPLETE ✅ | Automated Node/ESM migration runner applying pending Drizzle SQL migrations safely against Neon PostgreSQL over stateless HTTP transport; Comprehensive demo data seeding script (`db:seed`). | `packages/database/src/migrate.ts`, `packages/database/src/seed.ts` |
 | **CI/CD Automation** | COMPLETE ✅ | Multi-stage GitHub Actions workflow enforcing quality gates (`lint`, `typecheck`, `test`, `build`), automated release, post-deployment live API health check, concurrency handling, timeouts, Python 3.13 + `uv` pytest gate, dynamic Cloudflare secrets injection, Render deploy webhook. | `.github/workflows/ci-cd.yml` |
@@ -210,6 +212,34 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 - **Integration Test Expansion**: Added 4 Vitest integration tests in `apps/api/src/domains/ai/__tests__/scope-refine.test.ts` validating 409 conflict, 422 precondition, and 1000-char boundary behavior.
 - **`/deep` Architectural Analysis Skill**: Created `.agents/skills/deep/SKILL.md` to provide structured, plain-language architectural breakdowns covering root cause, fixes, advantages, tradeoffs, and alternative approaches.
 
+### W. Sprint 17: Project Hub & Deliverables Execution Engine (Completed & Hardened)
+- **Relational Deliverables Schema (`packages/database`)**: Materialized AI deliverables into `project_deliverables` with composite foreign key `(workspace_id, project_id) REFERENCES projects(workspace_id, id)`, position ordering, and status lifecycle tracking (`pending` → `in_progress` → `completed`). Applied via migration `0008_add_project_deliverables.sql`.
+- **Deterministic Progress Engine**: Live completion percentage and hour balances (estimated vs. logged vs. remaining) calculated deterministically on both server and client without drift.
+- **Itemized Progress Invoicing**: Completed deliverables can be billed directly into draft invoices with server-authoritative exact-penny math and an atomic concurrency lock (`billed_at = NOW()`) preventing duplicate billing.
+- **In-Context Scope Intelligence**: Direct "Check Scope Drift" launch button inside the project workspace that automatically injects the linked confirmed scope baseline into the drift analysis modal.
+- **Atomic CAS Scope Claim & Compensating Rollbacks**: Distributed saga pattern ensuring zero orphaned projects, invoices, or deliverables under stateless database connections.
+
+### X. Sprint 18: Scope Drift → Change Order Bridge (Completed & Audited)
+- **Problem Solved**: Closes the loop between AI Scope Drift Detection and operational execution. Previously, drift analysis produced an advisory report, but lacked an automated, auditable mechanism to formalize approved changes, expand project scope, and invoice new work.
+- **Database Architecture (`packages/database/src/schema/change_orders.ts`)**:
+  - Drizzle schema `change_orders` applied via Neon PostgreSQL migration `0009_add_change_orders.sql` with composite FK `(workspace_id, project_id) REFERENCES projects(workspace_id, id)`.
+  - Enum `change_order_status`: `draft`, `proposed`, `approved`, `rejected`, `cancelled`.
+  - Fields: `title`, `description`, `justification`, `budget_delta`, `timeline_delta_days`, `new_deliverables` (JSONB), `source_drift_analysis_id`, `invoice_id`, `created_by_user_id`, `approved_at`, `approved_by_user_id`, `rejected_at`, `rejection_reason`.
+- **Backend Service & Orchestration (`apps/api/src/domains/project/`)**:
+  - `change-order.service.ts`: Full business lifecycle (propose, approve, reject, cancel, invoice).
+  - **Approval Side Effects & Atomic Execution**:
+    1. Adjusts project financial baseline (`project.budget = project.budget + budget_delta`).
+    2. Extends project delivery date (`project.target_date = target_date + timeline_delta_days`).
+    3. Materializes new deliverables into `project_deliverables` with sequential position ordering and `pending` status.
+    4. Optional automatic invoice generation: Creates a dedicated change-order invoice (`INV-2026-XXXX`) linked to the change order.
+    5. Dispatches non-blocking audit log event (`project.change_order_approved`) to the activity bus.
+  - REST endpoints mounted in `change-order.controller.ts`: `POST /`, `GET /`, `GET /:id`, `POST /:id/approve`, `POST /:id/reject`, `POST /:id/cancel`, `POST /:id/invoice`.
+- **Frontend UI & State Management (`apps/web/src/features/project/`)**:
+  - `ChangeOrderProposalModal.tsx`: Accessible dialog pre-populating proposal parameters from drift analysis or custom manual entries with live impact calculation and deliverable drafting.
+  - `ProjectChangeOrdersCard.tsx`: Project Hub card displaying change order history, status badges, expandable deliverable breakdown, and action triggers (Approve, Reject, Generate Invoice).
+  - `useChangeOrders.ts`: React Query hooks with automatic cache invalidation across projects, deliverables, financials, and invoices.
+- **Test Coverage**: Comprehensive unit & component tests in `change-order.service.test.ts` (780+ lines), `ChangeOrderProposalModal.test.tsx`, and `ProjectChangeOrdersCard.test.tsx`.
+
 ---
 
 ## 4. Monorepo Quality & Verification Summary
@@ -217,12 +247,12 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 | Package | Test Suite | Tests Passing | Linter / Typecheck | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | **`apps/ai`** | Pytest | **42 / 42 passed** | 0 errors | VERIFIED ✅ |
-| **`apps/api`** | Vitest | **291 / 291 passed** (32 test files) | Biome + TSC: 0 errors | VERIFIED ✅ |
-| **`apps/web`** | Vitest | **34 / 34 passed** (8 test files) | ESLint + TSC: 0 errors | VERIFIED ✅ |
-| **`packages/database`** | Drizzle Migrations | 10 tables applied | TSC: 0 errors | VERIFIED ✅ |
-| **TOTAL** | **All Suites** | **367 / 367 passed** | **0 errors across monorepo** | **ALL GREEN ✅** |
+| **`apps/api`** | Vitest | **306 / 306 passed** (33 test files) | Biome + TSC: 0 errors | VERIFIED ✅ |
+| **`apps/web`** | Vitest | **38 / 38 passed** (10 test files) | ESLint + TSC: 0 errors | VERIFIED ✅ |
+| **`packages/database`** | Drizzle Migrations | 11 tables applied | TSC: 0 errors | VERIFIED ✅ |
+| **TOTAL** | **All Suites** | **386+ passed** | **0 errors across monorepo** | **ALL GREEN ✅** |
 
-> **Last verified:** September 13, 2026 · Post-Sprint-16 Production Hardening & Bug Fixes Verified (367 / 367 tests passing)
+> **Last verified:** September 18, 2026 · Post-Sprint-18 Scope Drift → Change Order Bridge Full Implementation & Verification Verified (All Suites Passing)
 
 
 ---
