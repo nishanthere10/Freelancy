@@ -14,3 +14,5 @@ export * from "./scope_analyses";
 export * from "./drift_analyses";
 export * from "./project_deliverables";
 export * from "./change_orders";
+export * from "./communication";
+export * from "./automations";

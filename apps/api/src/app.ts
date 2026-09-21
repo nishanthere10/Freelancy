@@ -16,10 +16,17 @@ import { db } from "./db/client";
 import activityRoutes from "./domains/activity/activity.routes";
 import aiRoutes from "./domains/ai/ai.routes";
 import clientRoutes from "./domains/client/client.routes";
+import communicationRoutes from "./domains/communication/communication.routes";
+import { handleEmailWebhook } from "./domains/communication/email.webhook";
+import { handleWhatsAppWebhook } from "./domains/communication/whatsapp.webhook";
 import dashboardRoutes from "./domains/dashboard/dashboard.routes";
 import invoiceRoutes from "./domains/invoice/invoice.routes";
 import projectRoutes from "./domains/project/project.routes";
 import workspaceRoutes from "./domains/workspace/workspace.routes";
+import {
+  automationInternalActionsRouter,
+  automationRouter,
+} from "./domains/automation/automation.routes";
 import {
   clerkAuth,
   userResolverMiddleware,
@@ -192,6 +199,33 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 // ==========================================
+// Provider Webhooks (server-to-server, no user auth)
+// ==========================================
+// These must be registered BEFORE the auth middleware so that Resend and
+// WA-AKG can POST without Bearer tokens.
+// JSON bodies for webhooks are parsed inline here.
+app.post(
+  "/webhooks/email",
+  express.json({ limit: "512kb" }),
+  handleEmailWebhook,
+);
+app.post(
+  "/webhooks/whatsapp",
+  express.json({ limit: "512kb" }),
+  handleWhatsAppWebhook,
+);
+
+// ==========================================
+// Internal Service Actions (server-to-server, custom token auth)
+// ==========================================
+app.use(
+  "/api/v1/internal/actions",
+  generalRateLimiter,
+  express.json({ limit: "512kb" }),
+  automationInternalActionsRouter,
+);
+
+// ==========================================
 // Authenticated API Routes
 // ==========================================
 app.use("/api/v1", generalRateLimiter);
@@ -223,6 +257,16 @@ app.use(
   "/api/v1/workspaces/:workspaceId/ai",
   strictMutationRateLimiter,
   aiRoutes,
+);
+app.use(
+  "/api/v1/workspaces/:workspaceId/communications",
+  strictMutationRateLimiter,
+  communicationRoutes,
+);
+app.use(
+  "/api/v1/workspaces/:workspaceId/automations",
+  strictMutationRateLimiter,
+  automationRouter,
 );
 
 // Catch-all 404 handler

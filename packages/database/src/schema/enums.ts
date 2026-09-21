@@ -34,3 +34,76 @@ export const changeOrderStatusEnum = pgEnum("change_order_status", [
   "rejected",
   "cancelled",
 ]);
+
+export const communicationChannelEnum = pgEnum("communication_channel", [
+  "email",
+  "whatsapp",
+]);
+
+export const communicationProviderEnum = pgEnum("communication_provider", [
+  "resend",
+  "wa_akg",
+  "meta_whatsapp",
+  "mock",
+]);
+
+export const communicationMessageStatusEnum = pgEnum(
+  "communication_message_status",
+  [
+    "queued",
+    "sending",
+    "sent",
+    "delivered",
+    "read",
+    "received",
+    "failed",
+    "bounced",
+  ],
+);
+
+export const communicationDirectionEnum = pgEnum("communication_direction", [
+  "outbound",
+  "inbound",
+]);
+
+export const communicationChannelStatusEnum = pgEnum(
+  "communication_channel_status",
+  ["active", "inactive", "error"],
+);
+
+export const automationStatusEnum = pgEnum("automation_status", [
+  "draft",
+  "active",
+  "paused",
+  "error",
+  "archived",
+]);
+
+export const automationTriggerTypeEnum = pgEnum("automation_trigger_type", [
+  "event",
+  "schedule",
+]);
+
+export const automationRunStatusEnum = pgEnum("automation_run_status", [
+  "queued",
+  "running",
+  "succeeded",
+  "failed",
+  "skipped",
+  "cancelled",
+]);
+
+export const automationEventStatusEnum = pgEnum("automation_event_status", [
+  "pending",
+  "dispatched",
+  "failed",
+  "dead_lettered",
+]);
+
+export const automationActionRunStatusEnum = pgEnum("automation_action_run_status", [
+  "pending",
+  "running",
+  "succeeded",
+  "failed",
+  "skipped",
+]);

@@ -43,4 +43,7 @@ export const config = {
   get aiServiceApiKey() {
     return process.env.AI_SERVICE_API_KEY || "";
   },
+  get n8nWebhookSecret() {
+    return process.env.N8N_WEBHOOK_SECRET || "dev_unsafe_secret";
+  },
 };

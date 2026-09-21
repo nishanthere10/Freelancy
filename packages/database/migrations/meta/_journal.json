@@ -64,6 +64,27 @@
       "when": 1789400000000,
       "tag": "0008_add_project_deliverables",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1789600000000,
+      "tag": "0009_add_change_orders",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1789800000000,
+      "tag": "0010_add_communication_hub",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1789941445488,
+      "tag": "0011_good_vin_gonzales",
+      "breakpoints": true
     }
   ]
 }
