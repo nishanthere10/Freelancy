@@ -3,7 +3,13 @@ import { automationEventsTable } from "@repo/database";
 import { AutomationEventV1 } from "./automation.events";
 import { eq, and } from "drizzle-orm";
 
+import { AutomationRepository } from "./automation.repository";
+import axios from "axios";
+import { logger } from "../../../utils/logger";
+
 export class AutomationDispatcher {
+  private repository = new AutomationRepository();
+
   /**
    * Records a domain event durably so that it can be processed by automations at-least-once.
    */
@@ -23,12 +29,48 @@ export class AutomationDispatcher {
       .returning();
 
     if (automationEvent) {
-      // In a full implementation, we'd trigger a background queue processor here.
-      // For now we'll simulate immediate dispatch.
-      // this.triggerProcessor(automationEvent.id);
+      // Simulate immediate background dispatch for simplicity without heavy infra
+      this.triggerProcessor(automationEvent.id).catch((err) => {
+        logger.error("Background processor failed", { error: err });
+      });
     }
 
     return automationEvent;
+  }
+
+  async triggerProcessor(eventId: string) {
+    const [event] = await db.select().from(automationEventsTable).where(eq(automationEventsTable.id, eventId));
+    if (!event || event.status !== "pending") return;
+    
+    try {
+      const activeAutomations = await this.repository.getActiveAutomationsByTrigger(event.workspaceId, event.eventType);
+      
+      for (const automation of activeAutomations) {
+        // Create automation run
+        const run = await this.repository.createRun(event.workspaceId, automation.id, "event", event.id);
+        
+        // Trigger n8n webhook
+        const n8nBase = process.env.N8N_BASE_URL ? process.env.N8N_BASE_URL.replace("/api/v1", "") : "http://localhost:5678";
+        const webhookUrl = `${n8nBase}/webhook/automation-trigger-${automation.id}`;
+        
+        try {
+          const res = await axios.post(webhookUrl, {
+            runId: run.id,
+            eventId: event.id,
+            payload: event.payload
+          });
+          
+          await this.repository.updateRunStatus(event.workspaceId, run.id, "running", res.data?.executionId);
+        } catch (n8nErr: any) {
+          logger.error("Failed to trigger n8n workflow", { error: n8nErr.message, automationId: automation.id });
+          await this.repository.updateRunStatus(event.workspaceId, run.id, "failed", undefined, "N8N_TRIGGER_FAILED", n8nErr.message);
+        }
+      }
+
+      await this.markDispatched(eventId);
+    } catch (error: any) {
+      await this.handleFailure(eventId, error, event.attempts + 1);
+    }
   }
 
   /**

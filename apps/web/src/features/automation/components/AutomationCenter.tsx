@@ -35,7 +35,7 @@ export function AutomationCenter({ workspaceId }: { workspaceId: string }) {
     },
   });
 
-  const automations = data?.data || [];
+  const automations = Array.isArray(data) ? data : (data as any)?.data || [];
 
   return (
     <div className="p-6">

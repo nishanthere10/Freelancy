@@ -8,6 +8,7 @@ import { X, Plus, Trash2, Zap } from "lucide-react";
 import { CreateAutomationSchema, CreateAutomationFormValues } from "../automation.schemas";
 import { useClients } from "../../client/hooks/useClients";
 import { useProjects } from "../../project/hooks/useProjects";
+import { useInvoices } from "../../invoice/hooks/useInvoices";
 
 interface CreateAutomationModalProps {
   workspaceId: string;
@@ -17,13 +18,33 @@ interface CreateAutomationModalProps {
 }
 
 export function CreateAutomationModal({ workspaceId, isOpen, onClose, onSubmit }: CreateAutomationModalProps) {
-  const { data: clientsData } = useClients(workspaceId);
-  const { data: projectsData } = useProjects(workspaceId);
-  const clients = clientsData?.data || [];
-  const projects = projectsData?.data || [];
+  const { data: clientsData, isLoading: isClientsLoading } = useClients(workspaceId);
+  const { data: projectsData, isLoading: isProjectsLoading } = useProjects(workspaceId);
+  const { data: invoicesData, isLoading: isInvoicesLoading } = useInvoices(workspaceId);
+
+  const clients = Array.isArray(clientsData)
+    ? clientsData
+    : (clientsData as any)?.data || [];
+  const projects = Array.isArray(projectsData)
+    ? projectsData
+    : (projectsData as any)?.data || [];
+  const invoices = Array.isArray(invoicesData)
+    ? invoicesData
+    : (invoicesData as any)?.data || [];
 
   const [scopeClientId, setScopeClientId] = useState<string>("");
   const [scopeProjectId, setScopeProjectId] = useState<string>("");
+  const [scopeInvoiceId, setScopeInvoiceId] = useState<string>("");
+
+  const filteredProjects = scopeClientId
+    ? projects.filter((p: any) => p.clientId === scopeClientId)
+    : projects;
+
+  const filteredInvoices = invoices.filter((inv: any) => {
+    if (scopeClientId && inv.clientId !== scopeClientId) return false;
+    if (scopeProjectId && inv.projectId !== scopeProjectId) return false;
+    return true;
+  });
 
   const { register, control, handleSubmit, watch, formState: { errors }, reset } = useForm<CreateAutomationFormValues>({
     resolver: zodResolver(CreateAutomationSchema),
@@ -54,11 +75,15 @@ export function CreateAutomationModal({ workspaceId, isOpen, onClose, onSubmit }
     if (scopeProjectId) {
       finalData.conditionConfig.conditions.push({ field: "projectId", operator: "eq", value: scopeProjectId });
     }
+    if (scopeInvoiceId) {
+      finalData.conditionConfig.conditions.push({ field: "invoiceId", operator: "eq", value: scopeInvoiceId });
+    }
     onSubmit(finalData);
     
     // reset form scopes
     setScopeClientId("");
     setScopeProjectId("");
+    setScopeInvoiceId("");
     reset();
   };
 
@@ -110,20 +135,40 @@ export function CreateAutomationModal({ workspaceId, isOpen, onClose, onSubmit }
                 </div>
               </div>
 
-              {/* Scoping (New Feature) */}
+              {/* Scoping (Client, Project, Invoice) */}
               <div className="space-y-4">
-                <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-widest">2. Scope (Optional)</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-widest">2. Scope (Optional)</h3>
+                  {(scopeClientId || scopeProjectId || scopeInvoiceId) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setScopeClientId("");
+                        setScopeProjectId("");
+                        setScopeInvoiceId("");
+                      }}
+                      className="text-xs text-neutral-400 hover:text-black underline transition-colors"
+                    >
+                      Clear scopes
+                    </button>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-black mb-1.5">Apply to Client</label>
                     <select
                       value={scopeClientId}
-                      onChange={(e) => setScopeClientId(e.target.value)}
+                      onChange={(e) => {
+                        setScopeClientId(e.target.value);
+                      }}
                       className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-[#FFD02F] outline-none text-black transition-all"
                     >
                       <option value="">Any Client</option>
+                      {isClientsLoading && <option disabled>Loading clients...</option>}
                       {clients.map((c: any) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
+                        <option key={c.id} value={c.id}>
+                          {c.name} {c.companyName ? `(${c.companyName})` : ""}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -135,8 +180,25 @@ export function CreateAutomationModal({ workspaceId, isOpen, onClose, onSubmit }
                       className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-[#FFD02F] outline-none text-black transition-all"
                     >
                       <option value="">Any Project</option>
-                      {projects.map((p: any) => (
+                      {isProjectsLoading && <option disabled>Loading projects...</option>}
+                      {filteredProjects.map((p: any) => (
                         <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-1.5">Apply to Invoice</label>
+                    <select
+                      value={scopeInvoiceId}
+                      onChange={(e) => setScopeInvoiceId(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-[#FFD02F] outline-none text-black transition-all"
+                    >
+                      <option value="">Any Invoice</option>
+                      {isInvoicesLoading && <option disabled>Loading invoices...</option>}
+                      {filteredInvoices.map((inv: any) => (
+                        <option key={inv.id} value={inv.id}>
+                          {inv.invoiceNumber || `INV-${inv.id.slice(0, 8)}`} {inv.totalAmount ? `($${inv.totalAmount})` : ""}
+                        </option>
                       ))}
                     </select>
                   </div>

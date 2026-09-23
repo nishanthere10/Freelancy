@@ -15,6 +15,7 @@ export interface CompiledWorkflow {
 export interface N8nWorkflowProvider {
   createWorkflow(input: CompiledWorkflow): Promise<N8nWorkflowRef>;
   updateWorkflow(workflowId: string, input: CompiledWorkflow): Promise<N8nWorkflowRef>;
+  upsertWorkflow(input: CompiledWorkflow, workflowId?: string): Promise<N8nWorkflowRef>;
   activateWorkflow(workflowId: string): Promise<void>;
   deactivateWorkflow(workflowId: string): Promise<void>;
   getWorkflow(workflowId: string): Promise<N8nWorkflowRef>;
@@ -22,8 +23,8 @@ export interface N8nWorkflowProvider {
 }
 
 import axios from "axios";
-import { config } from "../../../../config";
-import { logger } from "../../../../utils/logger";
+import { config } from "../../../config";
+import { logger } from "../../../utils/logger";
 
 export class HttpN8nWorkflowProvider implements N8nWorkflowProvider {
   private readonly client = axios.create({
@@ -80,6 +81,13 @@ export class HttpN8nWorkflowProvider implements N8nWorkflowProvider {
       logger.error("Failed to get n8n workflow", { error: err.message, workflowId });
       throw new Error(`N8nProvider Error: ${err.message}`);
     }
+  }
+
+  async upsertWorkflow(input: CompiledWorkflow, workflowId?: string): Promise<N8nWorkflowRef> {
+    if (workflowId) {
+      return this.updateWorkflow(workflowId, input);
+    }
+    return this.createWorkflow(input);
   }
 
   async healthCheck(): Promise<boolean> {

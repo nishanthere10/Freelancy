@@ -40,8 +40,10 @@ import type {
 } from "./communication.types";
 import type { EmailProvider } from "./providers/email/email.provider";
 import { ResendEmailProvider } from "./providers/email/resend.provider";
+import { MockEmailProvider } from "./providers/email/mock-email.provider";
 import type { WhatsAppProvider } from "./providers/whatsapp/whatsapp.provider";
 import { WaAkgWhatsAppProvider } from "./providers/whatsapp/wa-akg.provider";
+import { MockWhatsAppProvider } from "./providers/whatsapp/mock-whatsapp.provider";
 import { TemplateService } from "./template.service";
 
 // ---------------------------------------------------------------------------
@@ -58,9 +60,15 @@ export class CommunicationService {
     whatsappProvider?: WhatsAppProvider;
   }) {
     this.emailProvider =
-      options?.emailProvider ?? new ResendEmailProvider();
+      options?.emailProvider ??
+      (process.env.RESEND_API_KEY
+        ? new ResendEmailProvider()
+        : new MockEmailProvider());
     this.whatsappProvider =
-      options?.whatsappProvider ?? new WaAkgWhatsAppProvider();
+      options?.whatsappProvider ??
+      (process.env.WA_AKG_GATEWAY_URL
+        ? new WaAkgWhatsAppProvider()
+        : new MockWhatsAppProvider());
     this.templateService = new TemplateService();
   }
 

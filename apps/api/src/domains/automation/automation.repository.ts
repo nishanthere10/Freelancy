@@ -61,6 +61,27 @@ export class AutomationRepository {
       .orderBy(desc(automationsTable.createdAt));
   }
 
+  async getActiveAutomationsByTrigger(workspaceId: string, eventType: string) {
+    const automations = await db
+      .select()
+      .from(automationsTable)
+      .where(
+        and(
+          eq(automationsTable.workspaceId, workspaceId),
+          eq(automationsTable.status, "active"),
+          eq(automationsTable.triggerType, "event")
+        )
+      );
+
+    // Filter by actual eventType inside JSON config
+    return automations.filter(
+      (a: any) =>
+        a.triggerConfig &&
+        a.triggerConfig.type === "event" &&
+        a.triggerConfig.eventType === eventType
+    );
+  }
+
   async updateAutomation(
     workspaceId: string,
     automationId: string,

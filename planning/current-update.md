@@ -1,7 +1,7 @@
 # Freelance OS — Current System Update & Reasoning Agent Context
 
-**Date:** September 20, 2026  
-**Status:** Sprints 1–12 COMPLETE + AI Subsystem Phases 1–11 COMPLETE + Sprint 16 COMPLETE + Sprint 17 COMPLETE + Sprint 18 COMPLETE + Sprint 19 ("Communication Hub") COMPLETE, AUDITED, HARDENED & VERIFIED. Monorepo Quality Gate: All suites passing across API, Web, and AI with 0 TypeScript/linter errors (Biome & ESLint clean). Hardening defects DEF-01 to DEF-06 resolved. Communication Hub and Provider Adapters fully operational.
+**Date:** September 23, 2026  
+**Status:** Sprints 1–20 COMPLETE + AI Subsystem Phases 1–11 COMPLETE + Phase 4 (Automation Engine) COMPLETE, AUDITED, HARDENED & VERIFIED. Monorepo Quality Gate: All suites passing across API, Web, and AI with 0 TypeScript/linter errors. Security Audit complete (Timing attacks and Rate Limits patched). Automation Hub and N8n Provider fully operational.
 
 ---
 
@@ -254,6 +254,19 @@ Freelance OS is a production-grade monorepo application for managing freelance o
   - Designed "Draft & Polish" modals (`SendEmailModal`, `SendWhatsAppModal`) with Zod-validated template selection.
   - Integrated with TanStack Query (`useCommunicationMessages`, `useSendEmail`) for instantaneous updates on dispatch.
 - **Bug Fixes**: Addressed component-level bugs involving invalid `FormField` usage outside `react-hook-form` boundaries and replaced missing `date-fns` dependencies with native `Intl.DateTimeFormat` fallbacks.
+
+### Z. Sprint 20 & Phase 4: Automation Engine & N8n Integration (Completed, Hardened & Audited)
+- **Problem Solved**: Connecting internal domain events (e.g., Invoice Overdue) to outbound communications (Email/WhatsApp) via dynamic rules without hardcoding business logic.
+- **N8N Compiler & Provider (`apps/api/src/domains/automation/n8n/`)**:
+  - Implemented `HttpN8nWorkflowProvider` to `POST` compiled JSON workflows directly to an external n8n engine using Axios.
+  - Built `N8nWorkflowCompiler` to dynamically translate our internal rule schema (`CreateAutomationSchema`) into physical n8n node graphs (e.g., `n8n-nodes-base.cron`, `n8n-nodes-base.httpRequest`).
+- **Dynamic UI Rule Builder (`CreateAutomationModal.tsx`)**:
+  - Completely redesigned the automation builder modal to align with the **Miro Design Language** (stark white canvas, canary yellow accents, black-pill CTAs, and pastel yellow/rose sticky-note style cards).
+  - Implemented robust **Condition Scoping**: Users can now optionally select specific Clients (`useClients`) or Projects (`useProjects`) from dropdowns to strictly scope rules via the UI.
+- **Security Audit & Cryptographic Hardening**:
+  - **Zero-Trust Webhooks**: Injected `N8N_WEBHOOK_SECRET` into the n8n compiler so all n8n callbacks are cryptographically authenticated.
+  - **Timing Attack Mitigation**: Secured `send-email.action.ts` and `send-whatsapp.action.ts` webhooks using Node's `crypto.timingSafeEqual()` to prevent timing leaks during secret validation.
+  - **Rate Limiting**: Hardened the internal `/api/v1/internal/actions` router by explicitly attaching the `generalRateLimiter`, preventing brute-force DoS attacks against the webhook token.
 
 ---
 

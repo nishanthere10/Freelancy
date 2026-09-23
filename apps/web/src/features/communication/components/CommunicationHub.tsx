@@ -6,7 +6,6 @@ import { SendEmailModal } from "./SendEmailModal";
 import { SendWhatsAppModal } from "./SendWhatsAppModal";
 import { Button } from "@shared/components/Button";
 import { useState } from "react";
-import { useCommunicationMessages } from "../hooks/useCommunication";
 
 interface CommunicationHubProps {
   workspaceId: string;
@@ -15,9 +14,6 @@ interface CommunicationHubProps {
 export function CommunicationHub({ workspaceId }: CommunicationHubProps) {
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [waModalOpen, setWaModalOpen] = useState(false);
-
-  // Hardcoded for testing the UI. In a real scenario, this would be selected from a list of clients.
-  const testClientId = "00000000-0000-0000-0000-000000000000";
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -51,14 +47,12 @@ export function CommunicationHub({ workspaceId }: CommunicationHubProps) {
         open={emailModalOpen}
         onOpenChange={setEmailModalOpen}
         workspaceId={workspaceId}
-        clientId={testClientId}
       />
 
       <SendWhatsAppModal
         open={waModalOpen}
         onOpenChange={setWaModalOpen}
         workspaceId={workspaceId}
-        clientId={testClientId}
       />
     </div>
   );

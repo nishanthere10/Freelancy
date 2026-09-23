@@ -1,4 +1,4 @@
-import { config } from "../../../../config";
+import { config } from "../../../config";
 import { CompiledWorkflow } from "./n8n.provider";
 
 export class N8nWorkflowCompiler {
@@ -52,22 +52,53 @@ export class N8nWorkflowCompiler {
     }
 
     // 2. Add Condition Node (if any)
-    if (automation.conditionConfig && automation.conditionConfig.conditions.length > 0) {
+    if (automation.conditionConfig && automation.conditionConfig.conditions && automation.conditionConfig.conditions.length > 0) {
       const nodeName = "If Condition";
-      // simplified condition check
+      
+      const stringConditions: any[] = [];
+      const numberConditions: any[] = [];
+      const booleanConditions: any[] = [];
+
+      automation.conditionConfig.conditions.forEach((cond: any) => {
+        const fieldMap = `={{$json.body.payload.${cond.field}}}`;
+        
+        let op = "equal";
+        switch(cond.operator) {
+          case "eq": op = "equal"; break;
+          case "neq": op = "notEqual"; break;
+          case "contains": op = "contains"; break;
+          case "gt": op = "larger"; break;
+          case "gte": op = "largerEqual"; break;
+          case "lt": op = "smaller"; break;
+          case "lte": op = "smallerEqual"; break;
+          case "exists": op = "exists"; break;
+        }
+
+        const conditionEntry: any = {
+          value1: fieldMap,
+          operation: op,
+        };
+
+        if (typeof cond.value === "number") {
+          conditionEntry.value2 = Number(cond.value);
+          numberConditions.push(conditionEntry);
+        } else if (typeof cond.value === "boolean") {
+          conditionEntry.value2 = Boolean(cond.value);
+          booleanConditions.push(conditionEntry);
+        } else {
+          conditionEntry.value2 = cond.value !== undefined ? cond.value.toString() : "";
+          stringConditions.push(conditionEntry);
+        }
+      });
+
       nodes.push({
         parameters: {
           conditions: {
-            boolean: [],
-            number: [],
-            string: [
-              {
-                value1: "={{$json.body.value}}", // Mock value mapping
-                operation: "equal",
-                value2: "expected",
-              }
-            ],
+            boolean: booleanConditions,
+            number: numberConditions,
+            string: stringConditions,
           },
+          combineOperation: automation.conditionConfig.operator === "OR" ? "any" : "all",
         },
         id: (currentId++).toString(),
         name: nodeName,
@@ -118,7 +149,7 @@ export class N8nWorkflowCompiler {
             },
             sendBody: true,
             specifyBody: "json",
-            jsonBody: `={ "workspaceId": "${automation.workspaceId}", "automationId": "${automation.id}", "actionIndex": ${index}, "payload": {{$json}} }`,
+            jsonBody: `={{ { workspaceId: "${automation.workspaceId}", automationId: "${automation.id}", actionIndex: ${index}, payload: $json } }}`,
             options: {},
           },
           id: (currentId++).toString(),
