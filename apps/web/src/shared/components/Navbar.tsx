@@ -4,6 +4,8 @@ import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import {
   Briefcase,
   ChartPie,
+  ChatsTeardrop,
+  Lightning,
   Receipt,
   Sparkle,
   SquaresFour,
@@ -60,6 +62,18 @@ export function Navbar() {
       href: workspaceId ? `/workspaces/${workspaceId}/invoices` : "/invoices",
       active: pathname?.includes("/invoices"),
       icon: Receipt,
+    },
+    {
+      label: "Automations",
+      href: workspaceId ? `/workspaces/${workspaceId}/automations` : "/workspaces",
+      active: pathname?.includes("/automations"),
+      icon: Lightning,
+    },
+    {
+      label: "Communications",
+      href: workspaceId ? `/workspaces/${workspaceId}/communications` : "/workspaces",
+      active: pathname?.includes("/communications"),
+      icon: ChatsTeardrop,
     },
   ];
 

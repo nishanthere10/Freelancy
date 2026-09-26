@@ -3,18 +3,18 @@ import { CreateAutomationFormValues } from "../automation.schemas";
 
 export const automationApi = {
   listAutomations: async (workspaceId: string) => {
-    return await apiGet(`/workspaces/${workspaceId}/automations`);
+    return await apiGet(`workspaces/${workspaceId}/automations`);
   },
 
   getAutomation: async (workspaceId: string, automationId: string) => {
-    return await apiGet(`/workspaces/${workspaceId}/automations/${automationId}`);
+    return await apiGet(`workspaces/${workspaceId}/automations/${automationId}`);
   },
 
   createAutomation: async (
     workspaceId: string,
     data: CreateAutomationFormValues
   ) => {
-    return await apiPost(`/workspaces/${workspaceId}/automations`, data);
+    return await apiPost(`workspaces/${workspaceId}/automations`, data);
   },
 
   updateAutomation: async (
@@ -23,26 +23,26 @@ export const automationApi = {
     data: Partial<CreateAutomationFormValues>
   ) => {
     return await apiPatch(
-      `/workspaces/${workspaceId}/automations/${automationId}`,
+      `workspaces/${workspaceId}/automations/${automationId}`,
       data
     );
   },
 
   pauseAutomation: async (workspaceId: string, automationId: string) => {
     return await apiPost(
-      `/workspaces/${workspaceId}/automations/${automationId}/pause`
+      `workspaces/${workspaceId}/automations/${automationId}/pause`
     );
   },
 
   activateAutomation: async (workspaceId: string, automationId: string) => {
     return await apiPost(
-      `/workspaces/${workspaceId}/automations/${automationId}/activate`
+      `workspaces/${workspaceId}/automations/${automationId}/activate`
     );
   },
 
   testAutomation: async (workspaceId: string, automationId: string) => {
     return await apiPost(
-      `/workspaces/${workspaceId}/automations/${automationId}/test`
+      `workspaces/${workspaceId}/automations/${automationId}/test`
     );
   },
 };

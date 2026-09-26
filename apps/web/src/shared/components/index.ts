@@ -5,3 +5,4 @@ export { FormField } from "./FormField";
 export { Input } from "./Input";
 export { Skeleton } from "./Skeleton";
 export { Navbar } from "./Navbar";
+export { Sidebar } from "./Sidebar";

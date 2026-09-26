@@ -11,7 +11,7 @@ import {
   updateAutomation,
 } from "./automation.controller";
 
-export const automationRouter = Router({ mergeParams: true });
+export const automationRouter: Router = Router({ mergeParams: true });
 
 // Mounted at: /api/v1/workspaces/:workspaceId/automations
 
@@ -29,7 +29,7 @@ automationRouter.get("/:automationId/runs", listRuns);
 import { sendEmailAction } from "./actions/send-email.action";
 import { sendWhatsAppAction } from "./actions/send-whatsapp.action";
 
-export const automationInternalActionsRouter = Router({ mergeParams: true });
+export const automationInternalActionsRouter: Router = Router({ mergeParams: true });
 
 automationInternalActionsRouter.post("/send-email", sendEmailAction);
 automationInternalActionsRouter.post("/send-whatsapp", sendWhatsAppAction);

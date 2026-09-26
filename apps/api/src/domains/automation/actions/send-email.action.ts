@@ -26,8 +26,15 @@ export async function sendEmailAction(
       return;
     }
 
-    const { automationId, actionIndex, actionPayload, workspaceId, eventId, definitionVersion } =
-      req.body;
+    const {
+      automationId,
+      actionIndex,
+      actionPayload,
+      workspaceId,
+      eventId,
+      definitionVersion,
+      automationRunId,
+    } = req.body;
 
     // Validate requirements
     if (!automationId || actionIndex === undefined || !workspaceId || !eventId) {
@@ -51,12 +58,11 @@ export async function sendEmailAction(
       return;
     }
 
-    // Mock Automation Run ID for now 
-    const mockRunId = "00000000-0000-0000-0000-000000000000"; // Should be passed by caller
+    const runId = automationRunId || "00000000-0000-0000-0000-000000000000";
 
     await idempotencyService.recordActionStart(
       workspaceId,
-      mockRunId,
+      runId,
       actionIndex,
       actionPayload.type,
       idempotencyKey

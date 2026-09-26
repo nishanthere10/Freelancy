@@ -1,3 +1,5 @@
+"use client";
+
 import type { InvoiceResponse } from "../api";
 import { InvoiceCard } from "./InvoiceCard";
 

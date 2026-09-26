@@ -80,7 +80,7 @@ export class N8nWorkflowCompiler {
         };
 
         if (typeof cond.value === "number") {
-          conditionEntry.value2 = Number(cond.value);
+          conditionEntry.value2 = cond.value.toString();
           numberConditions.push(conditionEntry);
         } else if (typeof cond.value === "boolean") {
           conditionEntry.value2 = Boolean(cond.value);
@@ -149,7 +149,7 @@ export class N8nWorkflowCompiler {
             },
             sendBody: true,
             specifyBody: "json",
-            jsonBody: `={{ { workspaceId: "${automation.workspaceId}", automationId: "${automation.id}", actionIndex: ${index}, payload: $json } }}`,
+            jsonBody: `={{ { workspaceId: "${automation.workspaceId}", automationId: "${automation.id}", actionIndex: ${index}, automationRunId: $json.runId || $json.body?.runId, eventId: $json.eventId || $json.body?.eventId, definitionVersion: ${automation.definitionVersion || 1}, actionPayload: ${JSON.stringify(action)}, payload: $json.payload || $json.body?.payload || $json } }}`,
             options: {},
           },
           id: (currentId++).toString(),

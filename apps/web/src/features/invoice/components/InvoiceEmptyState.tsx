@@ -1,3 +1,5 @@
+"use client";
+
 import { Plus, Receipt } from "@phosphor-icons/react";
 import { Button } from "@shared/components";
 

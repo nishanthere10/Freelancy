@@ -1,4 +1,5 @@
 import { and, desc, eq } from "drizzle-orm";
+import crypto from "crypto";
 import {
   Automation,
   automationsTable,
@@ -164,7 +165,23 @@ export class AutomationRepository {
         automationEventId,
         status: "queued",
       })
+      .onConflictDoNothing()
       .returning();
+
+    if (!run && automationEventId) {
+      const [existing] = await db
+        .select()
+        .from(automationRunsTable)
+        .where(
+          and(
+            eq(automationRunsTable.workspaceId, workspaceId),
+            eq(automationRunsTable.automationId, automationId),
+            eq(automationRunsTable.automationEventId, automationEventId)
+          )
+        );
+      return existing;
+    }
+
     return run;
   }
 
@@ -219,14 +236,12 @@ export class AutomationRepository {
    * Internal helpers
    */
   computeDefinitionHash(input: any): string {
-    // A stable serialization of trigger, conditions, actions, timezone.
-    // In a real implementation this would use crypto.createHash('sha256').
     const payload = JSON.stringify({
       triggerConfig: input.triggerConfig,
       conditionConfig: input.conditionConfig,
       actionConfig: input.actionConfig,
       timezone: input.timezone,
     });
-    return Buffer.from(payload).toString("base64"); // simple mock hash
+    return crypto.createHash("sha256").update(payload).digest("hex");
   }
 }

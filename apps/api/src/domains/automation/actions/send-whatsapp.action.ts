@@ -26,8 +26,15 @@ export async function sendWhatsAppAction(
       return;
     }
 
-    const { automationId, actionIndex, actionPayload, workspaceId, eventId, definitionVersion } =
-      req.body;
+    const {
+      automationId,
+      actionIndex,
+      actionPayload,
+      workspaceId,
+      eventId,
+      definitionVersion,
+      automationRunId,
+    } = req.body;
 
     if (!automationId || actionIndex === undefined || !workspaceId || !eventId) {
       res.status(400).json(createError("BAD_REQUEST", "Missing required fields"));
@@ -48,11 +55,11 @@ export async function sendWhatsAppAction(
       return;
     }
 
-    const mockRunId = "00000000-0000-0000-0000-000000000000"; 
+    const runId = automationRunId || "00000000-0000-0000-0000-000000000000"; 
 
     await idempotencyService.recordActionStart(
       workspaceId,
-      mockRunId,
+      runId,
       actionIndex,
       actionPayload.type,
       idempotencyKey

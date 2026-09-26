@@ -85,6 +85,13 @@
       "when": 1789941445488,
       "tag": "0011_good_vin_gonzales",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1790000000000,
+      "tag": "0012_add_automation_runs_event_unique",
+      "breakpoints": true
     }
   ]
 }

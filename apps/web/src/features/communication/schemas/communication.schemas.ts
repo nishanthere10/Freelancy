@@ -10,7 +10,7 @@ export const sendEmailSchema = z.object({
   bodyText: z.string().optional(),
   bodyHtml: z.string().optional(),
   templateKey: z.string().max(100).optional(),
-  templateVariables: z.record(z.unknown()).optional(),
+  templateVariables: z.record(z.string(), z.unknown()).optional(),
   idempotencyKey: z
     .string()
     .min(5, "Idempotency key must be at least 5 characters")
@@ -32,12 +32,25 @@ export const sendWhatsAppSchema = z.object({
     .max(4096, "WhatsApp message exceeds 4096 characters")
     .optional(),
   templateKey: z.string().max(100).optional(),
-  templateVariables: z.record(z.unknown()).optional(),
+  templateVariables: z.record(z.string(), z.unknown()).optional(),
   idempotencyKey: z
     .string()
     .min(5, "Idempotency key must be at least 5 characters")
     .max(255),
 });
 
+export const listMessagesQueryParamsSchema = z.object({
+  clientId: z.string().uuid().optional(),
+  projectId: z.string().uuid().optional(),
+  invoiceId: z.string().uuid().optional(),
+  changeOrderId: z.string().uuid().optional(),
+  channel: z.enum(["email", "whatsapp"]).optional(),
+  direction: z.enum(["inbound", "outbound"]).optional(),
+  status: z.enum(["queued", "sent", "delivered", "read", "failed"]).optional(),
+  limit: z.number().int().positive().optional(),
+  offset: z.number().int().nonnegative().optional(),
+});
+
 export type SendEmailPayload = z.infer<typeof sendEmailSchema>;
 export type SendWhatsAppPayload = z.infer<typeof sendWhatsAppSchema>;
+export type ListMessagesQueryParams = z.infer<typeof listMessagesQueryParamsSchema>;

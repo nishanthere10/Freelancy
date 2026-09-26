@@ -1,19 +1,19 @@
 # Freelance OS — Current System Update & Reasoning Agent Context
 
-**Date:** September 23, 2026  
-**Status:** Sprints 1–20 COMPLETE + AI Subsystem Phases 1–11 COMPLETE + Phase 4 (Automation Engine) COMPLETE, AUDITED, HARDENED & VERIFIED. Monorepo Quality Gate: All suites passing across API, Web, and AI with 0 TypeScript/linter errors. Security Audit complete (Timing attacks and Rate Limits patched). Automation Hub and N8n Provider fully operational.
+**Date:** September 26, 2026  
+**Status:** Sprints 1–20 COMPLETE + AI Subsystem Phases 1–11 COMPLETE + Sprint 20 Reliability Closure & Database Reconciliation COMPLETE. Monorepo Quality Gate: 436 / 436 tests passing (100%) across API (351), Web (43), and AI (42) with 0 TypeScript/linter errors. Full Cloudflare Queue background execution, run-level & action-level idempotency, and canonical database schema inventory verified.
 
 ---
 
 ## 1. Executive Summary for Reasoning Agent
 
-Freelance OS is a production-grade monorepo application for managing freelance operations, clients, projects, invoices, financial analytics dashboards, and an automated audit trail. All core backend domain models, database schemas, REST APIs, authentication security, Next.js App Router UI features, Cloudflare Workers API edge runtime compatibility, observability infrastructure, GitHub Actions CI/CD workflow, Vercel monorepo deployment pipeline, and AI subsystem foundation, controllers, frontend studio, Chroma RAG vector store & Jina Cross-Encoder Reranker, and Scope Drift Detection Engine (Phases 1–11) are complete, tested, and verified.
+Freelance OS is a production-grade monorepo application for managing freelance operations, clients, projects, invoices, financial analytics dashboards, communication hub, and an automated event-driven workflow engine. All core backend domain models, database schemas (20 tables, 13 migrations), REST APIs, authentication security, Next.js App Router UI features, Cloudflare Workers API edge runtime compatibility (with Cloudflare Queues & Cron Triggers), observability infrastructure, GitHub Actions CI/CD workflow, Vercel monorepo deployment pipeline, and AI subsystem foundation, controllers, frontend studio, Chroma RAG vector store & Jina Cross-Encoder Reranker, Scope Drift Detection Engine, and Automation Engine (Sprints 1–20) are complete, tested, and verified.
 
 ### Monorepo Structure
-- **`apps/web`**: Next.js 16 App Router (`http://localhost:5000`). Tech Stack: React 19, Tailwind CSS v4, `@clerk/nextjs`, TanStack Query v5, React Hook Form, Zod, Google Fonts `Plus Jakarta Sans` & `Pacifico`. Target Deployment: **Vercel**.
-- **`apps/api`**: Express.js REST API (`http://localhost:5001/api/v1`). Dual Node.js and Cloudflare Workers (V8 Isolate) execution bridge. Security architecture: `@clerk/express` JWT verification → JIT User Resolution (`usersTable`) → Workspace Membership → RBAC Policy Layer → Domain Service → Express Controller. Target Deployment: **Cloudflare Workers**.
+- **`apps/web`**: Next.js 16 App Router (`http://localhost:5000`). Tech Stack: React 19, Tailwind CSS v4, `@clerk/nextjs`, TanStack Query v5, React Hook Form, Zod, Google Fonts `Plus Jakarta Sans` & `Pacifico`, `@phosphor-icons/react` (SSR transpiled). Target Deployment: **Vercel**.
+- **`apps/api`**: Express.js REST API (`http://localhost:5001/api/v1`). Dual Node.js and Cloudflare Workers (V8 Isolate) execution bridge. Handlers include `fetch` (REST API), `queue` (`AUTOMATION_QUEUE` consumer), and `scheduled` (cron sweeper). Security architecture: `@clerk/express` JWT verification → JIT User Resolution (`usersTable`) → Workspace Membership → RBAC Policy Layer → Domain Service → Express Controller. Target Deployment: **Cloudflare Workers**.
 - **`apps/ai`**: FastAPI Python Microservice (`http://localhost:8000`). Tech Stack: Python 3.13, FastAPI, Pydantic v2, `pydantic-settings`, Uvicorn, Pytest, LangChain, Groq, ChromaDB, Jina AI Embeddings & Reranker, SQLAlchemy, `asyncpg`. Service-to-service Bearer token auth via constant-time comparison (`secrets.compare_digest`), unified error envelope matching Cloudflare Workers API, health probes. Target Deployment: **Cloud Run / Container / VPS**.
-- **`packages/database`**: Drizzle ORM schemas (`users`, `workspaces`, `workspace_members`, `clients`, `projects`, `invoices`, `invoice_items`, `activity_events`, `scope_analyses`, `drift_analyses`) targeting **Neon PostgreSQL**, featuring an automated `migrate.ts` migration runner and `seed.ts` demo data seeder.
+- **`packages/database`**: Drizzle ORM schemas (20 tables across 13 schema files: `users`, `workspaces`, `workspace_members`, `clients`, `projects`, `invoices`, `invoice_items`, `activity_events`, `scope_analyses`, `drift_analyses`, `project_deliverables`, `change_orders`, `communication_messages`, `communication_channels`, `communication_events`, `automations`, `automation_runs`, `automation_events`, `automation_templates`, `internal_action_logs`) targeting **Neon PostgreSQL**, featuring an automated `migrate.ts` migration runner (13 migrations) and `seed.ts` demo data seeder.
 
 ---
 
@@ -29,7 +29,7 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 | **Dashboard** | COMPLETE ✅ | Financial metrics overview (`Total Invoiced`, `Total Collected`, `Outstanding`, `Overdue Alerts`), revenue analytics, project summary, gradient metric cards. Fully optimized with single-query PostgreSQL SQL aggregation (`SUM`/`COUNT` with `FILTER`), $O(1)$ memory usage. Resilient route params resolution. | `apps/web/src/features/dashboard`, `apps/api/src/domains/dashboard/` |
 | **Activity & Audit Trail** | COMPLETE ✅ | Automated domain event tracking (`workspace.*`, `client.*`, `project.*`, `invoice.*`), deterministic server-side message formatting, cursor pagination, feed UI with date grouping and Phosphor icons. Non-blocking asynchronous event emission bus. | `apps/api/src/domains/activity/`, `apps/web/src/features/activity/` |
 | **Observability & SRE** | COMPLETE ✅ | Structured JSON logger with credential sanitization, `x-request-id` correlation tracing, request latency logging, rate limiters, health/readiness/version probes, frontend error boundaries. | `apps/api/src/utils/logger.ts`, `apps/api/src/middleware/`, `apps/web/app/error.tsx` |
-| **Cloudflare Workers API** | COMPLETE ✅ | Decoupled Express app (`src/app.ts`), Node `http` stream bridge (`src/worker.ts`), stateless `@neondatabase/serverless` HTTP transport, Wrangler config (`wrangler.jsonc`). | `apps/api/src/worker.ts`, `apps/api/src/db/client.ts`, `apps/api/wrangler.jsonc` |
+| **Cloudflare Workers API** | COMPLETE ✅ | Decoupled Express app (`src/app.ts`), Node `http` stream bridge (`src/worker.ts`), stateless `@neondatabase/serverless` HTTP transport, Wrangler config (`wrangler.jsonc`) with `AUTOMATION_QUEUE` binding and cron triggers (`*/5 * * * *`). | `apps/api/src/worker.ts`, `apps/api/src/db/client.ts`, `apps/api/wrangler.jsonc` |
 | **AI Service Skeleton (Phase 1)** | COMPLETE ✅ | FastAPI Python microservice foundation (`apps/ai`), Bearer service API key validation (`secrets.compare_digest`), matching error envelope format (`success: false`, `error`, `message`, `requestId`), unauthenticated `/health` probe, `/api/v1/*` protected routing, unit test suite. | `apps/ai/app/`, `apps/ai/tests/` |
 | **AI Security Bridge (Phase 2)** | COMPLETE ✅ | Cloudflare Workers API ↔ Python AI Service security gateway. Native `fetch` client with `AbortSignal.timeout(30000)`, Bearer token injection, trusted `AiRequestPayload` (`workspaceId`, `actorId`, `actorRole`, `requestId`, `input`), error envelope mapping, `/api/v1/workspaces/:workspaceId/ai/test` route. | `apps/api/src/ai/`, `apps/api/src/domains/ai/` |
 | **AI Scope Persistence (Phase 3)** | COMPLETE ✅ | Drizzle ORM schema & Neon migration (`0006_amazing_ma_gnuci.sql`) for `scope_analyses` table (`id`, `workspace_id`, `project_id`, `actor_user_id`, `input_text`, `result` JSONB, `confirmed_at`). Implemented `ScopeAnalysisRepository` with strict tenant isolation and test suite. | `packages/database/src/schema/scope_analyses.ts`, `apps/api/src/domains/ai/repository.ts` |
@@ -45,9 +45,10 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 | **Project Hub & Deliverables Engine (Sprint 17)** | COMPLETE ✅ | Relational project deliverables (`project_deliverables`), status lifecycle (`pending`, `in_progress`, `completed`), deterministic progress tracking, itemized progress billing, and in-context drift launcher. | `packages/database/src/schema/project_deliverables.ts`, `apps/api/src/domains/project/`, `apps/web/src/features/project/` |
 | **Change Orders & Scope Governance (Sprint 18)** | COMPLETE ✅ | Controlled scope drift → change order execution bridge. Audit-trail change orders table (`0009_add_change_orders.sql`), proposal lifecycle (`draft` → `proposed` → `approved` / `rejected` / `cancelled`), automated project budget/deadline mutation, deliverable materialization, dedicated change-order invoicing, and interactive Project Hub UI. | `packages/database/src/schema/change_orders.ts`, `apps/api/src/domains/project/change-order.*`, `apps/web/src/features/project/components/ChangeOrderProposalModal.tsx`, `apps/web/src/features/project/components/ProjectChangeOrdersCard.tsx` |
 | **Communication Hub (Sprint 19)** | COMPLETE ✅ | Resilient multi-channel (Email/WhatsApp) provider adapters (Resend, WA-AKG, Mock), template engine with fallback safety, inbound webhook deduplication, tenant isolation, and centralized UI (Hub, Modals, Thread Feed). | `apps/api/src/domains/communication/`, `apps/web/src/features/communication/` |
+| **Automation Engine & Reliability Closure (Sprint 20)** | COMPLETE ✅ | Durable background execution via Cloudflare Queues (`AUTOMATION_QUEUE`), execution lifecycle decoupling (`fetch`, `queue`, `scheduled`), fallback `WaitUntilQueueAdapter`, run-level idempotency (`idx_automation_runs_event_automation_uq` in `0012`), action-level idempotency (SHA-256 hash in `internal_action_logs`), dynamic condition engine, timing-safe webhook auth (`crypto.timingSafeEqual`), and scheduled sweeper (`*/5 * * * *`). | `apps/api/src/domains/automation/`, `apps/api/src/worker.ts`, `apps/api/src/worker.context.ts`, `apps/web/src/features/automation/` |
 | **Deep Security Hardening & Edge Protection** | COMPLETE ✅ | Full-spectrum audit across 7 dimensions (SEC-01 to SEC-06 resolved): project-scoped Vercel CORS regex, Cloudflare Workers dynamic AI secrets & URL injection, LLM prompt injection defenses with XML boundary markers, FastAPI CORS restriction, connection pool leak elimination in historical ingestion, and pnpm supply chain overrides (qs, postcss). | `apps/api/src/app.ts`, `apps/ai/app/services/`, `apps/ai/scripts/`, `package.json`, `.github/workflows/ci-cd.yml` |
-| **Database Migrations & Seed** | COMPLETE ✅ | Automated Node/ESM migration runner applying pending Drizzle SQL migrations safely against Neon PostgreSQL over stateless HTTP transport; Comprehensive demo data seeding script (`db:seed`). | `packages/database/src/migrate.ts`, `packages/database/src/seed.ts` |
-| **CI/CD Automation** | COMPLETE ✅ | Multi-stage GitHub Actions workflow enforcing quality gates (`lint`, `typecheck`, `test`, `build`), automated release, post-deployment live API health check, concurrency handling, timeouts, Python 3.13 + `uv` pytest gate, dynamic Cloudflare secrets injection, Render deploy webhook. | `.github/workflows/ci-cd.yml` |
+| **Database Migrations & Seed** | COMPLETE ✅ | Automated Node/ESM migration runner applying 13 pending Drizzle SQL migrations safely against Neon PostgreSQL over stateless HTTP transport (20 tables); Comprehensive demo data seeding script (`db:seed`). | `packages/database/src/migrate.ts`, `packages/database/src/seed.ts` |
+| **CI/CD Automation** | COMPLETE ✅ | Multi-stage GitHub Actions workflow enforcing quality gates (`lint`, `typecheck`, `test`, `build`), automated release, post-deployment live API health check, concurrency handling, timeouts, Python 3.13 + `uv` Pytest gate, dynamic Cloudflare secrets injection, Render deploy webhook. | `.github/workflows/ci-cd.yml` |
 | **Vercel Web Deployment** | COMPLETE ✅ | Direct CLI deployment in CI/CD (`vercel deploy --prod --yes`), pre-configured monorepo root directory, and zero-downtime releases. Content Security Policy (CSP) hardened for Clerk Web Workers. | `.github/workflows/ci-cd.yml`, `apps/web/next.config.ts` |
 
 ---
@@ -102,6 +103,7 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 ### J. Core API Scope Analysis Controller & Service (Phase 4)
 - **Human-in-the-Loop Lifecycle**: `POST /scope` generates and stores an unconfirmed draft (`confirmedAt = null`) allowing the freelancer to review and revise before finalizing via `POST /scope/:scopeId/confirm`.
 - **Validation & RBAC Protection**: Strict Zod schemas (`generateScopeSchema`, `confirmScopeParamsSchema`) enforce input constraints (`inputText.min(10)`) and multi-tenant workspace isolation.
+
 ### K. Groq LLM Integration & Scope Generation Engine (Phase 5)
 - **LangChain Structured Inference**: Implemented `LlmScopeEngine` using `ChatGroq(model="openai/gpt-oss-120b", request_timeout=25.0)` with `.with_structured_output(ScopeAnalysisResult)`.
 - **Comprehensive Scope Output Schema**: `ScopeAnalysisResult` contains executive summary, deliverable milestones with complexity/hour estimates/required skills, overall project timeline in weeks, risk factors, recommended tech stack, and clarity confidence score (1-100).
@@ -182,7 +184,7 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 - **Cross-Platform Test Dispatcher (`apps/ai/run_tests.js`)**:
   - Problem: `turbo run test` on Windows invoked system `pytest` on PATH instead of the dedicated Python virtual environment, causing missing module errors (`chromadb`) when running locally.
   - Solution: Built a Node.js runner script in `apps/ai/run_tests.js` that checks for `.venv/Scripts/pytest.exe` (Windows) or `.venv/bin/pytest` (POSIX) and falls back to system `pytest`.
-  - Result: Developers and CI run `pnpm test` once from the root directory to execute all 353 tests across TypeScript and Python seamlessly in < 10 seconds.
+  - Result: Developers and CI run `pnpm test` once from the root directory to execute all tests across TypeScript and Python seamlessly in < 15 seconds.
 
 ### T. End-to-End Environment Stability & Runtime Hardening (September 9, 2026)
 - **Zero-Config Local AI Dev Runner (`apps/ai/run_dev.js`)**: Added Node.js wrapper that detects `.venv/Scripts/uvicorn.exe` (Windows) or `.venv/bin/uvicorn` (Linux/macOS), allowing `pnpm dev` from monorepo root to launch the AI service seamlessly alongside Web and API.
@@ -255,18 +257,28 @@ Freelance OS is a production-grade monorepo application for managing freelance o
   - Integrated with TanStack Query (`useCommunicationMessages`, `useSendEmail`) for instantaneous updates on dispatch.
 - **Bug Fixes**: Addressed component-level bugs involving invalid `FormField` usage outside `react-hook-form` boundaries and replaced missing `date-fns` dependencies with native `Intl.DateTimeFormat` fallbacks.
 
-### Z. Sprint 20 & Phase 4: Automation Engine & N8n Integration (Completed, Hardened & Audited)
-- **Problem Solved**: Connecting internal domain events (e.g., Invoice Overdue) to outbound communications (Email/WhatsApp) via dynamic rules without hardcoding business logic.
-- **N8N Compiler & Provider (`apps/api/src/domains/automation/n8n/`)**:
-  - Implemented `HttpN8nWorkflowProvider` to `POST` compiled JSON workflows directly to an external n8n engine using Axios.
-  - Built `N8nWorkflowCompiler` to dynamically translate our internal rule schema (`CreateAutomationSchema`) into physical n8n node graphs (e.g., `n8n-nodes-base.cron`, `n8n-nodes-base.httpRequest`).
-- **Dynamic UI Rule Builder (`CreateAutomationModal.tsx`)**:
-  - Completely redesigned the automation builder modal to align with the **Miro Design Language** (stark white canvas, canary yellow accents, black-pill CTAs, and pastel yellow/rose sticky-note style cards).
-  - Implemented robust **Condition Scoping**: Users can now optionally select specific Clients (`useClients`) or Projects (`useProjects`) from dropdowns to strictly scope rules via the UI.
-- **Security Audit & Cryptographic Hardening**:
-  - **Zero-Trust Webhooks**: Injected `N8N_WEBHOOK_SECRET` into the n8n compiler so all n8n callbacks are cryptographically authenticated.
-  - **Timing Attack Mitigation**: Secured `send-email.action.ts` and `send-whatsapp.action.ts` webhooks using Node's `crypto.timingSafeEqual()` to prevent timing leaks during secret validation.
-  - **Rate Limiting**: Hardened the internal `/api/v1/internal/actions` router by explicitly attaching the `generalRateLimiter`, preventing brute-force DoS attacks against the webhook token.
+### Z. Sprint 20: Automation Engine & Reliability Closure (Completed, Hardened & Audited)
+- **Durable Background Execution Architecture (`apps/api/src/worker.ts` & `apps/api/src/worker.context.ts`)**:
+  - **Problem**: Previously, `triggerProcessor()` was executed as an unawaited in-memory promise attached to the HTTP request lifecycle. In serverless/isolate runtimes (Cloudflare Workers), unawaited promises are immediately terminated when the HTTP response closes, leading to silent drops of automation runs and webhooks.
+  - **Solution**: Decoupled HTTP dispatch from background processing via Cloudflare Queues (`AUTOMATION_QUEUE`). The API server places trigger messages onto `AUTOMATION_QUEUE`. The worker entry point implements three decoupled lifecycle handlers: `fetch` (HTTP routing), `queue` (durable queue batch consumption via `AutomationQueueConsumer`), and `scheduled` (cron trigger running `AutomationSweeperService` every 5 minutes to recover stuck runs).
+  - **Async Context Isolation**: Injected `AsyncLocalStorage` via `worker.context.ts` ensuring request-level metadata (`requestId`, `executionContext`) is safely accessible across queue adapters without cross-request state pollution.
+  - **Graceful Fallbacks**: Implemented `WaitUntilQueueAdapter` for environments without native Cloudflare Queue bindings, guaranteeing durable background execution via `ctx.waitUntil()` or scheduled sweepers.
+- **Run-Level & Action-Level Idempotency (`0012_add_automation_runs_event_unique.sql`)**:
+  - **Run Idempotency**: Applied unique database constraint `idx_automation_runs_event_automation_uq` on `(workspace_id, event_id, automation_id)` in `automation_runs`. Multiple queue delivery attempts or duplicate webhook dispatches atomically return the existing run instead of re-executing external n8n workflows.
+  - **Action Idempotency**: Recorded SHA-256 payload hashes in `internal_action_logs` with a unique index on `(workspace_id, idempotency_key, action_type)`. If n8n retries an action call, the handler detects the existing execution and returns the previous result without duplicate email/WhatsApp sends.
+- **Dynamic Rule Condition Engine (`AutomationDispatcher`)**:
+  - Replaced hardcoded checks with dynamic condition evaluation (`matchesTriggerConditions`). Supports multi-field comparisons (`>`, `<`, `>=`, `<=`, `==`, `!=`, `contains`, `in`) evaluated at runtime against event metadata payloads (e.g. invoice `amount > 5000` or project `status == completed`).
+- **Cryptographic Security & Timing Leak Defense**:
+  - Webhook endpoints (`/api/v1/internal/actions/send-email`, `/api/v1/internal/actions/send-whatsapp`) enforce zero-trust signature validation using `crypto.timingSafeEqual()`, eliminating side-channel timing attacks on `N8N_WEBHOOK_SECRET`.
+  - Rate limiting enforced on all internal action routes via `generalRateLimiter`.
+- **Database Truth Reconciliation (20 Tables, 13 Migrations)**:
+  - Audited the entire database schema layer in `packages/database/src/schema/`. Cataloged all 20 real tables and 13 Drizzle migrations into the canonical reference [`docs/02-engineering/database-schema-inventory.md`](file:///docs/02-engineering/database-schema-inventory.md).
+- **Web App SSR & Client Boundary Fixes**:
+  - Configured `transpilePackages: ["@phosphor-icons/react"]` in `apps/web/next.config.ts` to prevent SSR ES module bundling errors.
+  - Added `"use client"` directives to interactive invoice components (`InvoiceCard.tsx`, `InvoiceEmptyState.tsx`, `InvoiceList.tsx`, `InvoiceStatusBadge.tsx`).
+- **Canonical Architecture Documentation**:
+  - Authored [`docs/02-engineering/automation-engine-architecture.md`](file:///docs/02-engineering/automation-engine-architecture.md) detailing the durable execution lifecycle, queue topologies, and failure recovery state machines.
+  - Authored [`docs/audits/sprint-20-reliability-closure-report.md`](file:///docs/audits/sprint-20-reliability-closure-report.md) with comprehensive evidence of quality gate closure.
 
 ---
 
@@ -274,14 +286,13 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 
 | Package | Test Suite | Tests Passing | Linter / Typecheck | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **`apps/ai`** | Pytest | **42 / 42 passed** | 0 errors | VERIFIED ✅ |
-| **`apps/api`** | Vitest | **306 / 306 passed** (33 test files) | Biome + TSC: 0 errors | VERIFIED ✅ |
-| **`apps/web`** | Vitest | **38 / 38 passed** (10 test files) | ESLint + TSC: 0 errors | VERIFIED ✅ |
-| **`packages/database`** | Drizzle Migrations | 11 tables applied | TSC: 0 errors | VERIFIED ✅ |
-| **TOTAL** | **All Suites** | **386+ passed** | **0 errors across monorepo** | **ALL GREEN ✅** |
+| **`apps/ai`** | Pytest | **42 / 42 passed** (100%) | 0 errors | VERIFIED ✅ |
+| **`apps/api`** | Vitest | **351 / 351 passed** (41 test files, 100%) | Biome + TSC: 0 errors | VERIFIED ✅ |
+| **`apps/web`** | Vitest | **43 / 43 passed** (12 test files, 100%) | ESLint + TSC: 0 errors | VERIFIED ✅ |
+| **`packages/database`** | Drizzle Migrations | **20 tables / 13 migrations** | TSC: 0 errors | VERIFIED ✅ |
+| **TOTAL** | **All Suites** | **436 / 436 passed (100%)** | **0 errors across monorepo** | **ALL GREEN ✅** |
 
-> **Last verified:** September 18, 2026 · Post-Sprint-18 Scope Drift → Change Order Bridge Full Implementation & Verification Verified (All Suites Passing)
-
+> **Last verified:** September 26, 2026 · Post-Sprint 20 Reliability Closure & Database Reconciliation (436 Tests Passing, 0 Errors)
 
 ---
 
@@ -298,8 +309,9 @@ pnpm build
 pnpm --filter @repo/database db:migrate
 pnpm --filter @repo/database db:seed
 
-# Cloudflare Worker Deployment
+# Cloudflare Worker Deployment (Dry Run & Live)
 cd apps/api
+npx wrangler deploy --dry-run
 npx wrangler deploy
 cd ../..
 

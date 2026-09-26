@@ -158,6 +158,9 @@ export const automationRunsTable = pgTable(
     n8nExecutionIdx: index("idx_automation_runs_n8n_execution").on(
       table.n8nExecutionId
     ),
+    eventAutomationUnique: uniqueIndex(
+      "idx_automation_runs_event_automation_uq"
+    ).on(table.automationEventId, table.automationId),
     fkWorkspace: foreignKey({
       columns: [table.workspaceId],
       foreignColumns: [workspacesTable.id],

@@ -13,7 +13,7 @@ export abstract class ProjectDomainError extends Error {
   abstract readonly code: string;
   abstract readonly errorKind: ProjectErrorKind;
 
-  protected constructor(message: string) {
+  constructor(message: string) {
     super(message);
     this.name = new.target.name;
     Object.setPrototypeOf(this, new.target.prototype);

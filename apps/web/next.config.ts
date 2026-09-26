@@ -18,6 +18,7 @@ const cspHeader = `
   .trim();
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["@phosphor-icons/react"],
   async headers() {
     return [
       {

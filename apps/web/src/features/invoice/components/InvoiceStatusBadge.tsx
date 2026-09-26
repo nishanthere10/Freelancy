@@ -1,3 +1,5 @@
+"use client";
+
 import type { InvoiceStatus } from "../api";
 
 interface InvoiceStatusBadgeProps {

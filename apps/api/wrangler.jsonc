@@ -12,5 +12,25 @@
     "FRONTEND_URL": "https://freelancy-omega.vercel.app",
     "CLERK_PUBLISHABLE_KEY": "pk_test_bW9kZXJuLWZhd24tNjUuY2xlcmsuYWNjb3VudHMuZGV2JA",
     "AI_SERVICE_URL": "http://localhost:8000"
+  },
+  "queues": {
+    "producers": [
+      {
+        "queue": "freelance-os-automation-events",
+        "binding": "AUTOMATION_QUEUE"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "freelance-os-automation-events",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "dead_letter_queue": "freelance-os-automation-dlq"
+      }
+    ]
+  },
+  "triggers": {
+    "crons": ["*/5 * * * *"]
   }
 }

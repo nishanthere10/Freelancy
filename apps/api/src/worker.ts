@@ -12,6 +12,32 @@ import type {
 import type { Application } from "express";
 import app, { isAllowedOrigin } from "./app";
 import { logger } from "./utils/logger";
+import {
+  runWithWorkerContext,
+  setWorkerContext,
+  type WorkerEnv,
+} from "./worker.context";
+import {
+  AutomationDispatcher,
+  isTransientError,
+} from "./domains/automation/automation.dispatcher";
+import type { AutomationQueueMessage } from "./domains/automation/automation.queue";
+
+export interface WorkerMessage<T = unknown> {
+  id: string;
+  timestamp: Date;
+  body: T;
+  attempts?: number;
+  ack(): void;
+  retry(options?: { delaySeconds?: number }): void;
+}
+
+export interface WorkerMessageBatch<T = unknown> {
+  queue: string;
+  messages: readonly WorkerMessage<T>[];
+  ackAll(): void;
+  retryAll(options?: { delaySeconds?: number }): void;
+}
 
 type ExpressRunner = (
   req: http.IncomingMessage,
@@ -348,39 +374,64 @@ export async function handleExpressRequest(
 export default {
   async fetch(
     request: WorkerRequest,
-    env: Record<string, string>,
-    _ctx: ExecutionContext,
+    env: WorkerEnv,
+    ctx: ExecutionContext,
   ): Promise<Response> {
-    const rawOrigin = request.headers.get("origin");
-    try {
-      if (env) {
-        for (const [key, value] of Object.entries(env)) {
-          if (typeof value === "string") {
-            process.env[key] = value;
+    setWorkerContext({ env, ctx });
+    return runWithWorkerContext({ env, ctx }, async () => {
+      const rawOrigin = request.headers.get("origin");
+      try {
+        if (env) {
+          for (const [key, value] of Object.entries(env)) {
+            if (typeof value === "string") {
+              process.env[key] = value;
+            }
           }
         }
-      }
 
-      // Startup Check: Validate critical environment variables
-      const missingVars: string[] = [];
-      if (process.env.NODE_ENV !== "test") {
-        if (!process.env.DATABASE_URL) missingVars.push("DATABASE_URL");
-        if (!process.env.CLERK_SECRET_KEY) missingVars.push("CLERK_SECRET_KEY");
-        if (
-          !process.env.CLERK_PUBLISHABLE_KEY &&
-          !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-        ) {
-          missingVars.push("CLERK_PUBLISHABLE_KEY");
+        // Startup Check: Validate critical environment variables
+        const missingVars: string[] = [];
+        if (process.env.NODE_ENV !== "test") {
+          if (!process.env.DATABASE_URL) missingVars.push("DATABASE_URL");
+          if (!process.env.CLERK_SECRET_KEY) missingVars.push("CLERK_SECRET_KEY");
+          if (
+            !process.env.CLERK_PUBLISHABLE_KEY &&
+            !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+          ) {
+            missingVars.push("CLERK_PUBLISHABLE_KEY");
+          }
         }
-      }
 
-      if (missingVars.length > 0) {
-        const errorMsg = `Missing critical environment variables: ${missingVars.join(", ")}`;
-        logger.error(errorMsg);
+        if (missingVars.length > 0) {
+          const errorMsg = `Missing critical environment variables: ${missingVars.join(", ")}`;
+          logger.error(errorMsg);
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: "CONFIGURATION_ERROR",
+              message: errorMsg,
+            }),
+            {
+              status: 500,
+              headers: createWorkerResponseHeaders(rawOrigin),
+            },
+          );
+        }
+
+        return await handleExpressRequest(app, request);
+      } catch (err) {
+        logger.error("Cloudflare Worker fetch exception", { error: err });
+        const errorMsg =
+          process.env.NODE_ENV === "production"
+            ? "An unexpected internal error occurred"
+            : err instanceof Error
+              ? err.message
+              : String(err);
+
         return new Response(
           JSON.stringify({
             success: false,
-            error: "CONFIGURATION_ERROR",
+            error: "INTERNAL_ERROR",
             message: errorMsg,
           }),
           {
@@ -389,28 +440,58 @@ export default {
           },
         );
       }
+    });
+  },
 
-      return await handleExpressRequest(app, request);
-    } catch (err) {
-      logger.error("Cloudflare Worker fetch exception", { error: err });
-      const errorMsg =
-        process.env.NODE_ENV === "production"
-          ? "An unexpected internal error occurred"
-          : err instanceof Error
-            ? err.message
-            : String(err);
+  async queue(
+    batch: WorkerMessageBatch<AutomationQueueMessage>,
+    env: WorkerEnv,
+    ctx: ExecutionContext,
+  ): Promise<void> {
+    setWorkerContext({ env, ctx });
+    const dispatcher = new AutomationDispatcher();
 
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: "INTERNAL_ERROR",
-          message: errorMsg,
-        }),
-        {
-          status: 500,
-          headers: createWorkerResponseHeaders(rawOrigin),
-        },
-      );
+    for (const message of batch.messages) {
+      try {
+        await dispatcher.triggerProcessor(message.body.eventId);
+        message.ack();
+      } catch (err: unknown) {
+        const isTransient = isTransientError(err);
+        const nextAttempt = (message.body.attempt || 0) + 1;
+
+        if (isTransient && nextAttempt < 3) {
+          logger.warn("Retrying automation event via Cloudflare Queue", {
+            eventId: message.body.eventId,
+            nextAttempt,
+          });
+          message.retry({ delaySeconds: Math.pow(nextAttempt, 2) * 60 });
+        } else {
+          logger.error("Automation event dead-lettered / permanent failure", {
+            eventId: message.body.eventId,
+            error: err instanceof Error ? err.message : String(err),
+          });
+          await dispatcher.handleFailure(
+            message.body.eventId,
+            err instanceof Error ? err : new Error(String(err)),
+            nextAttempt,
+            3,
+          );
+          message.ack();
+        }
+      }
     }
   },
+
+  async scheduled(
+    _event: unknown,
+    env: WorkerEnv,
+    ctx: ExecutionContext,
+  ): Promise<void> {
+    setWorkerContext({ env, ctx });
+    logger.info("Executing scheduled automation sweeper");
+    const dispatcher = new AutomationDispatcher();
+    const sweptCount = await dispatcher.sweepPendingOrRetryableEvents();
+    logger.info("Scheduled automation sweeper completed", { sweptCount });
+  },
 };
+
