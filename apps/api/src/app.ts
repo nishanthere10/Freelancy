@@ -206,12 +206,12 @@ app.get("/", (_req: Request, res: Response) => {
 // JSON bodies for webhooks are parsed inline here.
 app.post(
   "/webhooks/email",
-  express.json({ limit: "512kb" }),
+  express.raw({ type: "application/json", limit: "512kb" }),
   handleEmailWebhook,
 );
 app.post(
   "/webhooks/whatsapp",
-  express.json({ limit: "512kb" }),
+  express.raw({ type: "application/json", limit: "512kb" }),
   handleWhatsAppWebhook,
 );
 

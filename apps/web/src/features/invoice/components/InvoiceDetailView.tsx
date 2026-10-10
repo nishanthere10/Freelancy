@@ -12,6 +12,8 @@ import {
   Prohibit,
   Trash,
   User,
+  EnvelopeSimple,
+  ChatCircleDots,
 } from "@phosphor-icons/react";
 import { Button } from "@shared/components";
 import { Pacifico } from "next/font/google";
@@ -21,6 +23,8 @@ import { useCancelInvoice, useDeleteInvoice, useSendInvoice } from "../hooks";
 import { EditInvoiceDialog } from "./EditInvoiceDialog";
 import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
 import { RecordPaymentDialog } from "./RecordPaymentDialog";
+import { SendEmailModal } from "@features/communication/components/SendEmailModal";
+import { SendWhatsAppModal } from "@features/communication/components/SendWhatsAppModal";
 
 const pacifico = Pacifico({
   weight: "400",
@@ -40,6 +44,8 @@ export function InvoiceDetailView({
 }: InvoiceDetailViewProps) {
   const [payDialogOpen, setPayDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
 
   const sendInvoiceMutation = useSendInvoice(workspaceId);
   const cancelInvoiceMutation = useCancelInvoice(workspaceId);
@@ -107,7 +113,25 @@ export function InvoiceDetailView({
             onClick={handlePrint}
             className="rounded-full"
           >
-            <Printer className="h-4 w-4 mr-1.5" /> Print / Save PDF
+            <Printer className="h-4 w-4 mr-1.5" /> Print / PDF
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEmailModalOpen(true)}
+            className="rounded-full"
+          >
+            <EnvelopeSimple className="h-4 w-4 mr-1.5" /> Email
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsWhatsAppModalOpen(true)}
+            className="rounded-full text-[var(--color-moss-dark)] border-[var(--color-brand-teal)]/30 hover:bg-[var(--color-teal-light)]"
+          >
+            <ChatCircleDots className="h-4 w-4 mr-1.5" /> WhatsApp
           </Button>
 
           {invoice.status === "draft" && (
@@ -418,6 +442,22 @@ export function InvoiceDetailView({
         invoice={invoice}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
+      />
+
+      <SendEmailModal
+        workspaceId={workspaceId}
+        clientId={invoice.clientId}
+        invoiceId={invoice.id}
+        open={isEmailModalOpen}
+        onOpenChange={setIsEmailModalOpen}
+      />
+
+      <SendWhatsAppModal
+        workspaceId={workspaceId}
+        clientId={invoice.clientId}
+        invoiceId={invoice.id}
+        open={isWhatsAppModalOpen}
+        onOpenChange={setIsWhatsAppModalOpen}
       />
     </div>
   );

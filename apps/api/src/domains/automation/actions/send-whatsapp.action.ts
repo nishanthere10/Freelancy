@@ -4,6 +4,7 @@ import { createError, createSuccess } from "../../../utils/response";
 import { config } from "../../../config";
 import { AutomationIdempotencyService } from "../automation.idempotency";
 import { CommunicationService } from "../../communication/communication.service";
+import { resolveActionContact } from "./recipient.resolver";
 
 const idempotencyService = new AutomationIdempotencyService();
 const communicationService = new CommunicationService();
@@ -66,14 +67,24 @@ export async function sendWhatsAppAction(
     );
 
     try {
+      const resolved = await resolveActionContact(
+        workspaceId,
+        eventId,
+        actionPayload,
+      );
+
+      if (!resolved.recipientPhone) {
+        throw new Error("No recipient phone number could be resolved");
+      }
+
       const message = await communicationService.sendWhatsApp({
         workspaceId,
         actorId: "automation-service",
-        clientId: actionPayload.clientId || "00000000-0000-0000-0000-000000000000",
-        recipientPhone: actionPayload.recipient === "owner" ? "+10000000000" : "+10000000001",
+        clientId: resolved.clientId,
+        recipientPhone: resolved.recipientPhone,
         templateKey: actionPayload.templateKey,
-        templateVariables: {},
-        idempotencyKey: `wa-${idempotencyKey}`, 
+        templateVariables: resolved.templateVariables,
+        idempotencyKey: `wa-${idempotencyKey}`,
       });
 
       await idempotencyService.recordActionResult(workspaceId, idempotencyKey, "succeeded", message.id);

@@ -210,6 +210,8 @@ export async function archiveAutomation(
   }
 }
 
+import { evaluateConditionGroup } from "./automation.evaluator";
+
 /**
  * POST /api/v1/workspaces/:workspaceId/automations/:automationId/test
  */
@@ -225,17 +227,43 @@ export async function testAutomation(
       automationId: string;
     };
     const automation = await automationService.getAutomation(workspaceId, automationId);
-    
-    // Simulate compilation and dry-run execution
+
+    const samplePayload = req.body?.samplePayload || {
+      amount: 10000,
+      totalAmount: 10000,
+      status: "completed",
+      daysOverdue: 7,
+      invoice: {
+        amount: 10000,
+        totalAmount: 10000,
+        status: "overdue",
+        daysOverdue: 7,
+      },
+      project: {
+        status: "completed",
+        budget: 50000,
+      },
+      client: {
+        name: "Acme Corp",
+        status: "active",
+      },
+    };
+
+    const conditionReport = evaluateConditionGroup(
+      automation.conditionConfig as any,
+      samplePayload,
+    );
+
     const dryRunResult = {
       triggerMatched: true,
-      conditionsMatched: true,
-      actions: (automation.actionConfig as any[]).map(a => ({
+      conditionsMatched: conditionReport.matched,
+      conditionDetails: conditionReport.results,
+      actions: (automation.actionConfig as any[]).map((a) => ({
         type: a.type,
-        wouldExecute: true
-      }))
+        wouldExecute: conditionReport.matched,
+      })),
     };
-    
+
     res.status(200).json(createSuccess(dryRunResult));
   } catch (err) {
     res.status(404).json(createError("NOT_FOUND", "Automation not found"));

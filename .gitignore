@@ -38,6 +38,7 @@ skills
 .agents
 .kiro
 graphify-out
+.qoder
 .vercel
 .kiro
 .env*

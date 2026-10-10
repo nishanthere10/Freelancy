@@ -1,5 +1,5 @@
 import { db } from "../../db/client";
-import { automationEventsTable } from "@repo/database";
+import { automationEventsTable, invoicesTable } from "@repo/database";
 import { AutomationEventV1 } from "./automation.events";
 import { eq, and, lte } from "drizzle-orm";
 import { AutomationRepository } from "./automation.repository";
@@ -310,5 +310,58 @@ export class AutomationDispatcher {
     }
 
     return eventsToProcess.length;
+  }
+
+  /**
+   * Sweeps sent invoices that have passed their due date and emits invoice.overdue events idempotently.
+   */
+  async sweepOverdueInvoices(limit: number = 50): Promise<number> {
+    const todayStr = new Date().toISOString().split("T")[0];
+    const overdueInvoices = await db
+      .select()
+      .from(invoicesTable)
+      .where(
+        and(
+          eq(invoicesTable.status, "sent"),
+          lte(invoicesTable.dueDate, todayStr),
+        ),
+      )
+      .limit(limit);
+
+    for (const inv of overdueInvoices) {
+      const hash = crypto
+        .createHash("sha256")
+        .update(`overdue:${inv.id}:${todayStr}`)
+        .digest("hex");
+      const eventId = `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-8${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+      const event: AutomationEventV1 = {
+        version: 1,
+        eventId,
+        eventType: "invoice.overdue",
+        occurredAt: new Date().toISOString(),
+        workspaceId: inv.workspaceId,
+        actorId: null,
+        entity: { type: "invoice", id: inv.id },
+        context: {
+          invoiceId: inv.id,
+          clientId: inv.clientId,
+          projectId: inv.projectId || undefined,
+        },
+        data: {
+          invoiceNumber: inv.invoiceNumber,
+          amount: inv.totalAmount,
+          dueDate: inv.dueDate,
+        },
+      };
+
+      await this.dispatchEvent(event).catch((err) => {
+        logger.warn("Failed to dispatch invoice.overdue event", {
+          invoiceId: inv.id,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
+    }
+
+    return overdueInvoices.length;
   }
 }

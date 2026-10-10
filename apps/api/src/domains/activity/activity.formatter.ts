@@ -103,6 +103,16 @@ export function formatActivityMessage(
     case "invoice.deleted":
       return `Deleted invoice ${invoiceNumber ? `#${invoiceNumber}` : ""}`;
 
+    // Communication events
+    case "communication.email.sent":
+      return `Sent email to ${metadata.recipient || "client"}`;
+    case "communication.whatsapp.sent":
+      return `Sent WhatsApp message to ${metadata.recipient || "client"}`;
+
+    // Automation events
+    case "automation.follow_up_created":
+      return `Automated follow-up task created: "${metadata.followUpTitle || metadata.title || "Follow-up"}"`;
+
     default:
       return `Performed action ${eventType}`;
   }

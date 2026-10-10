@@ -27,21 +27,43 @@ import { config } from "../../../config";
 import { logger } from "../../../utils/logger";
 
 export class HttpN8nWorkflowProvider implements N8nWorkflowProvider {
-  private readonly client = axios.create({
-    baseURL: process.env.N8N_BASE_URL || "http://localhost:5678/api/v1",
-    headers: {
-      "X-N8N-API-KEY": process.env.N8N_API_KEY || "dev-key",
-      "Content-Type": "application/json",
-    },
-  });
+  private readonly client: any;
+  private readonly allowMockFallback: boolean;
+
+  constructor(options?: {
+    baseURL?: string;
+    apiKey?: string;
+    allowMockFallback?: boolean;
+  }) {
+    const baseURL =
+      options?.baseURL || process.env.N8N_BASE_URL || "http://localhost:5678/api/v1";
+    const apiKey = options?.apiKey || process.env.N8N_API_KEY || "dev-key";
+    this.allowMockFallback =
+      options?.allowMockFallback ??
+      (process.env.NODE_ENV === "test" &&
+        process.env.ENABLE_MOCK_N8N !== "false");
+
+    this.client = axios.create({
+      baseURL,
+      headers: {
+        "X-N8N-API-KEY": apiKey,
+        "Content-Type": "application/json",
+      },
+      timeout: 10000,
+    });
+  }
 
   async createWorkflow(input: CompiledWorkflow): Promise<N8nWorkflowRef> {
     try {
       const res = await this.client.post("/workflows", input);
       return { id: res.data.id, version: "1", active: res.data.active || false };
     } catch (err: any) {
-      logger.warn("n8n not running, mocking createWorkflow success");
-      return { id: "mock-workflow-id", version: "1", active: false };
+      if (this.allowMockFallback) {
+        logger.warn("n8n not running in test mode, mocking createWorkflow success");
+        return { id: "mock-workflow-id", version: "1", active: false };
+      }
+      logger.error("Failed to create n8n workflow", { error: err.message });
+      throw new Error(`Failed to create n8n workflow: ${err.message}`);
     }
   }
 
@@ -50,8 +72,12 @@ export class HttpN8nWorkflowProvider implements N8nWorkflowProvider {
       const res = await this.client.put(`/workflows/${workflowId}`, input);
       return { id: res.data.id, version: res.data.versionId || "1", active: res.data.active || false };
     } catch (err: any) {
-      logger.warn("n8n not running, mocking updateWorkflow success");
-      return { id: workflowId, version: "2", active: false };
+      if (this.allowMockFallback) {
+        logger.warn("n8n not running in test mode, mocking updateWorkflow success");
+        return { id: workflowId, version: "2", active: false };
+      }
+      logger.error("Failed to update n8n workflow", { workflowId, error: err.message });
+      throw new Error(`Failed to update n8n workflow: ${err.message}`);
     }
   }
 
@@ -59,7 +85,12 @@ export class HttpN8nWorkflowProvider implements N8nWorkflowProvider {
     try {
       await this.client.post(`/workflows/${workflowId}/activate`);
     } catch (err: any) {
-      logger.warn("n8n not running, mocking activateWorkflow success");
+      if (this.allowMockFallback) {
+        logger.warn("n8n not running in test mode, mocking activateWorkflow success");
+        return;
+      }
+      logger.error("Failed to activate n8n workflow", { workflowId, error: err.message });
+      throw new Error(`Failed to activate n8n workflow: ${err.message}`);
     }
   }
 
@@ -67,7 +98,12 @@ export class HttpN8nWorkflowProvider implements N8nWorkflowProvider {
     try {
       await this.client.post(`/workflows/${workflowId}/deactivate`);
     } catch (err: any) {
-      logger.warn("n8n not running, mocking deactivateWorkflow success");
+      if (this.allowMockFallback) {
+        logger.warn("n8n not running in test mode, mocking deactivateWorkflow success");
+        return;
+      }
+      logger.error("Failed to deactivate n8n workflow", { workflowId, error: err.message });
+      throw new Error(`Failed to deactivate n8n workflow: ${err.message}`);
     }
   }
 
@@ -76,8 +112,12 @@ export class HttpN8nWorkflowProvider implements N8nWorkflowProvider {
       const res = await this.client.get(`/workflows/${workflowId}`);
       return { id: res.data.id, version: res.data.versionId || "1", active: res.data.active || false };
     } catch (err: any) {
-      logger.warn("n8n not running, mocking getWorkflow success");
-      return { id: workflowId, version: "1", active: true };
+      if (this.allowMockFallback) {
+        logger.warn("n8n not running in test mode, mocking getWorkflow success");
+        return { id: workflowId, version: "1", active: true };
+      }
+      logger.error("Failed to get n8n workflow", { workflowId, error: err.message });
+      throw new Error(`Failed to get n8n workflow: ${err.message}`);
     }
   }
 

@@ -491,7 +491,11 @@ export default {
     logger.info("Executing scheduled automation sweeper");
     const dispatcher = new AutomationDispatcher();
     const sweptCount = await dispatcher.sweepPendingOrRetryableEvents();
-    logger.info("Scheduled automation sweeper completed", { sweptCount });
+    const overdueCount = await dispatcher.sweepOverdueInvoices();
+    logger.info("Scheduled automation sweeper completed", {
+      sweptCount,
+      overdueCount,
+    });
   },
 };
 

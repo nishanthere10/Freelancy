@@ -54,9 +54,11 @@ export async function handleEmailWebhook(
   res: Response,
 ): Promise<void> {
   const rawBody =
-    typeof req.body === "string"
-      ? req.body
-      : JSON.stringify(req.body ?? {});
+    req.body instanceof Buffer
+      ? req.body.toString("utf-8")
+      : typeof req.body === "string"
+        ? req.body
+        : JSON.stringify(req.body ?? {});
 
   const headers: Record<string, string | string[] | undefined> = {};
   for (const [key, value] of Object.entries(req.headers)) {
@@ -66,10 +68,10 @@ export async function handleEmailWebhook(
   const verified = await emailProvider.verifyWebhook(rawBody, headers);
 
   if (!verified.valid || !verified.event) {
-    logger.warn("Email webhook: invalid or unrecognised payload", {
+    logger.warn("Email webhook: signature verification failed or invalid payload", {
       error: verified.error,
     });
-    res.status(200).json({ received: false, reason: "invalid_payload" });
+    res.status(401).json(createError("UNAUTHORIZED", verified.error || "Invalid webhook signature"));
     return;
   }
 

@@ -128,6 +128,8 @@ export class N8nWorkflowCompiler {
 
         if (action.type === "send_email") endpoint = "/api/v1/internal/actions/send-email";
         else if (action.type === "send_whatsapp") endpoint = "/api/v1/internal/actions/send-whatsapp";
+        else if (action.type === "notify_owner") endpoint = "/api/v1/internal/actions/notify-owner";
+        else if (action.type === "create_follow_up") endpoint = "/api/v1/internal/actions/create-follow-up";
 
         // Map action to HTTP Request node calling our internal webhook
         nodes.push({

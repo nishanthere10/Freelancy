@@ -2,8 +2,12 @@ import type { NextFunction, Request, Response } from "express";
 import { type Router as ExpressRouter, Router } from "express";
 import { z } from "zod";
 import { createError } from "../../utils/response";
+import { requireWorkspaceRole } from "../../middleware/rbac.middleware";
 import {
   getClientPreferences,
+  getClientThread,
+  getMessage,
+  listChannels,
   listMessages,
   sendEmail,
   sendWhatsApp,
@@ -21,6 +25,11 @@ import {
 
 export const workspaceParamsSchema = z.object({
   workspaceId: z.string().uuid("Invalid workspace ID"),
+});
+
+export const messageParamsSchema = z.object({
+  workspaceId: z.string().uuid("Invalid workspace ID"),
+  messageId: z.string().uuid("Invalid message ID"),
 });
 
 export const clientPrefsParamsSchema = z.object({
@@ -104,21 +113,59 @@ const router: ExpressRouter = Router({ mergeParams: true });
 // Validate :workspaceId on all router requests
 router.use(validateParams(workspaceParamsSchema));
 
-// Outbound sends
-router.post("/email", validateBody(sendEmailSchema), sendEmail);
-router.post("/whatsapp", validateBody(sendWhatsAppSchema), sendWhatsApp);
+// Outbound sends (Requires editor role)
+router.post(
+  "/email",
+  requireWorkspaceRole("editor"),
+  validateBody(sendEmailSchema),
+  sendEmail,
+);
+router.post(
+  "/whatsapp",
+  requireWorkspaceRole("editor"),
+  validateBody(sendWhatsAppSchema),
+  sendWhatsApp,
+);
 
-// Message history
-router.get("/messages", validateQuery(listMessagesQuerySchema), listMessages);
+// Message history (Requires viewer role)
+router.get(
+  "/messages",
+  requireWorkspaceRole("viewer"),
+  validateQuery(listMessagesQuerySchema),
+  listMessages,
+);
+router.get(
+  "/messages/:messageId",
+  requireWorkspaceRole("viewer"),
+  validateParams(messageParamsSchema),
+  getMessage,
+);
+
+// Client thread (Requires viewer role)
+router.get(
+  "/clients/:clientId/thread",
+  requireWorkspaceRole("viewer"),
+  validateParams(clientPrefsParamsSchema),
+  getClientThread,
+);
+
+// Workspace channels (Requires viewer role)
+router.get(
+  "/channels",
+  requireWorkspaceRole("viewer"),
+  listChannels,
+);
 
 // Per-client notification preferences
 router.get(
   "/clients/:clientId/preferences",
+  requireWorkspaceRole("viewer"),
   validateParams(clientPrefsParamsSchema),
   getClientPreferences,
 );
 router.put(
   "/clients/:clientId/preferences",
+  requireWorkspaceRole("editor"),
   validateParams(clientPrefsParamsSchema),
   validateBody(upsertPreferencesSchema),
   upsertClientPreferences,

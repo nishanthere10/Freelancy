@@ -10,6 +10,7 @@ import {
   Check,
   Clock,
   CurrencyDollar,
+  EnvelopeSimple,
   FileText,
   Lightbulb,
   PencilSimple,
@@ -22,6 +23,7 @@ import { Button, Card } from "@shared/components";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { toast } from "sonner";
+import { SendEmailModal } from "@features/communication/components/SendEmailModal";
 import type { ProjectResponse } from "../api";
 import {
   useDeleteProject,
@@ -50,6 +52,7 @@ export function ProjectDetail({
 }: ProjectDetailProps) {
   const [confirmingArchive, setConfirmingArchive] = useState(false);
   const [isDriftModalOpen, setIsDriftModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [changeOrderProposal, setChangeOrderProposal] = useState<{
     isOpen: boolean;
     driftAnalysisId?: string | null;
@@ -151,6 +154,18 @@ export function ProjectDetail({
             />
             <span>Check Scope Drift</span>
           </Button>
+
+          {project.clientId && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEmailModalOpen(true)}
+              className="rounded-full text-xs font-semibold gap-1.5"
+            >
+              <EnvelopeSimple className="h-3.5 w-3.5 text-[var(--color-brand-teal)]" />
+              <span>Email Client</span>
+            </Button>
+          )}
 
           {!isArchived ? (
             confirmingArchive ? (
@@ -424,6 +439,17 @@ export function ProjectDetail({
           initialAdditionalHours={changeOrderProposal.additionalHours}
           initialTimelineDeltaDays={changeOrderProposal.timelineDeltaDays}
           initialDeliverables={changeOrderProposal.deliverables}
+        />
+      )}
+      {/* Project-Scoped Communication Modal */}
+      {project.clientId && (
+        <SendEmailModal
+          open={isEmailModalOpen}
+          onOpenChange={setIsEmailModalOpen}
+          workspaceId={workspaceId}
+          clientId={project.clientId}
+          projectId={project.id}
+          defaultTemplateKey="project.progress"
         />
       )}
     </div>

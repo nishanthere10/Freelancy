@@ -243,3 +243,74 @@ export async function upsertClientPreferences(
     next(err);
   }
 }
+
+/**
+ * GET /api/v1/workspaces/:workspaceId/communications/messages/:messageId
+ */
+export async function getMessage(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { workspaceId, messageId } = req.params as {
+      workspaceId: string;
+      messageId: string;
+    };
+
+    const message = await communicationService.getMessage(workspaceId, messageId);
+    if (!message) {
+      res.status(404).json(createError("NOT_FOUND", "Message not found"));
+      return;
+    }
+
+    res.status(200).json(createSuccess(message));
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * GET /api/v1/workspaces/:workspaceId/communications/clients/:clientId/thread
+ */
+export async function getClientThread(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { workspaceId, clientId } = req.params as {
+      workspaceId: string;
+      clientId: string;
+    };
+    const limit = req.query.limit ? Number(req.query.limit) : 50;
+
+    const messages = await communicationService.getClientThread(
+      workspaceId,
+      clientId,
+      limit,
+    );
+
+    res.status(200).json(createSuccess(messages));
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * GET /api/v1/workspaces/:workspaceId/communications/channels
+ */
+export async function listChannels(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { workspaceId } = req.params as { workspaceId: string };
+    const channels = await communicationService.listChannels(workspaceId);
+    res.status(200).json(createSuccess(channels));
+  } catch (err) {
+    next(err);
+  }
+}
+

@@ -43,7 +43,44 @@ export const config = {
   get aiServiceApiKey() {
     return process.env.AI_SERVICE_API_KEY || "";
   },
+  get n8nBaseUrl() {
+    return process.env.N8N_BASE_URL || "http://localhost:5678";
+  },
+  get n8nApiKey() {
+    return process.env.N8N_API_KEY || "";
+  },
   get n8nWebhookSecret() {
-    return process.env.N8N_WEBHOOK_SECRET || "dev_unsafe_secret";
+    return (
+      process.env.AUTOMATION_SERVICE_TOKEN ||
+      process.env.N8N_WEBHOOK_SECRET ||
+      (this.isProduction ? "" : "dev_unsafe_secret")
+    );
+  },
+  get resendApiKey() {
+    return process.env.RESEND_API_KEY || "";
+  },
+  get resendWebhookSecret() {
+    return process.env.RESEND_WEBHOOK_SECRET || "";
+  },
+  get waGatewayUrl() {
+    return (
+      process.env.WA_GATEWAY_URL ||
+      process.env.WA_AKG_GATEWAY_URL ||
+      "http://localhost:3001"
+    );
+  },
+  get waGatewayApiKey() {
+    return (
+      process.env.WA_GATEWAY_API_KEY ||
+      process.env.WA_AKG_API_KEY ||
+      ""
+    );
+  },
+  get waGatewayWebhookSecret() {
+    return (
+      process.env.WA_GATEWAY_WEBHOOK_SECRET ||
+      process.env.WA_AKG_WEBHOOK_SECRET ||
+      ""
+    );
   },
 };

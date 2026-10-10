@@ -1,7 +1,7 @@
 # Freelance OS — Current System Update & Reasoning Agent Context
 
-**Date:** September 26, 2026  
-**Status:** Sprints 1–20 COMPLETE + AI Subsystem Phases 1–11 COMPLETE + Sprint 20 Reliability Closure & Database Reconciliation COMPLETE. Monorepo Quality Gate: 436 / 436 tests passing (100%) across API (351), Web (43), and AI (42) with 0 TypeScript/linter errors. Full Cloudflare Queue background execution, run-level & action-level idempotency, and canonical database schema inventory verified.
+**Date:** October 10, 2026  
+**Status:** Sprints 1–20 COMPLETE + Sprint 19 & 20 Full Remediation & Security Hardening COMPLETE + AI Subsystem Phases 1–11 COMPLETE. Monorepo Quality Gate: 436+ tests passing across API, Web, and AI with 0 TypeScript/linter errors. Full Cloudflare Queue background execution, business domain event bridging, cryptographic Svix webhooks, dynamic contact resolution, strict workspace RBAC, and cross-entity communication workflows verified.
 
 ---
 
@@ -44,8 +44,8 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 | **Scope-to-Project & Invoicing Bridge (Sprint 16)** | COMPLETE ✅ | 1-Click conversion of confirmed AI scope into active Project and draft initial deposit invoice. Line items auto-generated from deliverables, bidirectional project linking, `ConvertScopeModal` UI, inline deliverable editor, conversational "Refine with AI", and complete RBAC hardening. | `apps/api/src/domains/ai/`, `apps/web/src/features/ai/components/ConvertScopeModal.tsx`, `apps/web/src/features/ai/components/ScopeReviewDraft.tsx`, `planning/sprint-16.md` |
 | **Project Hub & Deliverables Engine (Sprint 17)** | COMPLETE ✅ | Relational project deliverables (`project_deliverables`), status lifecycle (`pending`, `in_progress`, `completed`), deterministic progress tracking, itemized progress billing, and in-context drift launcher. | `packages/database/src/schema/project_deliverables.ts`, `apps/api/src/domains/project/`, `apps/web/src/features/project/` |
 | **Change Orders & Scope Governance (Sprint 18)** | COMPLETE ✅ | Controlled scope drift → change order execution bridge. Audit-trail change orders table (`0009_add_change_orders.sql`), proposal lifecycle (`draft` → `proposed` → `approved` / `rejected` / `cancelled`), automated project budget/deadline mutation, deliverable materialization, dedicated change-order invoicing, and interactive Project Hub UI. | `packages/database/src/schema/change_orders.ts`, `apps/api/src/domains/project/change-order.*`, `apps/web/src/features/project/components/ChangeOrderProposalModal.tsx`, `apps/web/src/features/project/components/ProjectChangeOrdersCard.tsx` |
-| **Communication Hub (Sprint 19)** | COMPLETE ✅ | Resilient multi-channel (Email/WhatsApp) provider adapters (Resend, WA-AKG, Mock), template engine with fallback safety, inbound webhook deduplication, tenant isolation, and centralized UI (Hub, Modals, Thread Feed). | `apps/api/src/domains/communication/`, `apps/web/src/features/communication/` |
-| **Automation Engine & Reliability Closure (Sprint 20)** | COMPLETE ✅ | Durable background execution via Cloudflare Queues (`AUTOMATION_QUEUE`), execution lifecycle decoupling (`fetch`, `queue`, `scheduled`), fallback `WaitUntilQueueAdapter`, run-level idempotency (`idx_automation_runs_event_automation_uq` in `0012`), action-level idempotency (SHA-256 hash in `internal_action_logs`), dynamic condition engine, timing-safe webhook auth (`crypto.timingSafeEqual`), and scheduled sweeper (`*/5 * * * *`). | `apps/api/src/domains/automation/`, `apps/api/src/worker.ts`, `apps/api/src/worker.context.ts`, `apps/web/src/features/automation/` |
+| **Communication Hub (Sprint 19)** | COMPLETE ✅ | Resilient multi-channel (Email/WhatsApp) provider adapters (Resend, WA-AKG, Mock), Svix HMAC-SHA256 & timing-safe webhook verification, strict workspace RBAC (`requireWorkspaceRole`), E.164 phone normalization, template engine, inbound webhook deduplication, activity feed events, and centralized UI (Hub, Modals, Thread Feed, Client/Project/Invoice page triggers). | `apps/api/src/domains/communication/`, `apps/web/src/features/communication/`, `apps/api/src/middleware/rbac.middleware.ts` |
+| **Automation Engine & Reliability Closure (Sprint 20)** | COMPLETE ✅ | Durable background execution via Cloudflare Queues (`AUTOMATION_QUEUE`), domain event production bridge (`AutomationEventBridge`) connecting business mutations, dynamic recipient resolution (`recipient.resolver.ts`), honest n8n provider error handling with activation rollback, pure deterministic condition evaluation with dry-run testing, action replay protection (`verifyInternalActionAuth`), run-level & action-level idempotency, and scheduled overdue invoice sweeper (`*/5 * * * *`). | `apps/api/src/domains/automation/`, `apps/api/src/worker.ts`, `apps/api/src/worker.context.ts`, `apps/web/src/features/automation/` |
 | **Deep Security Hardening & Edge Protection** | COMPLETE ✅ | Full-spectrum audit across 7 dimensions (SEC-01 to SEC-06 resolved): project-scoped Vercel CORS regex, Cloudflare Workers dynamic AI secrets & URL injection, LLM prompt injection defenses with XML boundary markers, FastAPI CORS restriction, connection pool leak elimination in historical ingestion, and pnpm supply chain overrides (qs, postcss). | `apps/api/src/app.ts`, `apps/ai/app/services/`, `apps/ai/scripts/`, `package.json`, `.github/workflows/ci-cd.yml` |
 | **Database Migrations & Seed** | COMPLETE ✅ | Automated Node/ESM migration runner applying 13 pending Drizzle SQL migrations safely against Neon PostgreSQL over stateless HTTP transport (20 tables); Comprehensive demo data seeding script (`db:seed`). | `packages/database/src/migrate.ts`, `packages/database/src/seed.ts` |
 | **CI/CD Automation** | COMPLETE ✅ | Multi-stage GitHub Actions workflow enforcing quality gates (`lint`, `typecheck`, `test`, `build`), automated release, post-deployment live API health check, concurrency handling, timeouts, Python 3.13 + `uv` Pytest gate, dynamic Cloudflare secrets injection, Render deploy webhook. | `.github/workflows/ci-cd.yml` |
@@ -243,42 +243,38 @@ Freelance OS is a production-grade monorepo application for managing freelance o
   - `useChangeOrders.ts`: React Query hooks with automatic cache invalidation across projects, deliverables, financials, and invoices.
 - **Test Coverage**: Comprehensive unit & component tests in `change-order.service.test.ts` (780+ lines), `ChangeOrderProposalModal.test.tsx`, and `ProjectChangeOrdersCard.test.tsx`.
 
-### Y. Sprint 19: Communication Hub & Event Deduplication (Completed & Audited)
+### Y. Sprint 19: Communication Hub & Event Deduplication (Completed & Remediated)
 - **Problem Solved**: Centralizing inbound and outbound client communication (Email, WhatsApp) within the Freelance-OS platform without letting the transport providers (e.g. Resend, Meta) become authoritative sources of truth over domain data.
 - **Database Architecture**: Created `communication_messages`, `communication_channels`, and `communication_events` tables to durably store complete interaction histories and webhooks.
 - **Backend Architecture (`apps/api/src/domains/communication/`)**:
   - **Adapter Pattern**: Built provider adapters (`ResendProvider`, `WAAKGProvider`, and `MockProviders` for local dev) behind a unified `CommunicationService`.
-  - **Template Safety**: Engineered `TemplateService` with dynamic variables fallback, preventing runtime crashes on malformed data templates.
-  - **Webhook Idempotency**: Built deduplication logic mapping `provider_event_id` directly to database records, ensuring multiple webhook deliveries don't duplicate state or UI updates.
-  - **Tenant Hardening**: Enforced RBAC, ensuring inbound messages are resolved only against clients belonging to the correct workspace.
-- **Frontend Hub (`apps/web/src/features/communication/`)**:
-  - `CommunicationHub` dashboard offering a centralized `CommunicationThread` of all client interactions.
-  - Designed "Draft & Polish" modals (`SendEmailModal`, `SendWhatsAppModal`) with Zod-validated template selection.
-  - Integrated with TanStack Query (`useCommunicationMessages`, `useSendEmail`) for instantaneous updates on dispatch.
-- **Bug Fixes**: Addressed component-level bugs involving invalid `FormField` usage outside `react-hook-form` boundaries and replaced missing `date-fns` dependencies with native `Intl.DateTimeFormat` fallbacks.
+  - **Cryptographic Webhook Verification**: Real Svix HMAC-SHA256 signature verification over `${svix_id}.${svix_timestamp}.${rawBody}` in `resend.provider.ts` (with 5-minute timestamp tolerance) and constant-time `crypto.timingSafeEqual` secret verification in `wa-akg.provider.ts`.
+  - **RBAC & Tenant Protection**: Reusable `requireWorkspaceRole` middleware (`viewer` for reads, `editor` for dispatches) ensuring strictly isolated multi-tenant communication.
+  - **Complete Endpoints**: Added `GET /messages/:messageId`, `GET /clients/:clientId/thread`, and `GET /channels`.
+  - **Activity Feed Integration**: Outbound dispatches automatically emit `communication.email.sent` and `communication.whatsapp.sent` events to the activity bus.
+- **Frontend Hub & Entity Modals (`apps/web/src/features/communication/`, `client/`, `project/`, `invoice/`)**:
+  - Centralized `CommunicationHub` and `CommunicationThread` feed.
+  - Cross-entity action triggers and modals (`SendEmailModal`, `SendWhatsAppModal`) mounted directly on Client Detail, Project Detail, and Invoice Detail pages.
 
-### Z. Sprint 20: Automation Engine & Reliability Closure (Completed, Hardened & Audited)
+### Z. Sprint 20: Automation Engine & n8n Orchestration (Completed & Remediated)
 - **Durable Background Execution Architecture (`apps/api/src/worker.ts` & `apps/api/src/worker.context.ts`)**:
-  - **Problem**: Previously, `triggerProcessor()` was executed as an unawaited in-memory promise attached to the HTTP request lifecycle. In serverless/isolate runtimes (Cloudflare Workers), unawaited promises are immediately terminated when the HTTP response closes, leading to silent drops of automation runs and webhooks.
-  - **Solution**: Decoupled HTTP dispatch from background processing via Cloudflare Queues (`AUTOMATION_QUEUE`). The API server places trigger messages onto `AUTOMATION_QUEUE`. The worker entry point implements three decoupled lifecycle handlers: `fetch` (HTTP routing), `queue` (durable queue batch consumption via `AutomationQueueConsumer`), and `scheduled` (cron trigger running `AutomationSweeperService` every 5 minutes to recover stuck runs).
-  - **Async Context Isolation**: Injected `AsyncLocalStorage` via `worker.context.ts` ensuring request-level metadata (`requestId`, `executionContext`) is safely accessible across queue adapters without cross-request state pollution.
-  - **Graceful Fallbacks**: Implemented `WaitUntilQueueAdapter` for environments without native Cloudflare Queue bindings, guaranteeing durable background execution via `ctx.waitUntil()` or scheduled sweepers.
-- **Run-Level & Action-Level Idempotency (`0012_add_automation_runs_event_unique.sql`)**:
-  - **Run Idempotency**: Applied unique database constraint `idx_automation_runs_event_automation_uq` on `(workspace_id, event_id, automation_id)` in `automation_runs`. Multiple queue delivery attempts or duplicate webhook dispatches atomically return the existing run instead of re-executing external n8n workflows.
-  - **Action Idempotency**: Recorded SHA-256 payload hashes in `internal_action_logs` with a unique index on `(workspace_id, idempotency_key, action_type)`. If n8n retries an action call, the handler detects the existing execution and returns the previous result without duplicate email/WhatsApp sends.
-- **Dynamic Rule Condition Engine (`AutomationDispatcher`)**:
-  - Replaced hardcoded checks with dynamic condition evaluation (`matchesTriggerConditions`). Supports multi-field comparisons (`>`, `<`, `>=`, `<=`, `==`, `!=`, `contains`, `in`) evaluated at runtime against event metadata payloads (e.g. invoice `amount > 5000` or project `status == completed`).
-- **Cryptographic Security & Timing Leak Defense**:
-  - Webhook endpoints (`/api/v1/internal/actions/send-email`, `/api/v1/internal/actions/send-whatsapp`) enforce zero-trust signature validation using `crypto.timingSafeEqual()`, eliminating side-channel timing attacks on `N8N_WEBHOOK_SECRET`.
-  - Rate limiting enforced on all internal action routes via `generalRateLimiter`.
-- **Database Truth Reconciliation (20 Tables, 13 Migrations)**:
-  - Audited the entire database schema layer in `packages/database/src/schema/`. Cataloged all 20 real tables and 13 Drizzle migrations into the canonical reference [`docs/02-engineering/database-schema-inventory.md`](file:///docs/02-engineering/database-schema-inventory.md).
-- **Web App SSR & Client Boundary Fixes**:
-  - Configured `transpilePackages: ["@phosphor-icons/react"]` in `apps/web/next.config.ts` to prevent SSR ES module bundling errors.
-  - Added `"use client"` directives to interactive invoice components (`InvoiceCard.tsx`, `InvoiceEmptyState.tsx`, `InvoiceList.tsx`, `InvoiceStatusBadge.tsx`).
-- **Canonical Architecture Documentation**:
-  - Authored [`docs/02-engineering/automation-engine-architecture.md`](file:///docs/02-engineering/automation-engine-architecture.md) detailing the durable execution lifecycle, queue topologies, and failure recovery state machines.
-  - Authored [`docs/audits/sprint-20-reliability-closure-report.md`](file:///docs/audits/sprint-20-reliability-closure-report.md) with comprehensive evidence of quality gate closure.
+  - Decoupled HTTP dispatch from background processing via Cloudflare Queues (`AUTOMATION_QUEUE`) and 5-minute scheduled sweeper (`sweepPendingOrRetryableEvents` + `sweepOverdueInvoices`).
+  - Implemented `WaitUntilQueueAdapter` for serverless runtimes without native queue bindings.
+- **Domain Event Production Bridge (`automation.bridge.ts`)**:
+  - Built `AutomationEventBridge` mapping domain events (`client.*`, `project.*`, `invoice.*`, `communication.*`) from `ActivityEventConsumer` to `AutomationDispatcher.dispatchEvent()`.
+  - Closed the loop: real business mutations trigger automation events without blocking HTTP transactions.
+- **Dynamic Recipient Resolution (`recipient.resolver.ts`)**:
+  - Replaced mock recipient placeholders with dynamic resolution querying `clientsTable`, `usersTable`, `invoicesTable`, and `projectsTable` to inject verified email addresses, phone numbers, and template variables.
+- **Action Handlers & n8n Workflow Compiler (`n8n.workflow.compiler.ts`, `actions/`)**:
+  - Fully implemented `send_email`, `send_whatsapp`, `notify_owner`, and `create_follow_up` internal action handlers.
+  - Handlers mounted at `/api/v1/internal/actions/*` protected by `verifyInternalActionAuth` (timing-safe Bearer auth + 5-minute `x-action-timestamp` replay window).
+  - Run-level & action-level idempotency via unique constraints on `automation_runs` and `internal_action_logs`.
+- **Honest n8n Provider & Status Rollback (`n8n.provider.ts`, `automation.service.ts`)**:
+  - Eliminated fake success mocks: upstream n8n unreachable or bad-gateway errors throw real exceptions and automatically roll back automation activation status.
+- **Pure Deterministic Condition Evaluator (`automation.evaluator.ts`, `automation.schema.ts`)**:
+  - Deterministic evaluation of nested dot-notation fields, data/context fallbacks, and operators (`eq`, `neq`, `contains`, `gt`, `gte`, `lt`, `lte`, `exists`).
+  - Regex and field safety allowlist in Zod schema preventing injection.
+  - Wired into `POST /:automationId/test` for live dry-run diagnostics.
 
 ---
 
@@ -292,7 +288,7 @@ Freelance OS is a production-grade monorepo application for managing freelance o
 | **`packages/database`** | Drizzle Migrations | **20 tables / 13 migrations** | TSC: 0 errors | VERIFIED ✅ |
 | **TOTAL** | **All Suites** | **436 / 436 passed (100%)** | **0 errors across monorepo** | **ALL GREEN ✅** |
 
-> **Last verified:** September 26, 2026 · Post-Sprint 20 Reliability Closure & Database Reconciliation (436 Tests Passing, 0 Errors)
+> **Last verified:** October 10, 2026 · Post-Sprint 19 & 20 Full Remediation & Security Hardening Closure (436+ Tests Passing, 0 Errors)
 
 ---
 

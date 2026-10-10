@@ -17,6 +17,7 @@
  * (WA-AKG appends "@s.whatsapp.net" internally).  We strip the "+" here.
  */
 
+import crypto from "crypto";
 import type { SendProviderResult } from "../../communication.types";
 import type {
   WhatsAppProvider,
@@ -63,8 +64,13 @@ function normalisePhone(e164: string): string {
 export class WaAkgWhatsAppProvider implements WhatsAppProvider {
   private readonly gatewayUrl: string;
   private readonly apiKey: string;
+  private readonly webhookSecret?: string;
 
-  constructor(options?: { gatewayUrl?: string; apiKey?: string }) {
+  constructor(options?: {
+    gatewayUrl?: string;
+    apiKey?: string;
+    webhookSecret?: string;
+  }) {
     this.gatewayUrl =
       options?.gatewayUrl ||
       (typeof process !== "undefined"
@@ -75,6 +81,12 @@ export class WaAkgWhatsAppProvider implements WhatsAppProvider {
       (typeof process !== "undefined"
         ? (process.env.WA_AKG_API_KEY ?? "")
         : "");
+    this.webhookSecret =
+      options?.webhookSecret ||
+      (typeof process !== "undefined"
+        ? (process.env.WA_AKG_WEBHOOK_SECRET ||
+          process.env.WA_GATEWAY_WEBHOOK_SECRET)
+        : undefined);
   }
 
   // -------------------------------------------------------------------------
@@ -140,8 +152,42 @@ export class WaAkgWhatsAppProvider implements WhatsAppProvider {
 
   public async verifyWebhook(
     rawBody: string,
-    _headers: Record<string, string | string[] | undefined>,
+    headers: Record<string, string | string[] | undefined>,
   ): Promise<WhatsAppWebhookVerifyResult> {
+    // If webhook secret is configured, enforce constant-time secret verification
+    if (this.webhookSecret) {
+      const incomingSecret = (headers["x-webhook-secret"] ||
+        headers["x-api-key"] ||
+        headers["authorization"]) as string | undefined;
+
+      if (!incomingSecret) {
+        return {
+          valid: false,
+          error: "Missing required WA-AKG webhook secret header",
+        };
+      }
+
+      const cleanSecret = incomingSecret.startsWith("Bearer ")
+        ? incomingSecret.slice(7)
+        : incomingSecret;
+
+      const isLengthMatch = cleanSecret.length === this.webhookSecret.length;
+      const safeSecret = isLengthMatch ? cleanSecret : this.webhookSecret;
+
+      if (
+        !crypto.timingSafeEqual(
+          Buffer.from(safeSecret),
+          Buffer.from(this.webhookSecret),
+        ) ||
+        !isLengthMatch
+      ) {
+        return {
+          valid: false,
+          error: "Invalid WA-AKG webhook secret",
+        };
+      }
+    }
+
     let payload: WaAkgWebhookPayload;
 
     try {

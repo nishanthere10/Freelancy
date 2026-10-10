@@ -45,6 +45,8 @@ import type { WhatsAppProvider } from "./providers/whatsapp/whatsapp.provider";
 import { WaAkgWhatsAppProvider } from "./providers/whatsapp/wa-akg.provider";
 import { MockWhatsAppProvider } from "./providers/whatsapp/mock-whatsapp.provider";
 import { TemplateService } from "./template.service";
+import { ActivityEventConsumer } from "../activity/activity.consumer";
+import { ActivityRepository } from "../activity/repository/activity.repository";
 
 // ---------------------------------------------------------------------------
 // Service
@@ -54,10 +56,12 @@ export class CommunicationService {
   private readonly emailProvider: EmailProvider;
   private readonly whatsappProvider: WhatsAppProvider;
   private readonly templateService: TemplateService;
+  private readonly activityConsumer: ActivityEventConsumer;
 
   constructor(options?: {
     emailProvider?: EmailProvider;
     whatsappProvider?: WhatsAppProvider;
+    activityConsumer?: ActivityEventConsumer;
   }) {
     this.emailProvider =
       options?.emailProvider ??
@@ -70,6 +74,9 @@ export class CommunicationService {
         ? new WaAkgWhatsAppProvider()
         : new MockWhatsAppProvider());
     this.templateService = new TemplateService();
+    this.activityConsumer =
+      options?.activityConsumer ??
+      new ActivityEventConsumer(new ActivityRepository());
   }
 
   // -------------------------------------------------------------------------
@@ -256,6 +263,17 @@ export class CommunicationService {
       recipient: recipientEmail,
     });
 
+    void this.activityConsumer.emitCommunication({
+      workspaceId,
+      actorId: input.actorId,
+      messageId: updated.id,
+      channel: "email",
+      direction: "outbound",
+      status: "sent",
+      recipientAddress: recipientEmail,
+      clientId,
+    });
+
     return updated as MessageWithRelations;
   }
 
@@ -433,6 +451,17 @@ export class CommunicationService {
       recipient: recipientPhone,
     });
 
+    void this.activityConsumer.emitCommunication({
+      workspaceId,
+      actorId: input.actorId,
+      messageId: updated.id,
+      channel: "whatsapp",
+      direction: "outbound",
+      status: "sent",
+      recipientAddress: recipientPhone,
+      clientId,
+    });
+
     return updated as MessageWithRelations;
   }
 
@@ -569,4 +598,69 @@ export class CommunicationService {
       .returning();
     return result;
   }
+
+  // -------------------------------------------------------------------------
+  // getMessage
+  // -------------------------------------------------------------------------
+
+  public async getMessage(
+    workspaceId: string,
+    messageId: string,
+  ): Promise<MessageWithRelations | null> {
+    const rows = await db
+      .select({
+        message: communicationMessagesTable,
+        client: {
+          id: clientsTable.id,
+          name: clientsTable.name,
+          email: clientsTable.email,
+          phone: clientsTable.phone,
+        },
+      })
+      .from(communicationMessagesTable)
+      .leftJoin(
+        clientsTable,
+        and(
+          eq(communicationMessagesTable.clientId, clientsTable.id),
+          eq(communicationMessagesTable.workspaceId, clientsTable.workspaceId),
+        ),
+      )
+      .where(
+        and(
+          eq(communicationMessagesTable.workspaceId, workspaceId),
+          eq(communicationMessagesTable.id, messageId),
+        ),
+      )
+      .limit(1);
+
+    if (!rows[0]) return null;
+    return {
+      ...rows[0].message,
+      client: rows[0].client?.id ? rows[0].client : null,
+    } as MessageWithRelations;
+  }
+
+  // -------------------------------------------------------------------------
+  // listChannels
+  // -------------------------------------------------------------------------
+
+  public async listChannels(workspaceId: string) {
+    return db
+      .select()
+      .from(communicationChannelsTable)
+      .where(eq(communicationChannelsTable.workspaceId, workspaceId));
+  }
+
+  // -------------------------------------------------------------------------
+  // getClientThread
+  // -------------------------------------------------------------------------
+
+  public async getClientThread(
+    workspaceId: string,
+    clientId: string,
+    limit = 50,
+  ) {
+    return this.listMessages(workspaceId, { clientId, limit });
+  }
 }
+

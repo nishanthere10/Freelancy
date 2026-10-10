@@ -11,8 +11,30 @@ export const ConditionOperatorSchema = z.enum([
   "exists",
 ]);
 
+export const ConditionFieldSchema = z
+  .string()
+  .min(1)
+  .max(100)
+  .refine(
+    (field) => {
+      const validPattern = /^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(field);
+      const noForbidden =
+        !field.toLowerCase().includes("select") &&
+        !field.toLowerCase().includes("delete") &&
+        !field.toLowerCase().includes("script") &&
+        !field.includes("(") &&
+        !field.includes(")") &&
+        !field.includes("http");
+      return validPattern && noForbidden;
+    },
+    {
+      message:
+        "Invalid condition field. Must be a safe alphanumeric domain field (e.g. invoice.amount, project.status)",
+    },
+  );
+
 export const ConditionSchema = z.object({
-  field: z.string(),
+  field: ConditionFieldSchema,
   operator: ConditionOperatorSchema,
   value: z.union([z.string(), z.number(), z.boolean(), z.null()]).optional(),
 });

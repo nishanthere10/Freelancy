@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import type { SendProviderResult } from "../../communication.types";
 import type {
   EmailProvider,
@@ -80,18 +81,89 @@ export class ResendEmailProvider implements EmailProvider {
 
   public async verifyWebhook(
     rawBody: string,
-    _headers: Record<string, string | string[] | undefined>,
+    headers: Record<string, string | string[] | undefined>,
   ): Promise<VerifyWebhookResult> {
     try {
+      // If secret is configured, enforce Svix HMAC signature verification
+      if (this.webhookSecret) {
+        const svixId = (headers["svix-id"] || headers["Svix-Id"]) as
+          | string
+          | undefined;
+        const svixTimestamp = (headers["svix-timestamp"] ||
+          headers["Svix-Timestamp"]) as string | undefined;
+        const svixSignature = (headers["svix-signature"] ||
+          headers["Svix-Signature"]) as string | undefined;
+
+        if (!svixId || !svixTimestamp || !svixSignature) {
+          return {
+            valid: false,
+            error: "Missing required Svix webhook signature headers",
+          };
+        }
+
+        // Timestamp tolerance: 5 minutes (300 seconds)
+        const timestampSec = parseInt(svixTimestamp, 10);
+        const nowSec = Math.floor(Date.now() / 1000);
+        if (
+          Number.isNaN(timestampSec) ||
+          Math.abs(nowSec - timestampSec) > 300
+        ) {
+          return {
+            valid: false,
+            error: "Webhook timestamp expired or invalid",
+          };
+        }
+
+        const secretKey = this.webhookSecret.startsWith("whsec_")
+          ? Buffer.from(this.webhookSecret.slice(6), "base64")
+          : Buffer.from(this.webhookSecret);
+
+        const signedPayload = `${svixId}.${svixTimestamp}.${rawBody}`;
+        const computedSignature = crypto
+          .createHmac("sha256", secretKey)
+          .update(signedPayload)
+          .digest("base64");
+
+        const signatures = svixSignature.split(" ");
+        let signatureMatched = false;
+
+        for (const sig of signatures) {
+          const [version, signatureValue] = sig.split(",");
+          if (version === "v1" && signatureValue) {
+            const isLengthMatch =
+              signatureValue.length === computedSignature.length;
+            const safeSig = isLengthMatch ? signatureValue : computedSignature;
+            if (
+              crypto.timingSafeEqual(
+                Buffer.from(safeSig),
+                Buffer.from(computedSignature),
+              ) &&
+              isLengthMatch
+            ) {
+              signatureMatched = true;
+              break;
+            }
+          }
+        }
+
+        if (!signatureMatched) {
+          return {
+            valid: false,
+            error: "Invalid webhook signature",
+          };
+        }
+      }
+
       const payload = JSON.parse(rawBody);
-      // Svix verification could be wired with crypto HMAC; if secret is unset in dev, verify JSON shape
       return {
         valid: true,
         event: {
           eventId: payload.id || `resend_evt_${Date.now()}`,
           eventType: payload.type || "email.delivered",
           providerMessageId: payload.data?.email_id,
-          occurredAt: payload.created_at ? new Date(payload.created_at) : new Date(),
+          occurredAt: payload.created_at
+            ? new Date(payload.created_at)
+            : new Date(),
           rawPayload: payload,
         },
       };
@@ -103,3 +175,4 @@ export class ResendEmailProvider implements EmailProvider {
     }
   }
 }
+

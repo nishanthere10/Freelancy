@@ -22,6 +22,7 @@ import type {
   ActivityMetadata,
   CreateActivityInput,
 } from "./activity.types";
+import { AutomationEventBridge } from "../automation/automation.bridge";
 import type { ActivityRepository } from "./repository/activity.repository";
 
 /**
@@ -138,6 +139,23 @@ export class ActivityEventConsumer implements IWorkspaceEventEmitter {
           error: err,
         });
       });
+
+      // Dispatch to automation engine
+      const automationType =
+        event.type === "client.created"
+          ? "client.created"
+          : event.type === "client.updated"
+            ? "client.updated"
+            : null;
+      if (automationType) {
+        void AutomationEventBridge.getInstance().emit(automationType, {
+          workspaceId: event.workspaceId,
+          actorId: event.actorId,
+          entity: { type: "client", id: event.clientId },
+          context: { clientId: event.clientId },
+          data: event.client ? { ...event.client } : {},
+        });
+      }
     }
   }
 
@@ -171,6 +189,75 @@ export class ActivityEventConsumer implements IWorkspaceEventEmitter {
           error: err,
         });
       });
+
+      // Dispatch to automation engine
+      const bridge = AutomationEventBridge.getInstance();
+      if (event.type === "project.created") {
+        void bridge.emit("project.created", {
+          workspaceId: event.workspaceId,
+          actorId: event.actorId,
+          entity: { type: "project", id: event.projectId },
+          context: {
+            projectId: event.projectId,
+            clientId: "project" in event ? event.project?.clientId : undefined,
+          },
+          data: "project" in event ? { ...event.project } : {},
+        });
+      } else if (event.type === "project.status_changed") {
+        const evType =
+          event.toStatus === "completed"
+            ? "project.completed"
+            : "project.updated";
+        void bridge.emit(evType, {
+          workspaceId: event.workspaceId,
+          actorId: event.actorId,
+          entity: { type: "project", id: event.projectId },
+          context: { projectId: event.projectId },
+          data: { fromStatus: event.fromStatus, toStatus: event.toStatus },
+        });
+      } else if (event.type === "project.deliverable.completed") {
+        void bridge.emit("project.deliverable.completed", {
+          workspaceId: event.workspaceId,
+          actorId: event.actorId,
+          entity: {
+            type: "deliverable",
+            id:
+              "deliverableId" in event
+                ? (event as any).deliverableId
+                : event.projectId,
+          },
+          context: { projectId: event.projectId },
+          data: {},
+        });
+      } else if (event.type === "project.change_order.created") {
+        void bridge.emit("change_order.proposed", {
+          workspaceId: event.workspaceId,
+          actorId: event.actorId,
+          entity: {
+            type: "change_order",
+            id:
+              "changeOrderId" in event
+                ? (event as any).changeOrderId
+                : event.projectId,
+          },
+          context: { projectId: event.projectId },
+          data: {},
+        });
+      } else if (event.type === "project.change_order.approved") {
+        void bridge.emit("change_order.approved", {
+          workspaceId: event.workspaceId,
+          actorId: event.actorId,
+          entity: {
+            type: "change_order",
+            id:
+              "changeOrderId" in event
+                ? (event as any).changeOrderId
+                : event.projectId,
+          },
+          context: { projectId: event.projectId },
+          data: {},
+        });
+      }
     }
 
     this.scheduleAiVectorSync(event.workspaceId);
@@ -187,9 +274,114 @@ export class ActivityEventConsumer implements IWorkspaceEventEmitter {
           error: err,
         });
       });
+
+      // Dispatch to automation engine
+      const bridge = AutomationEventBridge.getInstance();
+      const invoice = "invoice" in event ? event.invoice : undefined;
+      const context = {
+        invoiceId: event.invoiceId,
+        clientId: invoice?.clientId,
+        projectId: invoice?.projectId || undefined,
+      };
+      const data = invoice
+        ? {
+            ...invoice,
+            amount: invoice.totalAmount,
+            totalAmount: invoice.totalAmount,
+          }
+        : {};
+
+      if (event.type === "invoice.created") {
+        void bridge.emit("invoice.created", {
+          workspaceId: event.workspaceId,
+          actorId: event.actorId,
+          entity: { type: "invoice", id: event.invoiceId },
+          context,
+          data,
+        });
+      } else if (event.type === "invoice.sent") {
+        void bridge.emit("invoice.sent", {
+          workspaceId: event.workspaceId,
+          actorId: event.actorId,
+          entity: { type: "invoice", id: event.invoiceId },
+          context,
+          data,
+        });
+      } else if (event.type === "invoice.paid") {
+        void bridge.emit("payment.recorded", {
+          workspaceId: event.workspaceId,
+          actorId: event.actorId,
+          entity: { type: "invoice", id: event.invoiceId },
+          context,
+          data,
+        });
+      }
     }
 
     this.scheduleAiVectorSync(event.workspaceId);
+  }
+
+  /**
+   * Communication event handler
+   */
+  async emitCommunication(event: {
+    workspaceId: string;
+    actorId?: string | null;
+    messageId: string;
+    channel: "email" | "whatsapp";
+    direction: "inbound" | "outbound";
+    status: string;
+    recipientAddress?: string;
+    clientId?: string | null;
+  }): Promise<void> {
+    const eventType: ActivityEventType =
+      event.channel === "email"
+        ? event.direction === "inbound"
+          ? "communication.email.received"
+          : "communication.email.sent"
+        : event.direction === "inbound"
+          ? "communication.whatsapp.received"
+          : "communication.whatsapp.sent";
+
+    const input: CreateActivityInput = {
+      workspaceId: event.workspaceId,
+      actorUserId: event.actorId ?? null,
+      eventType,
+      entityType: "communication",
+      entityId: event.messageId,
+      metadata: {
+        status: event.status,
+        recipient: event.recipientAddress,
+      },
+      createdAt: new Date(),
+    };
+
+    void this.ingest(input).catch((err) => {
+      logger.error("Async communication activity ingestion error", {
+        error: err,
+      });
+    });
+
+    const bridgeType =
+      event.channel === "email"
+        ? event.direction === "inbound"
+          ? "communication.email.received"
+          : "communication.email.sent"
+        : event.direction === "inbound"
+          ? "communication.whatsapp.received"
+          : "communication.whatsapp.sent";
+
+    void AutomationEventBridge.getInstance().emit(bridgeType, {
+      workspaceId: event.workspaceId,
+      actorId: event.actorId,
+      entity: { type: "communication", id: event.messageId },
+      context: { clientId: event.clientId || undefined },
+      data: {
+        channel: event.channel,
+        direction: event.direction,
+        status: event.status,
+      },
+    });
   }
 
   // Domain Mapping Helpers

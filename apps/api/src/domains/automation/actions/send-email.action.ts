@@ -4,6 +4,7 @@ import { createError, createSuccess } from "../../../utils/response";
 import { config } from "../../../config";
 import { AutomationIdempotencyService } from "../automation.idempotency";
 import { CommunicationService } from "../../communication/communication.service";
+import { resolveActionContact } from "./recipient.resolver";
 
 const idempotencyService = new AutomationIdempotencyService();
 const communicationService = new CommunicationService();
@@ -70,15 +71,24 @@ export async function sendEmailAction(
 
     try {
       // 1. Resolve Recipient & Template from Freelancy Context
-      // (Simplified logic for demonstration)
+      const resolved = await resolveActionContact(
+        workspaceId,
+        eventId,
+        actionPayload,
+      );
+
+      if (!resolved.recipientEmail) {
+        throw new Error("No recipient email address could be resolved");
+      }
+
       const message = await communicationService.sendEmail({
         workspaceId,
         actorId: "automation-service",
-        clientId: actionPayload.clientId || "00000000-0000-0000-0000-000000000000",
-        recipientEmail: actionPayload.recipient === "owner" ? "owner@example.com" : "client@example.com",
+        clientId: resolved.clientId,
+        recipientEmail: resolved.recipientEmail,
         templateKey: actionPayload.templateKey,
-        templateVariables: {},
-        idempotencyKey: `email-${idempotencyKey}`, 
+        templateVariables: resolved.templateVariables,
+        idempotencyKey: `email-${idempotencyKey}`,
       });
 
       await idempotencyService.recordActionResult(workspaceId, idempotencyKey, "succeeded", message.id);

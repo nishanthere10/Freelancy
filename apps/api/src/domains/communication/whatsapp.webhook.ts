@@ -58,12 +58,12 @@ export async function handleWhatsAppWebhook(
   req: Request,
   res: Response,
 ): Promise<void> {
-  // 1. Read raw body (Express populates req.body when express.json() runs).
-  //    We re-serialise to raw JSON so the provider can parse it consistently.
   const rawBody =
-    typeof req.body === "string"
-      ? req.body
-      : JSON.stringify(req.body ?? {});
+    req.body instanceof Buffer
+      ? req.body.toString("utf-8")
+      : typeof req.body === "string"
+        ? req.body
+        : JSON.stringify(req.body ?? {});
 
   const headers: Record<string, string | string[] | undefined> = {};
   for (const [key, value] of Object.entries(req.headers)) {
@@ -74,11 +74,10 @@ export async function handleWhatsAppWebhook(
   const verified = await whatsappProvider.verifyWebhook(rawBody, headers);
 
   if (!verified.valid || !verified.event) {
-    logger.warn("WhatsApp webhook: invalid or unrecognised payload", {
+    logger.warn("WhatsApp webhook: verification failed or invalid payload", {
       error: verified.error,
     });
-    // Return 200 to prevent WA-AKG from retrying a permanently bad payload
-    res.status(200).json({ received: false, reason: "invalid_payload" });
+    res.status(401).json(createError("UNAUTHORIZED", verified.error || "Invalid webhook secret or signature"));
     return;
   }
 

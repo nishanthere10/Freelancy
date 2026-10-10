@@ -6,6 +6,7 @@ import {
   Briefcase,
   Buildings,
   Calendar,
+  ChatCircleDots,
   CurrencyDollar,
   EnvelopeSimple,
   FolderSimple,
@@ -17,6 +18,9 @@ import {
 } from "@phosphor-icons/react";
 import { Button } from "@shared/components";
 import Link from "next/link";
+import { useState } from "react";
+import { SendEmailModal } from "@features/communication/components/SendEmailModal";
+import { SendWhatsAppModal } from "@features/communication/components/SendWhatsAppModal";
 import type { ClientResponse } from "../api";
 
 interface ClientDetailProps {
@@ -32,6 +36,9 @@ export function ClientDetail({
   onBack,
   onEdit,
 }: ClientDetailProps) {
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
+
   const { data: projects, isLoading: projectsLoading } = useProjects(
     workspaceId,
     {
@@ -68,13 +75,35 @@ export function ClientDetail({
           <span>Back to Clients</span>
         </button>
 
-        <Button
-          onClick={() => onEdit(client)}
-          size="sm"
-          className="rounded-full"
-        >
-          <PencilSimple className="h-4 w-4 mr-1.5" /> Edit Client
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setIsEmailModalOpen(true)}
+            size="sm"
+            variant="outline"
+            className="rounded-full"
+          >
+            <EnvelopeSimple className="h-4 w-4 mr-1.5 text-[var(--color-brand-teal)]" />
+            Send Email
+          </Button>
+
+          <Button
+            onClick={() => setIsWhatsAppModalOpen(true)}
+            size="sm"
+            variant="outline"
+            className="rounded-full"
+          >
+            <ChatCircleDots className="h-4 w-4 mr-1.5 text-[var(--color-moss-dark)]" />
+            WhatsApp
+          </Button>
+
+          <Button
+            onClick={() => onEdit(client)}
+            size="sm"
+            className="rounded-full"
+          >
+            <PencilSimple className="h-4 w-4 mr-1.5" /> Edit Client
+          </Button>
+        </div>
       </div>
 
       {/* Main Client Profile Card */}
@@ -329,6 +358,19 @@ export function ClientDetail({
           </div>
         )}
       </div>
+      {/* Communication Modals */}
+      <SendEmailModal
+        open={isEmailModalOpen}
+        onOpenChange={setIsEmailModalOpen}
+        workspaceId={workspaceId}
+        clientId={client.id}
+      />
+      <SendWhatsAppModal
+        open={isWhatsAppModalOpen}
+        onOpenChange={setIsWhatsAppModalOpen}
+        workspaceId={workspaceId}
+        clientId={client.id}
+      />
     </div>
   );
 }

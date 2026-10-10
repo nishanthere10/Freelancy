@@ -35,8 +35,18 @@ export type ActivityEventType =
   | "invoice.updated"
   | "invoice.sent"
   | "invoice.paid"
+  | "invoice.overdue"
   | "invoice.cancelled"
-  | "invoice.deleted";
+  | "invoice.deleted"
+  // Communication events
+  | "communication.email.sent"
+  | "communication.email.delivered"
+  | "communication.email.received"
+  | "communication.whatsapp.sent"
+  | "communication.whatsapp.delivered"
+  | "communication.whatsapp.received"
+  // Automation events
+  | "automation.follow_up_created";
 
 export type ActivityEntityType =
   | "workspace"
@@ -45,6 +55,8 @@ export type ActivityEntityType =
   | "deliverable"
   | "change_order"
   | "invoice"
+  | "communication"
+  | "automation"
   | "member";
 
 export interface ActivityMetadata {

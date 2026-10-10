@@ -56,15 +56,35 @@ export class AutomationService {
     // 1. Compile to n8n workflow
     const compiledWorkflow = this.n8nCompiler.compile(automation);
 
-    // 2. Deploy to n8n
-    const n8nResult = await this.n8nProvider.upsertWorkflow(compiledWorkflow, automation.n8nWorkflowId || undefined);
-    
-    // 3. Activate in n8n
-    await this.n8nProvider.activateWorkflow(n8nResult.id);
+    try {
+      // 2. Deploy to n8n
+      const n8nResult = await this.n8nProvider.upsertWorkflow(
+        compiledWorkflow,
+        automation.n8nWorkflowId || undefined,
+      );
 
-    // 4. Update local DB
-    await this.repository.updateN8nWorkflow(workspaceId, automationId, n8nResult.id, "1");
-    return this.repository.updateStatus(workspaceId, automationId, "active");
+      // 3. Activate in n8n
+      await this.n8nProvider.activateWorkflow(n8nResult.id);
+
+      // 4. Update local DB
+      await this.repository.updateN8nWorkflow(
+        workspaceId,
+        automationId,
+        n8nResult.id,
+        "1",
+      );
+      return await this.repository.updateStatus(
+        workspaceId,
+        automationId,
+        "active",
+      );
+    } catch (err) {
+      // Rollback status on failure
+      await this.repository
+        .updateStatus(workspaceId, automationId, "draft")
+        .catch(() => {});
+      throw err;
+    }
   }
 
   async pauseAutomation(workspaceId: string, automationId: string) {
